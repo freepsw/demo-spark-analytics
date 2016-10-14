@@ -109,7 +109,7 @@ finally:
 
 ### logstash
 #### install
- - [link] 참조
+ - [link] 참고.
 
 #### configuration (collect logs and save to ES, logstash_stage1.conf)
  -  input 
