@@ -108,7 +108,7 @@ finally:
 ```
 
 ### logstash
-##### install
+#### install
  - [link] 참조
 
 #### configuration (collect logs and save to ES, logstash_stage1.conf)
