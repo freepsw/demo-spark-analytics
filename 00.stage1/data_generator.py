@@ -17,8 +17,6 @@ def weighted_choice(choices):
 # choice = weighted_choice([(1,50), (0.5,20), (2,20), (0.1,5), (5,5)])
 # print choice
 
-
-
 r_fname = "tracks.csv"
 w_fname = "tracks_live.csv"
 
@@ -36,11 +34,12 @@ try:
 		wf.write(line)
 		wf.flush()
 
+		# sleep for weighted time period
 		stime = weighted_choice([(1,30), (0.5,20), (2,20), (0.8,10), (0.3,10), (0.1,5), (3,5)])
-		print(stime)
 		time.sleep(stime)
 		lines += 1
 
+		# exit if read all lines
 		if(lines == num_lines):
 			break
 		# if(lines == num_lines):
