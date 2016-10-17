@@ -61,8 +61,8 @@
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (10 records / sec)
 - tracks.csv -> data generator(date를 현재 시간으로 조정) -> tracks_live.log
 - 1,000,000건이 저장된 tracks.csv에서 파일을 읽어서, 랜덤한 시간 간격으로 tracks_live.csv에 쓴다.
-- 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용#
-```
+- 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용
+```{.python}
 #-*- coding: utf-8 -*-
 import time
 from random import random
@@ -109,10 +109,10 @@ finally:
 
 ### logstash
 #### install
- - [link] 참고.
+ - [link] 참고.d
 
 #### configuration (collect logs and save to ES, logstash_stage1.conf)
  -  input 
   -  data_generator.py가 write하는 tracks_live.csv에 내용이 추가되면 읽어서 ES에 저장한다.
- - filter
+ - filtersssss
   - 
