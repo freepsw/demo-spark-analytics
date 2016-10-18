@@ -1,21 +1,6 @@
 #-*- coding: utf-8 -*-
 import time
-from random import random
-from bisect import bisect
-
-def weighted_choice(choices):
-    values, weights = zip(*choices)
-    total = 0
-    cum_weights = []
-    for w in weights:
-        total += w
-        cum_weights.append(total)
-    x = random() * total
-    i = bisect(cum_weights, x)
-    return values[i]
-
-# choice = weighted_choice([(1,50), (0.5,20), (2,20), (0.1,5), (5,5)])
-# print choice
+import random
 
 r_fname = "tracks.csv"
 w_fname = "tracks_live.csv"
@@ -26,6 +11,7 @@ wf = open(w_fname, "a+")
 try:
 	num_lines = sum(1 for line in rf)
 	print(num_lines)
+	num_lines = 10
 
 	rf.seek(0)
 	lines = 0
@@ -35,7 +21,7 @@ try:
 		wf.flush()
 
 		# sleep for weighted time period
-		stime = weighted_choice([(1,30), (0.5,20), (2,20), (0.8,10), (0.3,10), (0.1,5), (3,5)])
+		stime = random.choice([1, 1, 1, 0.5, 0.5, 0.8, 0.3, 2, 0.1, 3])
 		time.sleep(stime)
 		lines += 1
 
