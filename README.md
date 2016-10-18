@@ -58,6 +58,7 @@
 
 ### 1) download this demo project
 - github에서 demo project를 다운받고, 해당 프로젝트 폴더로 이동한다.
+#### <i class="icon-file"></i> test icon
 ```
 cd ~
 git clone https://github.com/freepsw/demo-spark-analytics.git
