@@ -55,17 +55,29 @@
 - nodejs를 이용하여 직접 실시간 데이터의 시각화
 
 
-## Part 2. Install necessary software (mac)
-### 1) logstash
+## Part 2. Install necessary software 
+
+### 1) download this demo project
+- github에서 demo project를 다운받고, 해당 프로젝트 폴더로 이동한다.
+```
+cd ~
+git clone https://github.com/freepsw/demo-spark-analytics.git
+cd demo-spark-analytics
+```
+
+### 2) logstash
 #### - install
  - [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
-### 2) elasticsearch
+### 3) elasticsearch
 #### - install
 
+### 4) kibana
 
 
-## Part 3. Implementing Stage 1
+
+## Part 3. Implementing demo project 
+### Stage 1
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
 
 

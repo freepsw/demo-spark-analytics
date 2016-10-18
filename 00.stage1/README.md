@@ -1,6 +1,7 @@
 # Stage 1. Simple realtime visualization
+
 ## 1) data generator (data_generator.py)
-- 
+### source code 
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
 - 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
 - tracks.csv -> data generator(date를 현재 시간으로 조정) -> tracks_live.log
@@ -13,14 +14,11 @@ import random
 
 r_fname = "tracks.csv"
 w_fname = "tracks_live.csv"
-
 rf = open(r_fname)
 wf = open(w_fname, "a+")
 
 try:
   num_lines = sum(1 for line in rf)
-  print(num_lines)
-
   rf.seek(0)
   lines = 0
 
@@ -44,8 +42,17 @@ finally:
   print "close file"
 ```
 
+### run python
+```
+cd ~/demo-spark-analytics/00.stage1
+python data_generator.py
+```
+
+
 ## 2) logstash (logstash_stage1.conf)
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
+
+### configuration (collect logs and save to ES, logstash_stage1.conf)
 
 ```
 input {  
@@ -101,12 +108,14 @@ output {
   - convert : 해당 field의 type을 지정해 준다. (integer로 해야 kibana등에서 sum/avg등의 연산이 가능함)
 
 - output
- * 
+ * hosts : elasticsearch가 실행중인 서버의 ip
+ * index : elasticsearch의 index (없으면 자동으로 생성됨)
+ * document_type : elasticsearch의 document_type (없으면 자동으로 생성됨)
 
-#### configuration (collect logs and save to ES, logstash_stage1.conf)
- -  input 
-  -  data_generator.py가 write하는 tracks_live.csv에 내용이 추가되면 읽어서 ES에 저장한다.
- - filtersssss 한ㄴ다. ㅇ이이알ㅇㄹ라라링ㄹ링링ㄹ잉링이ㅣ이
+#### run logstash
+```
+logstash -f logstash_stage1.conf
+```
 
 
 ## 3) kibana

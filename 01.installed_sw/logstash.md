@@ -13,7 +13,7 @@
 
 ## install logstash 2.4  and run
 
-- 설치
+### - install
 ```
 mkdir ~/demo-spark-analytics/sw
 cd ~/demo-spark-analytics/sw
@@ -22,14 +22,14 @@ tar xvf logstash-2.4.0.tar.gz
 ```
 
 
-- set logstash path to $path
+### - set logstash path to $path
 ```
 vi ~/.bash_profile
 export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 ```
 
 
-- logstash의 정상동작 확인.
+### - logstash의 정상동작 확인.
 ```
 logstash -e 'input { stdin { } } output { stdout {} }'
 # 아래와 같은 메세지가  stdin 입력을 받을 준비가 됨.
@@ -44,4 +44,4 @@ hello logstash
 
 
 
-## simple example
+### simple example
