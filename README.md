@@ -1,15 +1,14 @@
-# Demo about realtime analytics of user behavior
+# Step by step demo about realtime analytics of user behavior
 - This project is designed based on mapR Tech blog.
 - https://www.mapr.com/blog/real-time-user-profiles-spark-drill-and-mapr-db
 
 
-## Part 1. Demo scenario
+## STEP 1. About demo scenario
 ### 1). User Story
 - Music streaming site를 제공하는 회사에서 수많은 사용자들의 행위(behavior)를 조회하고자 함.
 - 하루 중 가장 많이 사용하는지? 남성/여성 및 연령의 비율은? Mobile/PC의 비율은? 접속지역은?
 - 이러한 정보를 다양한 chart, map으로 시각화하여 실시간으로 보고자 함.
-
-
+&nbsp;
 - 또한 실시간으로 수집된 사용자 정보를 활용하여 마케팅 대상을 분류할 수 있는 머신러닝 모델 학습
 - 학습된 모델을 이용해 사용자별로 마케팅 적용대상을 분류하여 접속시에 광고를 전달하고자 함.
 - 이를 위해 많은 사용자들의 log를 실시간으로 수집하여 분산처리 및 시각화하는 기술/시간/자원 필요.
@@ -55,7 +54,7 @@
 - nodejs를 이용하여 직접 실시간 데이터의 시각화
 
 
-## Part 2. Install necessary software 
+## Part 2. Install necessary software and run
 
 ### 1) download this demo project
 - github에서 demo project를 다운받고, 해당 프로젝트 폴더로 이동한다.
@@ -70,9 +69,15 @@ cd demo-spark-analytics
  - [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
 ### 3) elasticsearch
-#### - install
+#### - install and run
 
 ### 4) kibana
+#### - install and run
+
+### 5) etc
+- java 1.8+
+- python 2.7
+
 
 
 
