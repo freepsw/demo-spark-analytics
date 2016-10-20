@@ -25,17 +25,17 @@ The event, customer and track IDs tell us what occurred (a customer listened to 
    ![Image of customers table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
 >
 The fields are defined as follows:
-Customer ID: a unique identifier for that customer
-Name, gender, address, zip: the customer’s associated information
-Sign date: the date of addition to the service
-Status: indicates whether or not the account is active (0 = closed, 1 = active)
-Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively
+Customer ID: a unique identifier for that customer  
+Name, gender, address, zip: the customer’s associated information  
+Sign date: the date of addition to the service  
+Status: indicates whether or not the account is active (0 = closed, 1 = active)  
+Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively  
 Campaign: indicates the campaign under which the user joined, defined as the following (fictional) campaigns driven by our (also fictional) marketing team:
-NONE - no campaign
-30DAYFREE - a ‘30 days free’ trial offer
-SUPERBOWL - a Superbowl-related program
-RETAILSTORE - an offer originating in brick-and-mortar retail stores
-WEBOFFER - an offer for web-originated customers
+ * NONE - no campaign  
+ * 30DAYFREE - a ‘30 days free’ trial offer  
+ * SUPERBOWL - a Superbowl-related program  
+ * RETAILSTORE - an offer originating in brick-and-mortar retail stores  
+ * WEBOFFER - an offer for web-originated customers  
 >
 
 - Previous ad clicks(clicks.csv) 
