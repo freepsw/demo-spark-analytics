@@ -34,7 +34,10 @@ vi config/elasticsearch.yml
 cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
 bin/elasticsearch
 
-/home/rts/elk/elasticsearch-2.4.0/bin/elasticsearch
+# 아래와 같은 메세지가 보이면 정상
+[2016-10-20 08:54:06,906][INFO ][node                     ] [Haven] started
+[2016-10-20 08:54:07,142][INFO ][gateway                  ] [Haven] recovered [5] indices into cluster_state
+[2016-10-20 08:54:08,433][INFO ][cluster.routing.allocation] [Haven] Cluster health status changed from [RED] to [YELLOW] (reason: [shards started [[.kibana][0]] ...]).
 ```
 
 ## 4. open with web browser
@@ -43,10 +46,10 @@ bin/elasticsearch
 http://localhost:9200/
 
 #정상동작 확인 (Web browser에서 아래 주소 입력하면 결과 json 확인)
-http://14.63.218.130:9200/
+http://localhost:9200/
 
 {
-"name": "Norrin Radd",
+"name": "Haven",
 "cluster_name": "elasticsearch",
 "version": {
 "number": "2.4.0",
@@ -56,7 +59,7 @@ http://14.63.218.130:9200/
 "lucene_version": "5.5.2"
 },
 "tagline": "You Know, for Search"
-} 
+}
 
 # plug-in 확인
  

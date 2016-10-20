@@ -54,7 +54,7 @@ python data_generator.py
 
 ### configuration (collect logs and save to ES, logstash_stage1.conf)
 
-```
+```javascript
 input {  
   file {
     path => "<PATH>/demo-spark-analytics/00.stage1/tracks_live.csv"
@@ -114,6 +114,7 @@ output {
 
 #### run logstash
 ```
+cd ~/demo-spark-analytics/00.stage1
 logstash -f logstash_stage1.conf
 ```
 

@@ -7,7 +7,7 @@
 ### 1). User Story
 - Music streaming site를 제공하는 회사에서 수많은 사용자들의 행위(behavior)를 조회하고자 함.
 - 하루 중 가장 많이 사용하는지? 남성/여성 및 연령의 비율은? Mobile/PC의 비율은? 접속지역은?
-- 이러한 정보를 다양한 chart, map으로 시각화하여 실시간으로 보고자 함.      
+- 이러한 정보를 다양한 chart, map으로 시각화하여 실시간으로 보고자 함  
 
 - 또한 실시간으로 수집된 사용자 정보를 활용하여 마케팅 대상을 분류할 수 있는 머신러닝 모델 학습
 - 학습된 모델을 이용해 사용자별로 마케팅 적용대상을 분류하여 접속시에 광고를 전달하고자 함.
@@ -66,14 +66,13 @@ cd demo-spark-analytics
 ```
 
 ### 2) logstash
-#### - install
- - [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+#### - install and test [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
 ### 3) elasticsearch
-#### - install and run
+#### - install and run [link]9https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
 ### 4) kibana
-#### - install and run
+#### - install and run [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
 
 ### 5) etc
 - java 1.8+
