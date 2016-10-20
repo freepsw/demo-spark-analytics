@@ -11,7 +11,7 @@ wf = open(w_fname, "a+")
 try:
 	num_lines = sum(1 for line in rf)
 	print(num_lines)
-	num_lines = 10
+	#num_lines = 10
 
 	rf.seek(0)
 	lines = 0
@@ -22,6 +22,7 @@ try:
 
 		# sleep for weighted time period
 		stime = random.choice([1, 1, 1, 0.5, 0.5, 0.8, 0.3, 2, 0.1, 3])
+		print(stime)
 		time.sleep(stime)
 		lines += 1
 

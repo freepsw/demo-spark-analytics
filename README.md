@@ -14,19 +14,43 @@
 - 이를 위해 많은 사용자들의 log를 실시간으로 수집하여 분산처리 및 시각화하는 기술/시간/자원 필요.
 
 ### 2). Data Model
-- Individual customers listening to individual tracks
+- Individual customers listening to individual tracks (tracks.csv)
 
    ![Image of tracks table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table1.png)
+The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
 
-- Customer information
+
+- Customer information (cust.csv)
 
    ![Image of customers table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
+>
+The fields are defined as follows:
+Customer ID: a unique identifier for that customer
+Name, gender, address, zip: the customer’s associated information
+Sign date: the date of addition to the service
+Status: indicates whether or not the account is active (0 = closed, 1 = active)
+Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively
+Campaign: indicates the campaign under which the user joined, defined as the following (fictional) campaigns driven by our (also fictional) marketing team:
+NONE - no campaign
+30DAYFREE - a ‘30 days free’ trial offer
+SUPERBOWL - a Superbowl-related program
+RETAILSTORE - an offer originating in brick-and-mortar retail stores
+WEBOFFER - an offer for web-originated customers
+>
 
-- Previous ad clicks : indicating which ad was played to the user and whether or not they clicked on it (clicks table)
+- Previous ad clicks(clicks.csv) 
+indicating which ad was played to the user and whether or not they clicked on it 
 
 ```
  EventID, CustID, AdClicked,           Localtime
  0,       109,    "ADV_FREE_REFERRAL", "2014-12-18 08:15:16"
+```
+
+- Music information (music.csv)
+
+```
+TrackId, Title,             Artist,         Length
+0,       Caught Up In You,  .38 Special,    200
 ```
 
 - Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
@@ -36,9 +60,11 @@
 - 사용자의 접속로그를 logstsh로 수집하여 Elasticsearch로 저장한 후, kibana를 이용하여 빠르게 시각화
 
 
-#### Stage 2. Stage1 + distributed processing with apache spark
-- logstash에서  kafka로 저장하고, 이를 spark에서 실시간 집계를 수행 -> ES
-- customerid, trackid와 상세정보를 join하여 데이터를 추가한다. -> ES
+#### Stage 2. Stage1 + distributed processing using apache spark
+- logstash에서  kafka로 저장하고, 이를 spark에서 실시간 분산처리 -> ES
+- customerid, trackid와 상세정보를 join(redis)하여 데이터를 추가한다. -> ES
+- What are customer doing?
+ * 사용자들이 언제 어떤 음악을 듣는가?
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES
 
 

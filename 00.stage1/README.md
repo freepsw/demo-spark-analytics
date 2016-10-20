@@ -1,6 +1,15 @@
 # Stage 1. Simple realtime visualization
+## 0) run elasticsearch and kibana
+```
+cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
+bin/elasticsearch
 
-## 1) data generator (data_generator.py)
+cd ~/demo-spark-analytics/sw/kibana-4.6.1-darwin-x86_64
+bin/kibana
+```
+
+
+## 1) run data generator (data_generator.py)
 ### source code 
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
 - 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
@@ -42,22 +51,24 @@ finally:
   print "close file"
 ```
 
-### run python
+### run data_generator.py
 ```
 cd ~/demo-spark-analytics/00.stage1
 python data_generator.py
 ```
 
 
-## 2) logstash (logstash_stage1.conf)
+## 2) run logstash (logstash_stage1.conf)
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
 
-### configuration (collect logs and save to ES, logstash_stage1.conf)
+### configuration (collect logs and save to ES)
+"demo-spark-analytics/00.stage1/logstash_stage1.conf"
 
 ```javascript
 input {  
   file {
     path => "<PATH>/demo-spark-analytics/00.stage1/tracks_live.csv"
+    sincedb_path => "/dev/null"
     start_position => "beginning"
   }
 }
@@ -71,7 +82,6 @@ filter {
   date {
     match => [ "datetime", "YYYY-MM-dd HH:mm:ss"]
     target => "datetime"
-    locale => en
   }
 
   mutate {
@@ -118,37 +128,61 @@ cd ~/demo-spark-analytics/00.stage1
 logstash -f logstash_stage1.conf
 ```
 
+#### check result
+- check using elasticsearch query
+```javascript
+//open with web browser
+http://localhost:9200/ba_realtime/_count
 
-## 3) kibana
+// 아래와 같이 count가 증가하면 정상적으로 ES에 입력되고 있음을 확인
+{
+"count": 16,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  }
+}
+```
+
+- check using elasticsearch plugin "head"
+```
+//open with web brower
+http://localhost:9200/_plugin/head/
+// Overview menu에 생성한 index와 document type이 존재하는지 확인
+```
+
+
+## 3) visualize collected data using kibana
 ####- index 추가 
+ * http://localhost:5601/ 접속
+ * [Settings] > [Indeices]로 이동
+ * index name 입력 (kibana에서 시각화할 index)
+ * timestamp 선택 (데이터를 시각화할 기본 timestamp)
 
-####- discovery에서 입력되는 count 확인
+####- Discover
+ * discovery에서 입력되는 count 확인
  * 각 record의 상세 데이터 확인
  * 조회할 기간 변경 
  * filter를 이용해서 검색어를 입력하여 원하는 데이터만 조회
  * 화면에 표시될 필드 선택하여 조회
- * 위의 bar 그래프에서 원하는 영역을 drag하여 drill down 조
+ * 위의 bar 그래프에서 원하는 영역을 drag하여 drill down 조회
+ * 사용자가 시각화한 포맷을 저장한다. "save"아이콘 활용
 
 ####- visualization 메뉴를 이용하여 시각화 
- * pie chart 선택 (전체 날짜 선택)
-  - spilit chart -> missing value가 있는 경우 그래프에서 삭제 (-모양의 돗보기 사용), top n개만 보여지도록 설정
-  - split chart (하나의 항목별로 다른 항목의 비중 조회), 예를 들면 서울지역에서 남/여 비율
-  - 2개의 split의 순서를 조정(increase priority, 화살표 버튼)
-  - save current visualization as visualization component (this can be used for dashboard later)
-  - 
- * line chart (시간별 추세 확인 용도)
-  - 초기에 데이터를 split하지 않으면 x축이 all, y축이 count로 전체 데이터의 건수가 하나의 포인트로 표시된다. 
-  - X-Axis > split > date histogram -> x축의 date column 선택 -> interval은 auto로 조회
-  - 위에서는 단순히 record 건수만 표시되므로, 이를 특정 field의 값을 표시하도록 하자 (이때, time interval이 1 day인 경우 1일 동안의 값을 어떻게 보여주지 선택)
-  - Y-Axis의 aggregation에서 field명과 선택된 field에 대한 sum, average등을 선택(string type의 field는 선택하지 못함)
-  - X-Axis > split line -> Sub aggregation(Terms) -> 특정 field를 선택하면 해당 field의 상위 n개에 대하여 line이 추가된다. (priority를 높여서 그래서 재생 -> missing value 제거 )
-  - 여기서의 line은 average score만 y축으로 보여주므로, 해당 기간(x축 한 눈금)에 얼마나 많은 정보(field의 값 중에서 unique한 값이 count, 예를 들면 해당 기간동한 방문한 unique user id의 갯수를 표현)가 있는지 표현하고 싶을 수 있다. 
-  - 이때  Y-Axis에서 dot-size를 이용하여 line의 node별로 dot의 크기를 다르게 설정함.
-  - Data/Option메뉴에서 Option을 보면 그래프를 어떻게 보여줄 지에 대한 상세 설정이 있음. (hide line등)
+ * [Visualize] > [Pie Chart] 
+  - 가장 많이 접속하는 지역과, 해당지역에서 접속하는 사용자 비율
+  - Split Sliices > Terms > listening_zip_code
+  - Split Slices > Terms > customer_id
+  - Options > View options > check Donut
+  - Save as "BA_S1: pie_chart Customer count per region"
 
-* map
+ * [Visualize] > [Line Chart] 
+  - X-Axis > Aggregation (Date Histogram) > Field(@timestamp) > Interval(Auto)
+  - Y-Axis > Aggregation (Sum) > Field(ismobile)
+  - Dot Size > Aggregation(Unique Count) > Field(customer_id) 
 
-* metrics
- - 처음 metrics를 클릭하면 전체 record의 count가 출력된다.
- - fields에서 count하고자 하는 field를 선택하고, aggregation에서 count/unique count/sum/average 등의 집계방식을 선택할 수 있다. 
- - metric 추가도 위와 같은 방식으로 가능함.
+#### - Dashboard 생성
+ * [Dashboard] > [+] button
+ * select saved chart(visualization) below lists
+
