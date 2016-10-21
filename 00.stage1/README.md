@@ -185,4 +185,5 @@ http://localhost:9200/_plugin/head/
 #### - Dashboard 생성
  * [Dashboard] > [+] button
  * select saved chart(visualization) below lists
+ * save dashboard
 

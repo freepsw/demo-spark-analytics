@@ -36,7 +36,6 @@ Campaign: indicates the campaign under which the user joined, defined as the fol
  * SUPERBOWL - a Superbowl-related program  
  * RETAILSTORE - an offer originating in brick-and-mortar retail stores  
  * WEBOFFER - an offer for web-originated customers  
->
 
 - Previous ad clicks(clicks.csv) 
 indicating which ad was played to the user and whether or not they clicked on it 
@@ -58,13 +57,19 @@ TrackId, Title,             Artist,         Length
 ### 3). Define demo level
 #### Stage 1. Simple realtime visualization
 - 사용자의 접속로그를 logstsh로 수집하여 Elasticsearch로 저장한 후, kibana를 이용하여 빠르게 시각화
-
+- What are customer doing?
+ * 시간별 사용량 추이를 어떠한가? 그 중 mobile 접속자는 어느정도 되는가?
+ * 가장 많이 접속하는 지역은 어디인가?
+ * 지역별로 어떤 사용자들이 접속하는가? (customer_id만 조회가능)
+ * 사용자들이 언제 어떤 음악을 듣는가? (customer_id와 track_id만 조회가능)
 
 #### Stage 2. Stage1 + distributed processing using apache spark
 - logstash에서  kafka로 저장하고, 이를 spark에서 실시간 분산처리 -> ES
 - customerid, trackid와 상세정보를 join(redis)하여 데이터를 추가한다. -> ES
-- What are customer doing?
- * 사용자들이 언제 어떤 음악을 듣는가?
+- compute a summary profile for each user
+ * 특정기간(아침, 점심, 저녁)동안 각 사용자들이 들은 음악의 평균값 (언제 가장 많이 듣는가?)
+ * 전체 사용자들이 들은 전체 음악 목록 (중복 제거한 unique값)
+ * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique값) 
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES
 
 
