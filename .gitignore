@@ -169,6 +169,7 @@ spark-warehouse/
 # Logs
 logs
 *.log
+*.log.*
 
 # Runtime data
 pids
