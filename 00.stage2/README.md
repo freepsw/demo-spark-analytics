@@ -58,7 +58,14 @@ realtime
 ### run redis
 
 
-## STEP 3) run logstash (read logs --> kafka)
+## STEP 3) import customer info to redis
+### install python redis package
+```
+> pip install redis
+```
+
+
+## STEP 4) run logstash (read logs --> kafka)
 ### open configurations
 ```
 > cd ~/demo-spark-analytics/00.stage2

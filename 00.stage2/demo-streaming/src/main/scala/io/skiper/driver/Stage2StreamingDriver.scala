@@ -12,7 +12,9 @@ import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted, StreamingListenerBatchStarted, StreamingListenerBatchSubmitted}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+
 import org.elasticsearch.spark.rdd.EsSpark
+import com.redis._
 
 import scala.util.{Failure, Success, Try}
 
@@ -57,7 +59,11 @@ object Stage2StreamingDriver {
       }).iterator
     })
 
-    // Write to ElasticSearch
+    //[STEP 3]. get user info from redis
+    val r = new RedisClient("localhost", 6379)
+    println(r.get("foo").get.toString)
+
+    //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
       EsSpark.saveToEs(rdd, "ba_realtime2/stage2")

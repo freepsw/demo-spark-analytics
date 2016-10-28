@@ -39,7 +39,7 @@ https://kafka.apache.org/quickstart
 ```
 
 
-## 3. create topic for stage 2 (realtime)
+## 4. create topic for stage 2 (realtime)
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime
@@ -48,14 +48,16 @@ https://kafka.apache.org/quickstart
 realtime
 ```
 
-
-## 4. new console-consumer
+## 5. new console-consumer
 ```
 >bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 ```
 
-## 5. monitoring
+## 6. monitoring
 ```
+# describe topic detail
+bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic realtime
+
 # current group name
 > bin/kafka-run-class.sh kafka.admin.ConsumerGroupCommand --zookeeper 127.0.0.1:2181 --list
 realtime-group1
@@ -64,6 +66,10 @@ realtime-group1
 bin/kafka-consumer-groups.sh --zookeeper localhost:2181 --describe --group realtime-group1
 ```
 
+## 7. delete topic 
+```
+> bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic <topic_name>
+```
 
 ## stop kafka
 ```
