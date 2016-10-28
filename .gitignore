@@ -85,6 +85,8 @@ local.properties
 *~
 .DS_Store
 .cache
+.cache-main
+.cache-tests
 .classpath
 .ensime
 .ensime_cache/
