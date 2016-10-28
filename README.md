@@ -3,7 +3,7 @@
 - https://www.mapr.com/blog/real-time-user-profiles-spark-drill-and-mapr-db
 
 
-## STEP 1. About demo scenario
+## PART 1. About demo scenario
 ### 1). User Story
 - Music streaming site를 제공하는 회사에서 수많은 사용자들의 행위(behavior)를 조회하고자 함.
 - 하루 중 가장 많이 사용하는지? 남성/여성 및 연령의 비율은? Mobile/PC의 비율은? 접속지역은?
@@ -69,7 +69,7 @@ TrackId, Title,             Artist,         Length
 - compute a summary profile for each user
  * 특정기간(아침, 점심, 저녁)동안 각 사용자들이 들은 음악의 평균값 (언제 가장 많이 듣는가?)
  * 전체 사용자들이 들은 전체 음악 목록 (중복 제거한 unique값)
- * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique값) 
+ * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique) 
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES
 
 
@@ -85,27 +85,37 @@ TrackId, Title,             Artist,         Length
 - nodejs를 이용하여 직접 실시간 데이터의 시각화
 
 
-## Part 2. Install necessary software and run
+## Part 2. Project settings
 
 ### 1) download this demo project
 - github에서 demo project를 다운받고, 해당 프로젝트 폴더로 이동한다.
 
 ```
-cd ~
-git clone https://github.com/freepsw/demo-spark-analytics.git
-cd demo-spark-analytics
+> cd ~
+> git clone https://github.com/freepsw/demo-spark-analytics.git
+> cd demo-spark-analytics
+> mkdir sw
 ```
 
 ### 2) logstash
 #### - install and test [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
 ### 3) elasticsearch
-#### - install and run [link]9https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
+#### - install and run [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
 ### 4) kibana
 #### - install and run [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
 
-### 5) etc
+### 5) apache kafka
+- j
+
+### 6) apache spark
+- j
+
+### 7) redis
+- j
+
+### 8) etc
 - java 1.8+
 - python 2.7
 

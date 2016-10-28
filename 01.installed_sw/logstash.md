@@ -15,23 +15,23 @@
 
 ### - install
 ```
-mkdir ~/demo-spark-analytics/sw
-cd ~/demo-spark-analytics/sw
-wget https://download.elastic.co/logstash/logstash/logstash-2.4.0.tar.gz
-tar xvf logstash-2.4.0.tar.gz
+> mkdir ~/demo-spark-analytics/sw
+> cd ~/demo-spark-analytics/sw
+> wget https://download.elastic.co/logstash/logstash/logstash-2.4.0.tar.gz
+> tar xvf logstash-2.4.0.tar.gz
 ```
 
 
 ### - set logstash path to $path
 ```
-vi ~/.bash_profile
+> vi ~/.bash_profile
 export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 ```
 
 
 ### - logstash의 정상동작 확인.
 ```
-logstash -e 'input { stdin { } } output { stdout {} }'
+> logstash -e 'input { stdin { } } output { stdout {} }'
 # 아래와 같은 메세지가  stdin 입력을 받을 준비가 됨.
 Settings: Default pipeline workers: 1
 Pipeline main started

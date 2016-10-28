@@ -3,27 +3,26 @@
 ## Basic concept (Getting Started)
 - https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html
 
-## 1. Install 
-### elasticsearch 2.4 설치 및 실행
+## 1. Install (elasticsearch 2.4)
 
 ```
-mkdir ~/demo-spark-analytics/sw
-cd ~/demo-spark-analytics/sw
+> mkdir ~/demo-spark-analytics/sw
+> cd ~/demo-spark-analytics/sw
 
 # download 
-wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.0/elasticsearch-2.4.0.tar.gz
-tar xvf elasticsearch-2.4.0.tar.gz
+> wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.0/elasticsearch-2.4.0.tar.gz
+> tar xvf elasticsearch-2.4.0.tar.gz
 
 # install plugin 
-cd elasticsearch-2.4.0
-bin/plugin install mobz/elasticsearch-head
+> cd elasticsearch-2.4.0
+> bin/plugin install mobz/elasticsearch-head
 ```
 
 ## 2. configuration 
 - server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
 ```
-cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
-vi config/elasticsearch.yml
+> cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
+> vi config/elasticsearch.yml
 # bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
 # bind all ip server have "0.0.0.0"
  network.host: 0.0.0.0 
@@ -31,8 +30,8 @@ vi config/elasticsearch.yml
 
 ## 3. run
 ```
-cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
-bin/elasticsearch
+> cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
+> bin/elasticsearch
 
 # 아래와 같은 메세지가 보이면 정상
 [2016-10-20 08:54:06,906][INFO ][node                     ] [Haven] started

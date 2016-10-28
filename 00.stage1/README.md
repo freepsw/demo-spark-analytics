@@ -1,5 +1,17 @@
 # Stage 1. Simple realtime visualization
-## 0) run elasticsearch and kibana
+- 사용자의 접속로그를 logstsh로 수집하여 Elasticsearch로 저장한 후, kibana를 이용하여 빠르게 시각화
+- What are customer doing?
+ * 시간별 사용량 추이를 어떠한가? 그 중 mobile 접속자는 어느정도 되는가?
+ * 가장 많이 접속하는 지역은 어디인가?
+ * 지역별로 어떤 사용자들이 접속하는가? (customer_id만 조회가능)
+ * 사용자들이 언제 어떤 음악을 듣는가? (customer_id와 track_id만 조회가능)
+
+## STEP 1) install elasticsearch and kibana
+- logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+- elasticsearh [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
+- kibana [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
+
+## STEP 2) run elasticsearch and kibana
 ```
 cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
 bin/elasticsearch
@@ -9,7 +21,7 @@ bin/kibana
 ```
 
 
-## 1) run data generator (data_generator.py)
+## STEP 3) run data generator (data_generator.py)
 ### source code 
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
 - 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
@@ -58,7 +70,7 @@ python data_generator.py
 ```
 
 
-## 2) run logstash (logstash_stage1.conf)
+## STEP 3) run logstash (logstash_stage1.conf)
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
 
 ### configuration (collect logs and save to ES)
@@ -153,7 +165,7 @@ http://localhost:9200/_plugin/head/
 ```
 
 
-## 3) visualize collected data using kibana
+## STEP 4) visualize collected data using kibana
 ####- index 추가 
  * http://localhost:5601/ 접속
  * [Settings] > [Indeices]로 이동
@@ -181,9 +193,14 @@ http://localhost:9200/_plugin/head/
   - X-Axis > Aggregation (Date Histogram) > Field(@timestamp) > Interval(Auto)
   - Y-Axis > Aggregation (Sum) > Field(ismobile)
   - Dot Size > Aggregation(Unique Count) > Field(customer_id) 
+ 
+ * [Visualize] > [Metrics]
+
+ * [Visualize] > [Bar chart]
 
 #### - Dashboard 생성
  * [Dashboard] > [+] button
- * select saved chart(visualization) below lists
- * save dashboard
+ * [Visualize]메뉴에서 저장한 chart를 선택하여 자신만의 dashboard를 생성한다.
+ * 생성한 dashboard를 저장한다.
+ * 이후 다른 kibana web에서 dashboard를 보고싶다면 export하여 json파일로 저장한다.
 
