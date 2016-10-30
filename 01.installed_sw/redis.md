@@ -35,5 +35,21 @@ redis> get foo
 wget http://download.redis.io/releases/redis-3.0.7.tar.gz
 
 ## etc
+- hashmap example
+```
+redis> HSET myhash field1 "Hello"
+(integer) 1
+redis> HSET myhash field2 "World"
+(integer) 1
+redis> HGETALL myhash
+1) "field1"
+2) "Hello"
+3) "field2"
+4) "World"
+
+redis> HGET myhash field1
+"Hello"
+```
+
 - Redis 활용 방안에 따른 아키텍처 (2014)
 http://www.kosta.or.kr/mail/2014/download/Track2-8_2014Architect.pdf

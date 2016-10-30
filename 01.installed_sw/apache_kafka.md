@@ -50,20 +50,23 @@ realtime
 
 ## 5. new console-consumer
 ```
->bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
+> bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 ```
 
 ## 6. monitoring
 ```
 # describe topic detail
-bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic realtime
+> bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic realtime
 
 # current group name
 > bin/kafka-run-class.sh kafka.admin.ConsumerGroupCommand --zookeeper 127.0.0.1:2181 --list
 realtime-group1
 
 # detail info about topic
-bin/kafka-consumer-groups.sh --zookeeper localhost:2181 --describe --group realtime-group1
+> bin/kafka-consumer-groups.sh --zookeeper localhost:2181 --describe --group realtime-group1
+
+# zookeeper client
+> bin/zookeeper-shell.sh localhost:2181
 ```
 
 ## 7. delete topic 

@@ -27,6 +27,9 @@ object Stage2StreamingDriver {
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+
+
     addStreamListener(ssc)
 
     // [STEP 1]. Create Kafka Receiver and receive message from kafka broker
@@ -41,27 +44,40 @@ object Stage2StreamingDriver {
     }
     val lines = ssc.union(kafkaStreams)
 
-    // [STEP 2]. parser message and save to Elasticsearch
+    // [STEP 2]. parser message and join customer info from redis
     // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
-    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code")
+    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
     val wordList    = lines.mapPartitions(iter => {
+      val r = new RedisClient("localhost", 6379)
       iter.toList.map(s => {
         val listMap = new mutable.LinkedHashMap[String, Any]()
         val split   = s.split(",")
+
         listMap.put(columnList(0), getTimestamp()) //timestamp
         listMap.put(columnList(1), split(1)) //customer_id
         listMap.put(columnList(2), split(2)) //track_id
         listMap.put(columnList(3), split(4).toInt) //ismobile
         listMap.put(columnList(4), split(5).replace("\"", "")) //listening_zip_code
 
+        // get customer info from redis
+        val cust = r.hmget(split(1).trim, "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+
+        // extract detail info and map with elasticsearch field
+        listMap.put(columnList(5), cust.get("name"))
+        listMap.put(columnList(6), cust.get("age").toInt)
+        listMap.put(columnList(7), cust.get("gender"))
+        listMap.put(columnList(8), cust.get("zip"))
+        listMap.put(columnList(9), cust.get("Address"))
+        listMap.put(columnList(10), cust.get("SignDate"))
+        listMap.put(columnList(11), cust.get("Status"))
+        listMap.put(columnList(12), cust.get("Level"))
+        listMap.put(columnList(13), cust.get("Campaign"))
+        listMap.put(columnList(14), cust.get("LinkedWithApps"))
+
         println(s" map = ${listMap.toString()}")
         listMap
       }).iterator
     })
-
-    //[STEP 3]. get user info from redis
-    val r = new RedisClient("localhost", 6379)
-    println(r.get("foo").get.toString)
 
     //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
