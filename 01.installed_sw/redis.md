@@ -32,7 +32,6 @@ OK
 redis> get foo
 "bar"
 ```
-wget http://download.redis.io/releases/redis-3.0.7.tar.gz
 
 ## etc
 - hashmap example

@@ -15,10 +15,16 @@
   - 필요한 통계정보(최근 30분간 접속통계 등을 5분단위로 저장 등) 및  복잡한 biz logic지원
  * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
 
-## STEP 1) install apache kafka, redis, apache spark
-### install apache kafka
+## STEP 1) install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+### install apache kafka (kafka_2.11-0.10.1.0) 
+```
+> cd ~/demo-spark-analytics/sw
+> wget http://apache.mirror.cdnetworks.com/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz 
+> tar -xzf kafka_2.11-0.10.1.0.tgz
+> cd kafka_2.11-0.10.1.0
+```
 
-### edit kafka config (server.config)
+#### - edit kafka config (server.config)
 - 실습을 위해서 topic을 delete한 후 재생성할 수 있도록 설정
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
@@ -27,26 +33,18 @@
 delete.topic.enable=true
 ```
 
-### install redis
-
-### install apahche spark
-
-
-## STEP 2) run zookeeper and kafka and redis
-### run zookeeper 
+#### - run zookeeper
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
-### run kafka
+#### - run kafka
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-server-start.sh config/server.properties
 ```
 
-### create topic for stage 2 (realtime) 
-- logstash will use this topic to send user log
+#### - create topic for stage 2 (realtime)
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime
@@ -55,17 +53,111 @@ delete.topic.enable=true
 realtime
 ```
 
-### run redis
+### install redis (redis 3.0.7)
+```
+> cd ~/demo-spark-analytics/sw
+> wget http://download.redis.io/releases/redis-3.0.7.tar.gz
+> tar -xzf redis-3.0.7.tar.gz
+> cd redis-3.0.7
+> make
+```
+
+#### - run 
+```
+> src/redis-server
+```
+
+#### - test
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+redis> set foo bar
+OK
+redis> get foo
+"bar"
+```
+
+### install apahche spark (spark-2.0.1-bin-hadoop2.7)
+```
+> ~/demo-spark-analytics/sw/
+> wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
+> tar -xvf spark-2.0.1-bin-hadoop2.7.tgz
+> cd spark-2.0.1-bin-hadoop2.7
+```
+
+#### - set spark configuration
+- spark environment
+```
+# slave 설정
+> cp conf/slaves.template conf/slaves
+# localhost //현재  별도의 slave node가 없으므로 localhost를 slave node로 사용
+
+# spark master 설정
+# 현재 demo에서는 별도로 변경할 설정이 없다. (실제 적용시 다양한 설정값 적용)
+> cp conf/spark-env.sh.template conf/spark-env.sh
+```
+
+#### - run spark master
+```
+> sbin/start-all.sh
+```
+
+#### - open spark master web-ui with web browser
+localhsot:8080
 
 
-## STEP 3) import customer info to redis
+
+## STEP 2) import customer info to redis
 ### install python redis package
 ```
-> pip install redis
+> sudo pip install redis
 ```
 
+### run import_customer_info.py (read customer info and insert into redis)
+```
+> cd ~/demo-spark-analytics/00.stage2
+> python import_customer_info.py 
+```
 
-## STEP 4) run logstash (read logs --> kafka)
+### import_customer_info.py code
+```javascript
+import redis
+import csv
+import numpy as np
+import random
+
+def get_age(age10):
+    start   = age10
+    end     = age10 + 10
+    age = random.choice(np.arange(start, end))
+    return age
+
+
+r_server = redis.Redis('localhost') #this line creates a new Redis object and
+                                    #connects to our redis server
+# read customer info from file(csv)
+with open('./cust.csv', 'rb') as csvfile:
+    reader = csv.DictReader(csvfile, delimiter = ',')
+    next(reader, None)
+    i = 1 
+    # save to redis as hashmap type
+    for row in reader:
+      age10 = random.choice([10, 20, 20, 20, 20, 30, 30, 30, 40, 40, 50, 60])
+        r_server.hmset(row['CustID'], {'name': row['Name'], 'gender': int(row['Gender'])})
+        r_server.hmset(row['CustID'], {'age': int(get_age(age10))})
+        r_server.hmset(row['CustID'], {'zip': row['zip'], 'Address': row['Address']})
+        r_server.hmset(row['CustID'], {'SignDate': row['SignDate'], 'Status': row['Status']})
+        r_server.hmset(row['CustID'], {'Level': row['Level'], 'Campaign': row['Campaign']})
+        r_server.hmset(row['CustID'], {'LinkedWithApps': row['LinkedWithApps']})
+        if(i % 100 == 0):
+          print('insert %dth customer info.' % i)
+        i += 1
+
+    print('importing Completed (%d)' % i)
+
+```
+
+## STEP 3) run logstash (read logs --> kafka)
 ### open configurations
 ```
 > cd ~/demo-spark-analytics/00.stage2
@@ -81,7 +173,7 @@ realtime
 ```javascript
 input {  
   file {
-    path => "/Users/skiper/work/DevTools/github/demo-spark-analytics/00.stage1/tracks_live.csv"
+    path => "/Users/skiper/work/DevTools/github/demo-spark-analytics/00.stage2/tracks_live.csv"
     sincedb_path => "/dev/null"
     start_position => "beginning"
   }
@@ -102,11 +194,11 @@ output {
 }
 ```
 
-### prepare test data set
+### prepare data set for logstash
 ```
-> cd ~/demo-spark-analytics/00.stage1
+> cd ~/demo-spark-analytics/00.stage2
 > vi tracks_live.csv
-# paste this message
+# 아래의 메세지를 복사하여 tracks_live.csv에 붙어넣고, 저
 0,48,453,"2014-10-23 03:26:20",0,"72132"
 1,1081,19,"2014-10-15 18:32:14",1,"17307"
 2,532,36,"2014-12-10 15:33:16",1,"66216"
@@ -145,10 +237,46 @@ Pipeline main started
 2,532,36,"2014-12-10 15:33:16",1,"66216
 ```
 
-
 ## STEP 4) run apache spark streaming application
 ### create spark application
 - create scala project using maven [link](https://github.com/freepsw/java_scala)
+
+### pom.xml 
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.11.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka-0-8_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <!-- third pary plugins-->
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-spark-20_2.11</artifactId>
+            <version>5.0.0-rc1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.debasishg</groupId>
+            <artifactId>redisclient_2.10</artifactId>
+            <version>3.2</version>
+        </dependency>
+    </dependencies>
+```
 
 ### implement application logic 
  * read from kafka
@@ -158,9 +286,14 @@ Pipeline main started
  * aggregating 
 
 ### code description
-- full source code [link]
+- full source code [link](https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/demo-streaming/src/main/scala/io/skiper/driver/Stage2StreamingDriver.scala)
 
-
+## STEP 5) send data 
+- run data_generator
+```
+> cd ~/demo-spark-analytics/00.stage2
+> python data_generator.py
+```
 
 
 ### Open source

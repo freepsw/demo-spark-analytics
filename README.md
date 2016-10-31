@@ -40,17 +40,16 @@ Campaign: indicates the campaign under which the user joined, defined as the fol
 - Previous ad clicks(clicks.csv) 
 indicating which ad was played to the user and whether or not they clicked on it 
 
-```
- EventID, CustID, AdClicked,           Localtime
- 0,       109,    "ADV_FREE_REFERRAL", "2014-12-18 08:15:16"
-```
+EventID | CustID | AdClicked | Localtime
+------------ | ------------- | ------------- | ------------- 
+0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
+
 
 - Music information (music.csv)
 
-```
-TrackId, Title,             Artist,         Length
-0,       Caught Up In You,  .38 Special,    200
-```
+TrackId | Title | Artist | Length
+------------ | ------------- | ------------- | ------------- 
+0 | Caught Up In You | .38 Special | 200
 
 - Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
 

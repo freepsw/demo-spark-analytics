@@ -1,8 +1,5 @@
 package io.skiper.driver
 
-
-
-
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -27,8 +24,6 @@ object Stage2StreamingDriver {
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
-
-
 
     addStreamListener(ssc)
 
@@ -95,6 +90,7 @@ object Stage2StreamingDriver {
     new Timestamp(Calendar.getInstance().getTime().getTime)
   }
 
+  // spark stream listener interface
   def addStreamListener(ssc: StreamingContext): Unit = {
     ssc.addStreamingListener(new StreamingListener() {
       override def onBatchSubmitted(batchSubmitted: StreamingListenerBatchSubmitted): Unit = {
