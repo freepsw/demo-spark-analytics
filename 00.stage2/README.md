@@ -454,6 +454,16 @@ spark-submit \
 
 
 ## STEP 6) visualize collected data using kibana
+### kibana 시각화 가이드 참고
+- kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
+- https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/kibana_visualization_guide_stage2.pptx
+- 이 외에도 다양한 방법으로 시각화가 가능하므로, 실습시간을 이용하여 다양한 실시간 시각화를 진행
+
+### kibana dashbboard하여 시각화
+- Kibana 메인메뉴 > Settings > Objects 클릭
+- "import"버튼을 클릭하고, 
+- 00.stage2 폴더 아래에 있는 kibana_dashboard_s2.json 선택
+- 기존에 정의된 dashboard를 화면에 시각화하여 보여준다.
 
 
 

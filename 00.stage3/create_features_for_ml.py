@@ -104,7 +104,7 @@ for k, v in custdata.collect():
     tot = float(morn + aft + eve + night)
     c += 1
 
-    # 사용자가 "ADV_REDUCED_1DAY" 이벤트를 클릭했는지 여부 확인
+    # 사용자가 "ADV_REDUCED_1DAY" 이벤트를 클릭했는지 여부 확인 (몇번을 클릭했는지는 고려하지 않는다)
     # see if this user clicked on a 1-day special reduced Gold rate
     clicked = 1 if sortedclicks.lookup(k)[0] > 0 else 0
 
