@@ -49,6 +49,37 @@ EventID | CustID | AdClicked | Localtime
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
 ## STEP 2) make training datat set(features) from user log
+### run python script(create_features_for_ml.py)
+```
+> cd ~/demo-spark-analytics/00.stage3
+> python create_features_for_ml.py
+ERROR No module named pyspark 발생
+```
+
+- No module name pyspark 에러 수정
+```
+> vi ~/.bash_profile
+아래 내용을 추가
+export SPARK_HOME="spark이 설치된 절대경로"/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
+export PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
+> source ~/.bash_profile
+```
+
+### 다시 실행 run python script(create_features_for_ml.py)
+```
+> python create_features_for_ml.py
+RROR PythonRDD: Error while sending iterator
+java.net.SocketTimeoutException: Accept timed out 
+또 위와 같은 에러가 발생한다....
+```
+- 에러가 발생되면서 종료되었지만,
+- features1.txt 파일을 보면, 정상적으로 결과가 write되고 있었다.
+- google에서 검색한 결과 대부분 메모리를 과다하게 사용하면서 위와 같은 에러가 발생한다고 함.
+- 이번 demo에서는 해당 코드가 정상적으로 구동한다는 것까지만 확인하고,
+- 실제 feature.txt는 기존에 있는 파일을 활용한다.
+
+
+### python code에 대한 설명
 - 1. Spark context 생성 및 필요한 파일들을 로딩한다.
 - 2. tracks.csv(최근 사용자들의 음악 청취 이력 log)을 읽어와 spark에서 처리할 수 있는 데이터 구조(RDD)로 변환
 - 3. customer 별로 음악을 청취한 시간대 별 요약정보를 생성한다.
@@ -174,22 +205,187 @@ print "averages1:  unique: %d morning: %d afternoon: %d evening: %d night: %d mo
 print "done"
 ```
 
-Technical changes (support huge data processing using spark)
- * logstash의 biz logic(filter)을 단순화하여 최대한 많은 양을 전송하는 용도로 활용한다.
- * 그리고 kafka를 이용하여 대량의 데이터를 빠르고, 안전하게 저장 및 전달하는 Message queue로 활용한다.
- * Spark streaming은 kafka에서 받아온 데이터를 실시간 분산처리하여 대상 DB(ES or others)에 병렬로 저장한다. 
-  - 필요한 통계정보(최근 30분간 접속통계 등을 5분단위로 저장 등) 및  복잡한 biz logic지원
- * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
+
+## STEP 3) feature를 이용하여 머신러닝 알고리즘(SVM)으로 학습하고, 사용자 분류하
+### run python script(predict_ml_libsvm.py)
+```
+> cd ~/demo-spark-analytics/00.stage3
+> python predict_ml_libsvm.py
+아래 메세지가 보이면 정상
+all: 5000 training size: 3484, test size 1516
+LBFGS error: 0.0105540897098
+```
+- 5000건 데이터 중에 3,484 건은 학습데이터로 이용하고, 1,516 건은 검증용으로 활용
+- 1,516건을 학습된 모델로 검증한 결과, 에러율리 0.01(정확도 99%)로 나타남.
+
+### python code에 대한 설명
+- 1. features.txt에서 읽어온 데이터를 70:30으로 분류 (학습: 검증)
+ * features.txt의 data가 이미 SVM 학습을 위한 포맷으로 구성됨.
+ * 3500 : 1500 으로 분류되어야 하는데.. 3486 : 1515으로 분류됨(확인필요)
+- 2. LogisticRegressionWithLBFGS 함수로 학습데이터로 모델을 training
+- 3. training된 모델을 이용하여, test 데이터를 검증
+- 4. 학습된 모델을 이용하여 분류한 사용자 정보를 redis에 저장
+ * redis key = pred_event:사용자id
+ * redis value = 1(광고를 보여줄 사용자), 0(광고를 보여주지 않을 사용자)
+ * spark streaming에서 해당 정보를 이용하여 광고 표출여부를 판단.
+- 참고 : LibSVM https://www.csie.ntu.edu.tw/~cjlin/libsvm/
+```python
+conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("local[1]")
+sc = SparkContext(conf=conf)
+r = redis.Redis('localhost')
+r.set("key1", "value1")
+
+data = MLUtils.loadLibSVMFile(sc, 'features.txt', minPartitions=1)
+
+# 1. train data와 학습모델 검증을 위한 test data set을 나눈다
+# split the data into training, and test
+# all, noall = data.randomSplit([1.0, 0.0], seed = 0)
+all = (data)
+train, test = data.randomSplit([0.7, 0.3], seed = 0)
+tr_count = train.count()
+te_count = test.count()
+cust_id = 0
+
+# 2. train LBFGS model on the training data
+model_1 = LogisticRegressionWithLBFGS.train(train)
+
+# 2-1. evaluate the model on test data
+results_1 = test.map(lambda p: (p.label, model_1.predict(p.features)))
+
+# 2-2. calculate the error
+err_1 = results_1.filter(lambda (v, p): v != p).count() / float(te_count)
+
+def predict_all_user():
+    r = redis.Redis('localhost')
+    fname = "features.txt"
+    rf = open(fname)
+
+    try:
+        num_lines = sum(1 for line in rf)
+        rf.seek(0)
+        lines = 0
+        while (1):
+            line = rf.readline()
+            vec = make_SparseVector(line)
+            pred = model_1.predict(vec)
+
+            print("cust_id = %s : pred = %d" % (lines, pred))
+
+            # insert into redis (cust_id, predict_val)
+            key = "pred_event:" + str(lines)
+            r.set(key, str(pred))
+
+            lines += 1
+            if (lines == num_lines):
+                break
+    finally:
+        rf.close()
+        print "close file"
+
+def make_SparseVector(line):
+    # s0 = "0 1:0.00 2:0.00 3:0.00 4:1.00 5:0.00 6:1.00"
+    s = line[2:]
+    print(s)
+    s1 = s.split()
+
+    dic_key = [0, 1, 2, 3, 4, 5]
+    dic_val = []
+    for v in s1:
+        dic_val.append(float(v.split(':')[1]))
+
+    dic = dict(zip(dic_key, dic_val))
+    vec = SparseVector(len(dic), dic)
+    return vec
+
+#3. predict all user using trained ml model
+predict_all_user()
+
+print "\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count)
+print "LBFGS error: %s" % (str(err_1))
+```
+
+## STEP 4) spark streaming 기능 추가 (사용자 접속시 광고이벤트 발생)
+### spark code 변경
+
+- Stage3StreamingDriver.scala 파일에서 변경된 부분만 보
+- elasticsearch에 저장할 field(columnList)에 광고를 발송했는지 여부를 보여주는 "SendEvent"가 추가됨
+- "predict_ml_libsvm.py"에서 redis에 저장한 키(pred_event:사용자 id)로 광고표추 대상인자 확인하고, 맞는 경우에는 광고를 전송하라는 flag를 redis에 전달한다. (key는 1_day_event_users)
+- 실제 광고를 내보내는 역할은 별도의 광고대행사 또는 시스템에서 처리하게 되고, spark-streaming에서는 빠르게 사용자에 대한 광고표출 여부만 판단하도록 한다.
+
+```scala
+    // [STEP 2]. parser message and join customer info from redis
+    // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
+    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps", "SendEvent")
+    val wordList    = lines.mapPartitions(iter => {
+      val r = new RedisClient("localhost", 6379)
+      iter.toList.map(s => {
+        val listMap = new mutable.LinkedHashMap[String, Any]()
+        val split   = s.split(",")
+
+        listMap.put(columnList(0), getTimestamp()) //timestamp
+        listMap.put(columnList(1), split(1).trim) //customer_id
+        listMap.put(columnList(2), split(2).trim) //track_id
+        listMap.put(columnList(3), split(4).trim.toInt) //ismobile
+        listMap.put(columnList(4), split(5).trim.replace("\"", "")) //listening_zip_code
+
+        // get customer info from redis
+        val cust = r.hmget(split(1).trim, "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+
+        // extract detail info and map with elasticsearch field
+        listMap.put(columnList(5), cust.get("name"))
+        listMap.put(columnList(6), cust.get("age").toInt)
+        listMap.put(columnList(7), cust.get("gender"))
+        listMap.put(columnList(8), cust.get("zip"))
+        listMap.put(columnList(9), cust.get("Address"))
+        listMap.put(columnList(10), cust.get("SignDate"))
+        listMap.put(columnList(11), cust.get("Status"))
+        listMap.put(columnList(12), cust.get("Level"))
+        listMap.put(columnList(13), cust.get("Campaign"))
+        listMap.put(columnList(14), cust.get("LinkedWithApps"))
+
+        println(s" map = ${listMap.toString()}")
+
+        // 광고 대상 사용자인지 체크하고, 광고 대상자라면 광고 메세지를 보낸다.
+        // 광고 여부 확인
+        val pred_key = s"pred_event:${split(1).trim}"
+        val pred = r.get(pred_key).get.toInt
+        // 광고 대상이 맞다면, 광고를 보내라는 신호를 redis에 전송
+        if(pred == 1) {
+          r.sadd("1_day_event_users", split(1).trim)
+          println(s"insert into redis ${pred_key}  : ${split(1).trim}")
+          //elasticsearch user 정보에 추가 (광고를 보낸 이력)
+        }
+        listMap.put(columnList(15), pred.toInt)
+        listMap
+      }).iterator
+    })
+
+```
+
+### compile with scala ide(eclipse) or compile with maven command line
+### run spark streaming
+- spark-submit을 통해 spark application을 실행시킨다. 
+```
+> cd ~/demo-spark-analytics/00.stage3
+> ./run_spark_streaming_s3.sh
+```
+
+## STEP 5) run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+### 기존에 구동한 sw가 동작중이라면 별도의 작업이 필요없음.
+### 새롭게 구동해야 한다면 아래의 절차를 따름
+- 1. elasticsearch 실행
+- 2. kibana 실행 
+- 3. zookeeper 실행 
+- 4. kafka server 실행 
+- 5. redis server 실행 
+- 6. logstash 실행 (00.stage2의 logstash conf로 구동)
+- 7. data_generator 실행 
+
+## STEP 6) kibana를 이용한 데이터 시각화
+- 개인별 실습 과제 
+ - 추가된 필드인 SendEvent를 이용한 Visualization chart를 생성.
+ - dashboard를 구성하고, 이를 json으로 export  
 
 
-install python 
-install numpy
-sudo pip install psutil (shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))
-
-train을 위한 feature 데이터 생성
-rt_profile_dash.py 
 
 
-## STEP 2) train a svm model using libsvm library
-
-LibSVM : https://www.csie.ntu.edu.tw/~cjlin/libsvm/

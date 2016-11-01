@@ -17,7 +17,7 @@ data = MLUtils.loadLibSVMFile(sc, 'features.txt', minPartitions=1)
 # split the data into training, and test
 # all, noall = data.randomSplit([1.0, 0.0], seed = 0)
 all = (data)
-train, test = data.randomSplit([0.7, 0.3], seed = 1)
+train, test = data.randomSplit([0.7, 0.3], seed = 0)
 tr_count = train.count()
 te_count = test.count()
 cust_id = 0

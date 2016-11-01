@@ -16,6 +16,8 @@
  * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
 
 ## STEP 1) install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+- elasticsearch와 kibana는 stage1의 내용 참 
+
 ### install apache kafka (kafka_2.11-0.10.1.0) 
 ```
 > cd ~/demo-spark-analytics/sw
@@ -404,7 +406,7 @@ object Stage2StreamingDriver {
 }
 ```
 
-#### - compile with scala ide(eclipse) or compile with maven command line
+### compile with scala ide(eclipse) or compile with maven command line
 - import project
 - compile
 - package 
@@ -413,11 +415,11 @@ object Stage2StreamingDriver {
  * spark은 분산 환경에서 구동하기 때문에, 해당 library가 모든 서버에 존재해야만 정상적으로 실행,
  * 이러한 문제를 해결하기 위해서 jar파일 내부에 필요한 모든 library를 포함하도록 실행파일 생성.
 
-#### - run spark streaming
+### run spark streaming
 - spark-submit을 통해 spark application을 실행시킨다. 
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> ./run_spark_streaming.sh
+> ./run_spark_streaming_s2.sh
 ```
  
 - 상세 설정
@@ -434,7 +436,7 @@ object Stage2StreamingDriver {
 spark-submit \
   --class io.skiper.driver.Stage2StreamingDriver \
   --master spark://localhost:7077 \
-  --name "demo-spark-analysis" \
+  --name "demo-spark-analysis-s2" \
   --deploy-mode client \
   --driver-memory 1g \
   --executor-memory 1g \
