@@ -1,7 +1,7 @@
 spark-submit \
 	--class io.skiper.driver.Stage2StreamingDriver \
 	--master spark://localhost:7077 \
-	--name "demo-spark-analysis2" \
+	--name "demo-spark-analysis-s2" \
 	--deploy-mode client \
 	--driver-memory 1g \
 	--executor-memory 1g \

@@ -96,34 +96,31 @@ TrackId | Title | Artist | Length
 > mkdir sw
 ```
 
-### 2) logstash
-#### - install and test [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+### 2) demo에 필요한 open source 
+#### - logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
-### 3) elasticsearch
-#### - install and run [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
+#### - elasticsearch [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
-### 4) kibana
-#### - install and run [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
+#### - kibana [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
 
-### 5) apache kafka
-- j
+### - apache kafka [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_kafka.md)
 
-### 6) apache spark
-- j
+### - apache spark [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_spark.md)
 
-### 7) redis
-- j
-
-### 8) etc
+### - redis [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/redis.md)
+### - etc
 - java 1.8+
 - python 2.7
-
-
 
 
 ## Part 3. Implementing demo project 
 ### Stage 1
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
+### Stage 2
+https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage2
+### Stage 3
+https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
+
 
 
 
