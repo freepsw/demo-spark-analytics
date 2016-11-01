@@ -18,7 +18,7 @@ object Stage3StreamingDriver {
 
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
-    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage3_Streaming")
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
@@ -78,16 +78,16 @@ object Stage3StreamingDriver {
           r.sadd("1_day_event_users", split(1).trim)
           println(s"insert into redis ${pred_key}  : ${split(1).trim}")
           //elasticsearch user 정보에 추가 (광고를 보낸 이력)
-          listMap.put(columnList(15), "1_day_event")
         }
+        listMap.put(columnList(15), pred.toInt)
         listMap
       }).iterator
     })
 
-    //[STEP 4]. Write to ElasticSearch
+    //[STEP 3]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime2/stage2")
+      EsSpark.saveToEs(rdd, "ba_realtime3/stage3")
     })
 
     ssc.start()

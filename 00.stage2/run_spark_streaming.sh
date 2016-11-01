@@ -6,4 +6,5 @@ spark-submit \
 	--driver-memory 1g \
 	--executor-memory 1g \
 	--total-executor-cores 2 \
+	--executor-cores 2 \
 	./demo-streaming/target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
