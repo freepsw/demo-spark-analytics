@@ -97,7 +97,7 @@ TrackId | Title | Artist | Length
 ```
 
 ### 2) demo에 필요한 open source 
-#### - logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+#### - logstash [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/logstash.md)
 
 #### - elasticsearch [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
