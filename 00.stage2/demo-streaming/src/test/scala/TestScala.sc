@@ -9,6 +9,9 @@ val m = Map( "a" -> 2, "b" -> 3 )
 //val m3 = m.mapValues(_ + "hi")
 //m3
 
+val s = "dldfd gdf dd "
+val s1 = s.trim
+
 
 
 def changeValue(a: Int):(Int, Int, Int) = {
@@ -29,7 +32,7 @@ m4.foreach(x => {
 })
 
 val m5 = m.mapValues(a => changeValue(a))
-val m5_1 = m5.map(x => x[1])
+val m5_1 = m5.map(x => x)
 m5_1.foreach(x => {
   println("prt " , x.toString)
 })

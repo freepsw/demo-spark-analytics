@@ -13,9 +13,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.elasticsearch.spark.rdd.EsSpark
 import com.redis._
 
-import scala.util.{Failure, Success, Try}
-
-object Stage2StreamingDriver {
+object Stage3StreamingDriver {
   def main(args: Array[String]) {
 
     //[STEP 1] create spark streaming session
@@ -41,7 +39,7 @@ object Stage2StreamingDriver {
 
     // [STEP 2]. parser message and join customer info from redis
     // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
-    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps", "SendEvent")
     val wordList    = lines.mapPartitions(iter => {
       val r = new RedisClient("localhost", 6379)
       iter.toList.map(s => {
@@ -70,6 +68,18 @@ object Stage2StreamingDriver {
         listMap.put(columnList(14), cust.get("LinkedWithApps"))
 
         println(s" map = ${listMap.toString()}")
+
+        // 광고 대상 사용자인지 체크하고, 광고 대상자라면 광고 메세지를 보낸다.
+        // 광고 여부 확인
+        val pred_key = s"pred_event:${split(1).trim}"
+        val pred = r.get(pred_key).get.toInt
+        // 광고 대상이 맞다면, 광고를 보내라는 신호를 redis에 전송
+        if(pred == 1) {
+          r.sadd("1_day_event_users", split(1).trim)
+          println(s"insert into redis ${pred_key}  : ${split(1).trim}")
+          //elasticsearch user 정보에 추가 (광고를 보낸 이력)
+          listMap.put(columnList(15), "1_day_event")
+        }
         listMap
       }).iterator
     })
