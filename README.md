@@ -114,11 +114,11 @@ TrackId | Title | Artist | Length
 
 
 ## Part 3. Implementing demo project 
-### Stage 1
+### Stage 1 Demo scenario & implementation guide
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
-### Stage 2
+### Stage 2 Demo scenario & implementation guide
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage2
-### Stage 3
+### Stage 3 Demo scenario & implementation guide
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
 
 
