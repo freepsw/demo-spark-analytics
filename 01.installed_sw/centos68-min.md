@@ -38,6 +38,13 @@ rts ALL=(ALL) ALL # 추가
 > 
 ```
 
+# install maven 
+- http://xxun.tistory.com/233
+```
+> sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+> sudo yum install apache-maven
+```
+
 # install python 2.7
 - http://slowcode.tistory.com/16
 ```
@@ -66,3 +73,4 @@ rts ALL=(ALL) ALL # 추가
 > sudo yum install ntp
 ....
 ```
+

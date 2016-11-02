@@ -44,7 +44,8 @@ EventID | CustID | AdClicked | Localtime
 ```
 > sudo pip install python 
 > sudo pip install numpy
-> ssudo pip install psutil 
+> sudo yum install python-devel #psutil 설치에 필요한 lib가 있음
+> sudo pip install psutil 
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
@@ -60,8 +61,8 @@ ERROR No module named pyspark 발생
 ```
 > vi ~/.bash_profile
 아래 내용을 추가
-export SPARK_HOME="spark이 설치된 절대경로"/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
-export PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
+export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
+export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$PYTHONPATH
 > source ~/.bash_profile
 ```
 
@@ -168,7 +169,7 @@ clickdata = clicksfile.map(lambda line:
 # 사용자 id를 기준으로 정렬.
 sortedclicks = clickdata.sortByKey()
 
-# 5. 사용자 id별로 id, morn_cnt, aft_cnt, eve_cnt, night_cnt, mobile_cnt, unique_cnt
+# 5. 사용자 id별로 id, morn_cnt, aft_cnt, eve_cnt,회night_cnt, mobile_cnt, unique_cnt
 #    위과 같은 포맷의 file을 생성하여, training시 feature data set으로 활용한다
 #    write the individual user profiles
 c = 0
@@ -302,6 +303,14 @@ predict_all_user()
 
 print "\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count)
 print "LBFGS error: %s" % (str(err_1))
+```
+
+- 1 day upgrade 이벤트 광고를 클릭할 사용자를 분류하였는지 redis에서 확인
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+127.0.0.1:6379> get pred_event:2 #사용자 id 2번은 광고 대상이 아님으로 분류
+"0"
 ```
 
 ## STEP 4) spark streaming 기능 추가 (사용자 접속시 광고이벤트 발생)

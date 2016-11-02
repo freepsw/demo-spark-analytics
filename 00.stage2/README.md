@@ -202,6 +202,33 @@ with open('./cust.csv', 'rb') as csvfile:
     print('importing Completed (%d)' % i)
 ```
 
+- 사용자 상세 정보가 정상적으로 redis에 저장되었는지 확인
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+127.0.0.1:6379> hgetall 2 #사용자 id 2번에 대한 정보를 조회
+ 1) "gender"
+ 2) "0"
+ 3) "name"
+ 4) "Paula Peltier"
+ 5) "age"
+ 6) "30"
+ 7) "zip"
+ 8) "66216"
+ 9) "Address"
+10) "10084 Easy Gate Bend"
+11) "Status"
+12) "1"
+13) "SignDate"
+14) "01/13/2013"
+15) "Campaign"
+16) "4"
+17) "Level"
+18) "0"
+19) "LinkedWithApps"
+20) "1"
+```
+
 ## STEP 3) run logstash (read logs --> kafka)
 
 ### logstash configuration
