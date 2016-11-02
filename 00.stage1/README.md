@@ -7,19 +7,70 @@
  * 사용자들이 언제 어떤 음악을 듣는가? (customer_id와 track_id만 조회가능)
 
 ## STEP 1) install elasticsearch and kibana
-- logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+
 - elasticsearh [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
+
+```
+> cd ~/demo-spark-analytics/sw
+
+# download 
+> wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.0/elasticsearch-2.4.0.tar.gz
+> tar xvf elasticsearch-2.4.0.tar.gz
+
+# install plugin 
+> cd elasticsearch-2.4.0
+> bin/plugin install mobz/elasticsearch-head
+```
+
+- config : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
+```
+> cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
+> vi config/elasticsearch.yml
+# bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
+# bind all ip server have "0.0.0.0"
+ network.host: 0.0.0.0 
+```
+
+
 - kibana [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
+
+```
+> cd ~/demo-spark-analytics/sw
+> wget https://download.elastic.co/kibana/kibana/kibana-4.6.2-linux-x86_64.tar.gz
+> tar xvf kibana-4.6.2-linux-x86_64.tar.gz
+```
+
+- logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
+
+### - install
+```
+> cd ~/demo-spark-analytics/sw
+> wget https://download.elastic.co/logstash/logstash/logstash-2.4.0.tar.gz
+> tar xvf logstash-2.4.0.tar.gz
+```
+
+### - set logstash path to $path
+```
+> vi ~/.bash_profile
+# 마지막 line에 추가
+export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
+
+> source ~/.bash_profile
+```
+
 
 ## STEP 2) run elasticsearch and kibana
 ```
-cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
-bin/elasticsearch
+> cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
+> bin/elasticsearch
 
-cd ~/demo-spark-analytics/sw/kibana-4.6.1-darwin-x86_64
-bin/kibana
+> cd ~/demo-spark-analytics/sw/kibana-4.6.2-linux-x86_64
+> bin/kibana
 ```
 
+- open with web browser
+http://localhost:9200/_plugin/head/
+http://localhost:5601
 
 ## STEP 3) run data generator (data_generator.py)
 ### source code 
@@ -74,8 +125,8 @@ python data_generator.py
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
 
 ### configuration (collect logs and save to ES)
-"demo-spark-analytics/00.stage1/logstash_stage1.conf"
-
+- "demo-spark-analytics/00.stage1/logstash_stage1.conf"
+- <PATH> 부분을 각자의 경로로 수정한다.
 ```javascript
 input {  
   file {

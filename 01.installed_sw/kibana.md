@@ -3,6 +3,12 @@
 ## Basic concept (Getting Started)
 https://www.elastic.co/guide/en/kibana/current/getting-started.html
 
+## install
+```
+> cd ~/demo-spark-analytics/sw
+> wget https://download.elastic.co/kibana/kibana/kibana-4.6.2-linux-x86_64.tar.gz
+> tar xvf kibana-4.6.2-linux-x86_64.tar.gz
+```
 
 ## [visualize] menu guide
  * pie chart 선택 (전체 날짜 선택)

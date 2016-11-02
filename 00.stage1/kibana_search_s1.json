@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "BA_S1:-Connection-count-per-30-sec",
+    "_type": "search",
+    "_source": {
+      "title": "BA_S1: Connection count per 30 sec",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "customer_id",
+        "event_id",
+        "track_id",
+        "ismobile",
+        "listening_zip_code"
+      ],
+      "sort": [
+        "@timestamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"ba_realtime\",\"filter\":[],\"highlight\":{\"pre_tags\":[\"@kibana-highlighted-field@\"],\"post_tags\":[\"@/kibana-highlighted-field@\"],\"fields\":{\"*\":{}},\"require_field_match\":false,\"fragment_size\":2147483647},\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}}}"
+      }
+    }
+  }
+]
