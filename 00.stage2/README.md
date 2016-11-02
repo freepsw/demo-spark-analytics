@@ -44,6 +44,11 @@ delete.topic.enable=true
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-server-start.sh config/server.properties
+
+# 만약 "Caused by: java.net.UnknownHostException: realtime"에러가 발생하면 
+# /etc/hosts 파일에 hostname을 추가
+> sudo vi /etc/hosts
+127.0.0.1 호스트네임
 ```
 
 #### - create kafka topic(realtime)
@@ -84,7 +89,7 @@ redis> get foo
 
 ### install apahche spark (spark-2.0.1-bin-hadoop2.7)
 ```
-> ~/demo-spark-analytics/sw/
+> cd ~/demo-spark-analytics/sw/
 > wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
 > tar -xvf spark-2.0.1-bin-hadoop2.7.tgz
 > cd spark-2.0.1-bin-hadoop2.7
@@ -102,6 +107,16 @@ localhost //현재  별도의 slave node가 없으므로 localhost를 slave node
 > cp conf/spark-env.sh.template conf/spark-env.sh
 ```
 
+- add spark path to system path
+```
+> vi ~/.bash_profile
+# 마지막 line에 아래 내용을 추가한다.
+export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
+export PATH=$PATH:$SPARK_HOME/bin
+
+> source ~/.bash_profile
+```
+
 #### - run spark master
 ```
 > sbin/start-all.sh
@@ -117,12 +132,25 @@ localhsot:8080
 - python에서 redis에 접속하기 위해서 redis client package를 설치
 ```
 > sudo pip install redis
+> sudo yum install numpy
 ```
 
 ### run import_customer_info.py (read customer info and insert into redis)
 ```
 > cd ~/demo-spark-analytics/00.stage2
 > python import_customer_info.py 
+```
+- redis에 정상적으로 저장되었는지 확인
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+redis> keys *
+# 아래와 같이 사용자 id별로 key가 생성된 것을 볼 수 있다.
+4995) "2567"
+4996) "3623"
+4997) "1996"
+4998) "2638"
+4999) "4256"
 ```
 
 ### import_customer_info.py code
@@ -175,13 +203,8 @@ with open('./cust.csv', 'rb') as csvfile:
 ```
 
 ## STEP 3) run logstash (read logs --> kafka)
-### open configurations
-```
-> cd ~/demo-spark-analytics/00.stage2
-> vi logstash_stage2.conf
-```
 
-### edit logstash configuration
+### logstash configuration
 - input 
  * tracks_live.csv (stage1에서 data_generator로 생성하는 file을 활용)
 - filter (적용하지 않음)
@@ -195,7 +218,7 @@ with open('./cust.csv', 'rb') as csvfile:
 ```javascript
 input {  
   file {
-    path => "/Users/skiper/work/DevTools/github/demo-spark-analytics/00.stage1/tracks_live.csv"
+    path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
     sincedb_path => "/dev/null"
     start_position => "beginning"
   }
@@ -245,7 +268,7 @@ Pipeline main started
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
-# 아래와 같은 메세지가 출력되면 정상
+# logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
 1,1081,19,"2014-10-15 18:32:14",1,"17307"
 2,532,36,"2014-12-10 15:33:16",1,"66216
@@ -416,6 +439,16 @@ object Stage2StreamingDriver {
  * 이러한 문제를 해결하기 위해서 jar파일 내부에 필요한 모든 library를 포함하도록 실행파일 생성.
 
 ### run spark streaming
+- compile source
+```
+> cd ~/demo-spark-analytics/00.stage2/demo-streaming
+> mvn compile
+> mvn package
+> ls target
+# 필요한 library를 모두 합친 jar 파일이 생성되었다.
+demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar 
+```
+
 - spark-submit을 통해 spark application을 실행시킨다. 
 ```
 > cd ~/demo-spark-analytics/00.stage2

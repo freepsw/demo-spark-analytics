@@ -130,7 +130,7 @@ python data_generator.py
 ```javascript
 input {  
   file {
-    path => "<PATH>/demo-spark-analytics/00.stage1/tracks_live.csv"
+    path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
     sincedb_path => "/dev/null"
     start_position => "beginning"
   }
@@ -217,6 +217,9 @@ http://localhost:9200/_plugin/head/
 
 
 ## STEP 4) visualize collected data using kibana
+- - kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
+https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage1/kibana_visualization_guide_stage1.pptx
+
 ####- index 추가 
  * http://localhost:5601/ 접속
  * [Settings] > [Indeices]로 이동

@@ -41,9 +41,21 @@ rts ALL=(ALL) ALL # 추가
 # install python 2.7
 - http://slowcode.tistory.com/16
 ```
+> cd ~/apps
 #추가로 파이썬에 필요한 개발도구 설치 명령어이다.
-> yum groupinstall "Development tools"
-> yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
+> sudo yum groupinstall "Development tools"
+> sudo yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
+> ..링크된 웹페이 따라서 해보기..
+```
+
+- 필요한 python util설치
+- http://grompany.blogspot.kr/2013/11/python-266-centos-62-python-273.html
+```
+> wget https://pypi.python.org/packages/source/d/distribute/distribute-0.6.49.tar.gz --no-check-certificate
+> tar xf distribute-0.6.49.tar.gz
+> cd distribute-0.6.49
+> sudo python setup.py install
+> sudo easy_install pip
 ```
 
 # time 동기화
