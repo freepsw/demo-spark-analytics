@@ -54,7 +54,7 @@ TrackId | Title | Artist | Length
 
 ####- Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
 
-### 3). Define demo level
+### 3). 단계별 구현 시나리오
 #### Stage 1. Simple realtime visualization
 - 사용자의 접속로그를 logstsh로 수집하여 Elasticsearch로 저장한 후, kibana를 이용하여 빠르게 시각화
 - What are customer doing?
