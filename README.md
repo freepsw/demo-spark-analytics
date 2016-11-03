@@ -14,29 +14,29 @@
 - 이를 위해 많은 사용자들의 log를 실시간으로 수집하여 분산처리 및 시각화하는 기술/시간/자원 필요.
 
 ### 2). Data Model
-- Individual customers listening to individual tracks (tracks.csv)
+####- Individual customers listening to individual tracks (tracks.csv)
 
    ![Image of tracks table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table1.png)
-- 어떤 고객이 어떤 track(음악)을 들었는지 알려주거나, 모바일에서 접속했는지, 실제 음악을 들은 지역은 어디인지 알수 있는 정보.
-- The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
+ - 어떤 고객이 어떤 track(음악)을 들었는지 알려주거나, 모바일에서 접속했는지, 실제 음악을 들은 지역은 어디인지 알수 있는 정보.
+ - The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
 
 
-- Customer information (cust.csv)
+####- Customer information (cust.csv)
 
    ![Image of customers table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
 >
-The fields are defined as follows:
-Customer ID: a unique identifier for that customer  
-Name, gender, address, zip: the customer’s associated information  
-Sign date: the date of addition to the service  
-Status: indicates whether or not the account is active (0 = closed, 1 = active)  
-Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively  
-Campaign: indicates the campaign under which the user joined, defined as the following (fictional) campaigns driven by our (also fictional) marketing team:
+ - The fields are defined as follows:
+  - Customer ID: a unique identifier for that customer Name, gender, address, zip: the customer’s associated information  
+  - Sign date: the date of addition to the service  
+  - Status: indicates whether or not the account is active (0 = closed, 1 = active)
+  - Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively  
+  - Campaign: indicates the campaign under which the user joined, defined as the following (fictional) campaigns driven by our (also fictional) marketing team:
  * NONE - no campaign  
  * 30DAYFREE - a ‘30 days free’ trial offer  
  * SUPERBOWL - a Superbowl-related program  
  * RETAILSTORE - an offer originating in brick-and-mortar retail stores  
  * WEBOFFER - an offer for web-originated customers  
+>
 
 - Previous ad clicks(clicks.csv) 
 indicating which ad was played to the user and whether or not they clicked on it 
