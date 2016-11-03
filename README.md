@@ -31,28 +31,28 @@
   - Status: indicates whether or not the account is active (0 = closed, 1 = active)
   - Level: indicates what level of service -- 0, 1, 2 for Free, Silver and Gold, respectively  
   - Campaign: indicates the campaign under which the user joined, defined as the following (fictional) campaigns driven by our (also fictional) marketing team:
- * NONE - no campaign  
- * 30DAYFREE - a ‘30 days free’ trial offer  
- * SUPERBOWL - a Superbowl-related program  
- * RETAILSTORE - an offer originating in brick-and-mortar retail stores  
- * WEBOFFER - an offer for web-originated customers  
+   * NONE - no campaign  
+   * 30DAYFREE - a ‘30 days free’ trial offer  
+   * SUPERBOWL - a Superbowl-related program  
+   * RETAILSTORE - an offer originating in brick-and-mortar retail stores  
+   * WEBOFFER - an offer for web-originated customers  
 >
 
-- Previous ad clicks(clicks.csv) 
-indicating which ad was played to the user and whether or not they clicked on it 
+####- Previous ad clicks(clicks.csv) 
+- indicating which ad was played to the user and whether or not they clicked on it 
 
 EventID | CustID | AdClicked | Localtime
 ------------ | ------------- | ------------- | ------------- 
 0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
 
 
-- Music information (music.csv)
+####- Music information (music.csv)
 
 TrackId | Title | Artist | Length
 ------------ | ------------- | ------------- | ------------- 
 0 | Caught Up In You | .38 Special | 200
 
-- Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
+####- Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
 
 ### 3). Define demo level
 #### Stage 1. Simple realtime visualization
@@ -66,10 +66,6 @@ TrackId | Title | Artist | Length
 #### Stage 2. Stage1 + distributed processing using apache spark
 - logstash에서  kafka로 저장하고, 이를 spark에서 실시간 분산처리 -> ES
 - customerid, trackid와 상세정보를 join(redis)하여 데이터를 추가한다. -> ES
-- compute a summary profile for each user
- * 특정기간(아침, 점심, 저녁)동안 각 사용자들이 들은 음악의 평균값 (언제 가장 많이 듣는가?)
- * 전체 사용자들이 들은 전체 음악 목록 (중복 제거한 unique값)
- * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique) 
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES
 
 
@@ -98,20 +94,21 @@ TrackId | Title | Artist | Length
 ```
 
 ### 2) demo에 필요한 open source 
+#### - development tools (library, pacakge ..) [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/centos68-min.md)
+- java 1.8+
+- python 2.7
 #### - logstash [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/logstash.md)
 
 #### - elasticsearch [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
 #### - kibana [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/kibana.md)
 
-### - apache kafka [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_kafka.md)
+#### - apache kafka [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_kafka.md)
 
-### - apache spark [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_spark.md)
+#### - apache spark [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/apache_spark.md)
 
-### - redis [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/redis.md)
-### - etc
-- java 1.8+
-- python 2.7
+#### - redis [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/redis.md)
+
 
 
 ## Part 3. Implementing demo project 
