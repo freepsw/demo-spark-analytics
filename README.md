@@ -17,7 +17,8 @@
 - Individual customers listening to individual tracks (tracks.csv)
 
    ![Image of tracks table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table1.png)
-The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
+- 어떤 고객이 어떤 track(음악)을 들었는지 알려주거나, 모바일에서 접속했는지, 실제 음악을 들은 지역은 어디인지 알수 있는 정보.
+- The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
 
 
 - Customer information (cust.csv)
