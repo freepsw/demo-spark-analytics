@@ -42,14 +42,13 @@
 
 - logstash [link](https://github.com/freepsw/demo-spark-analytics/tree/master/01.logstash)
 
-### - install
 ```
 > cd ~/demo-spark-analytics/sw
 > wget https://download.elastic.co/logstash/logstash/logstash-2.4.0.tar.gz
 > tar xvf logstash-2.4.0.tar.gz
 ```
 
-### - set logstash path to $path
+ - set logstash path to $path
 ```
 > vi ~/.bash_profile
 # 마지막 line에 추가
@@ -69,8 +68,8 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 ```
 
 - open with web browser
-http://localhost:9200/_plugin/head/
-http://localhost:5601
+  - open elasticsearch : http://localhost:9200/_plugin/head/
+  - open kibana : http://localhost:5601
 
 ## STEP 3) run data generator (data_generator.py)
 ### source code 
