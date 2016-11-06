@@ -36,7 +36,7 @@ EventID | CustID | AdClicked | Localtime
 ------------ | ------------- | ------------- | ------------- 
 0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
 
-## STEP 1) install python and packages
+## [STEP 1] install python and packages
 ### install python
 - 현재 demo용으로 사용하는 vm장비에는 이미 python2.7이 설치되어 있다.
 - 만약 centos를 사용하고, 아직 설치되어 있지 않다면 [link](https://www.lesstif.com/pages/viewpage.action?pageId=30705072)참고
@@ -52,7 +52,7 @@ EventID | CustID | AdClicked | Localtime
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
-## STEP 2) make training datat set(features) from user log
+## [STEP 2] make training datat set(features) from user log
 ### run python script(create_features_for_ml.py)
 ```
 > cd ~/demo-spark-analytics/00.stage3
@@ -210,7 +210,7 @@ print "done"
 ```
 
 
-## STEP 3) feature를 이용하여 머신러닝 알고리즘(SVM)으로 학습하고, 사용자 분류하
+## [STEP 3] feature를 이용하여 머신러닝 알고리즘(SVM)으로 학습하고, 사용자 분류하
 ### run python script(predict_ml_libsvm.py)
 ```
 > cd ~/demo-spark-analytics/00.stage3
@@ -316,7 +316,7 @@ print "LBFGS error: %s" % (str(err_1))
 "0"
 ```
 
-## STEP 4) spark streaming 기능 추가 (사용자 접속시 광고이벤트 발생)
+## [STEP 4] spark streaming 기능 추가 (사용자 접속시 광고이벤트 발생)
 ### spark code 변경
 
 - Stage3StreamingDriver.scala 파일에서 변경된 부분만 보
@@ -382,7 +382,7 @@ print "LBFGS error: %s" % (str(err_1))
 > ./run_spark_streaming_s3.sh
 ```
 
-## STEP 5) run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+## [STEP 5] run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 ### 기존에 구동한 sw가 동작중이라면 별도의 작업이 필요없음.
 ### 새롭게 구동해야 한다면 아래의 절차를 따름
 - 1. elasticsearch 실행

@@ -11,7 +11,7 @@
 ![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
 
 
-## STEP 1) install elasticsearch and kibana
+## [STEP 1] install elasticsearch and kibana
 
 - elasticsearh [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
@@ -63,7 +63,7 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 ```
 
 
-## STEP 2) run elasticsearch and kibana
+## [STEP 2] run elasticsearch and kibana
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-2.4.0
 > bin/elasticsearch
@@ -76,7 +76,7 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
   - open elasticsearch : http://localhost:9200/_plugin/head/
   - open kibana : http://localhost:5601
 
-## STEP 3) run data generator (data_generator.py)
+## [STEP 3] run data generator (data_generator.py)
 ### source code 
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
 - 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
@@ -125,7 +125,7 @@ python data_generator.py
 ```
 
 
-## STEP 3) run logstash (logstash_stage1.conf)
+## [STEP 4] run logstash (logstash_stage1.conf)
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
 
 ### configuration (collect logs and save to ES)
@@ -220,7 +220,7 @@ http://localhost:9200/_plugin/head/
 ```
 
 
-## STEP 4) visualize collected data using kibana
+## [STEP 5] visualize collected data using kibana
 - kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
 - https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage1/kibana_visualization_guide_stage1.pptx
 

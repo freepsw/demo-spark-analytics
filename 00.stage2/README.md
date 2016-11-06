@@ -18,7 +18,7 @@
 ### - Software 구성도
 ![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 
-## STEP 1) install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 - elasticsearch와 kibana는 stage1의 내용 참 
 
 ### install apache kafka (kafka_2.11-0.10.1.0) 
@@ -130,7 +130,7 @@ localhsot:8080
 
 
 
-## STEP 2) import customer info to redis
+## [STEP 2] import customer info to redis
 ### install python redis package
 - python에서 redis에 접속하기 위해서 redis client package를 설치
 ```
@@ -232,7 +232,7 @@ with open('./cust.csv', 'rb') as csvfile:
 20) "1"
 ```
 
-## STEP 3) run logstash (read logs --> kafka)
+## [STEP 3] run logstash (read logs --> kafka)
 
 ### logstash configuration
 - input 
@@ -304,7 +304,7 @@ Pipeline main started
 2,532,36,"2014-12-10 15:33:16",1,"66216
 ```
 
-## STEP 4) run apache spark streaming application
+## [STEP 4] run apache spark streaming application
 ### create spark application project using maven
 #### - 참고 create scala/java project using maven [link](https://github.com/freepsw/java_scala)
 - spark application은 scala와 java를 모두 사용할 수 있으므로,
@@ -354,6 +354,8 @@ Pipeline main started
 #### - spark streaming driver 코드 작성
 -  SparkContex에 필요한 configuration을 설정한다. 
 -  StreamingContext를 생성 (위의 sparkcontext활용, batch주기는 2초)
+
+>
 -  [STEP 1]. Create Kafka Receiver and receive message from kafka broker
  * kafka에서 데이터를 받기위한 Kafka receiver를 생성한다. 
  * 만얀 kafka partition이 여러개 일 경우, numReceiver를 partition 갯수만큼 지정
@@ -365,6 +367,8 @@ Pipeline main started
  * kibana에서 사용할 timestamp field는 현재 시간으로 설정
 - [STEP 3]. Write to ElasticSearch
  * kafka data + redis 고객정보를 합쳐서 elasticsearch에 저장
+>
+
 - full source code [link](https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/demo-streaming/src/main/scala/io/skiper/driver/Stage2StreamingDriver.scala)
 
 ```scala
@@ -508,7 +512,7 @@ spark-submit \
   ./demo-streaming/target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## STEP 5) generate customer log data 
+## [STEP 5] generate customer log data 
 ### run data_generator
 - stage1에서 구동했던 프로세스이므로,
 - 만약 현재 구동중이라면 이 단계는 생략한다.  
@@ -518,7 +522,7 @@ spark-submit \
 ```
 
 
-## STEP 6) visualize collected data using kibana
+## [STEP 6] visualize collected data using kibana
 ### kibana 시각화 가이드 참고
 - kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
 - https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/kibana_visualization_guide_stage2.pptx
