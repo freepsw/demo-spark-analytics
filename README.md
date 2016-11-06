@@ -97,6 +97,7 @@ TrackId | Title | Artist | Length
 #### - development tools (library, pacakge ..) [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/centos68-min.md)
 - java 1.8+
 - python 2.7
+
 #### - logstash [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/logstash.md)
 
 #### - elasticsearch [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
