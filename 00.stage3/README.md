@@ -3,7 +3,7 @@
 - 분류된 사용자들 만을 대상으로 music을 듣기 바로 전에 광고 영상을 제공 
 
 ### - Software 구성도
-![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
+![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3 .png)
 
 ## Stage 2의 주요 내용 
 ### scenario

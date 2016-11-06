@@ -95,6 +95,7 @@ TrackId | Title | Artist | Length
 
 ### 2) demo에 필요한 open source 
 #### - development tools (library, pacakge ..) [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/centos68-min.md)
+- centos 6.8 minimal
 - java 1.8+
 - python 2.7
 

@@ -262,3 +262,8 @@ https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage1/kibana_vis
  * 생성한 dashboard를 저장한다.
  * 이후 다른 kibana web에서 dashboard를 보고싶다면 export하여 json파일로 저장한다.
 
+#### - github에 포함된 json파일을 이용하여 dashboard 생성
+ * [Setting] > [Objects] 메뉴에서 "import"를 클릭
+ * ~/demo-spark-analytics/00.stage1 아래에 있는 json 파일을 선택
+ * kibana_dashboard_s1.json, kibana_search_s1.json, kibana_visualization_s1.json
+ * [Dashboard] > [+] button을 클릭하여 import한 시각화 객체를 불러온다. (또는 Dashboard 객체)
