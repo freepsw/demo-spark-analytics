@@ -3,17 +3,20 @@
  * logstash > kafka > spark streaming > ES/redis
 
 ## Stage 2의 주요 내용 
-### Stage1의 한계
+### 1 Stage1의 한계
  * Stage1에서는 실시간 Data가 많아지게 될 경우, 하나의 logstash로는 대량의 데이터 처리가 어려운 상황이다.
  * 또한 customer_id, track_id 이외의 구체적인 정보가 없어서 세분화된 분석을 하기 어렵다 (예를 들면 남성이 가장 좋아하는 음악은?) 
  * 매번 ES전체 table을 조회하여 데이터를 시각화하게 되어, 성능상의 부하가 예상된다.
 
-### Technical changes (support huge data processing using spark)
+### - Technical changes (support huge data processing using spark)
  * logstash의 biz logic(filter)을 단순화하여 최대한 많은 양을 전송하는 용도로 활용한다.
  * 그리고 kafka를 이용하여 대량의 데이터를 빠르고, 안전하게 저장 및 전달하는 Message queue로 활용한다.
  * Spark streaming은 kafka에서 받아온 데이터를 실시간 분산처리하여 대상 DB(ES or others)에 병렬로 저장한다. 
   - 필요한 통계정보(최근 30분간 접속통계 등을 5분단위로 저장 등) 및  복잡한 biz logic지원
  * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
+
+### - Software 구성도
+![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 
 ## STEP 1) install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 - elasticsearch와 kibana는 stage1의 내용 참 

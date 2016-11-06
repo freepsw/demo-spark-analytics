@@ -1,10 +1,15 @@
 # Stage 1. Simple realtime visualization
 - 사용자의 접속로그를 logstsh로 수집하여 Elasticsearch로 저장한 후, kibana를 이용하여 빠르게 시각화
-- What are customer doing?
+
+### - What are customer doing?
  * 시간별 사용량 추이를 어떠한가? 그 중 mobile 접속자는 어느정도 되는가?
  * 가장 많이 접속하는 지역은 어디인가?
  * 지역별로 어떤 사용자들이 접속하는가? (customer_id만 조회가능)
  * 사용자들이 언제 어떤 음악을 듣는가? (customer_id와 track_id만 조회가능)
+
+### - software 구성도
+![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
+
 
 ## STEP 1) install elasticsearch and kibana
 

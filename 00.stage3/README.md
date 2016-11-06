@@ -2,6 +2,9 @@
 - 회사의 매출향상을 위해 사용자들의 최근 광고 click 기록을 기반으로 요금제(FREE, SILVER, GOLD) 업그레드를 광고를 할 대상을 분류 
 - 분류된 사용자들 만을 대상으로 music을 듣기 바로 전에 광고 영상을 제공 
 
+### - Software 구성도
+![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
+
 ## Stage 2의 주요 내용 
 ### scenario
 - customer는 3가지 멤버십을 가지고 있다. 

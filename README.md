@@ -114,10 +114,15 @@ TrackId | Title | Artist | Length
 
 ## Part 3. Implementing demo project 
 ### Stage 1 Demo scenario & implementation guide
-https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
+![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
+- https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
+
 ### Stage 2 Demo scenario & implementation guide
-https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage2
+![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
+- https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage2
+
 ### Stage 3 Demo scenario & implementation guide
+![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
 
 
