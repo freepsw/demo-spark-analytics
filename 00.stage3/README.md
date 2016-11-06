@@ -5,7 +5,7 @@
 ### - Software 구성도
 ![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 
-## Stage 2의 주요 내용 
+## Stage 3의 주요 내용 
 ### scenario
 - customer는 3가지 멤버십을 가지고 있다. 
 
