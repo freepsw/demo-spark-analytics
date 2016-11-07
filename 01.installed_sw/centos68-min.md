@@ -74,3 +74,29 @@ rts ALL=(ALL) ALL # 추가
 ....
 ```
 
+
+# Issue list
+## VMWare 이미지를 다른 PC로 이동한 후 network이 정상적으로 연결되지 않는 오류 발생
+- 현상
+ * service network restart 실행시 아래 오류
+ * Bringing up interface eth0:  Device eth0 does not seem to be present, delaying initialization.
+
+- 해결
+ * http://netmaid.tistory.com/94 참고
+
+```
+>  vi /etc/udev/rules.d/70-persistent-net.rules
+```
+ * 아래 내용에서 NAME="eth0" line을 삭제하고
+ * NAME="eth1"  --> NAME="eth0"로 변경
+```
+# PCI device 0x8086:0x100f (e1000)
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:0c:29:2c:ff:a7", ATTR{type}=="1", KERNEL=="eth*", NAME="eth0"
+
+# PCI device 0x8086:0x100f (e1000)
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:0c:29:da:06:f2", ATTR{type}=="1", KERNEL=="eth*", NAME="eth1"
+```
+
+ * /etc/sysconfig/network-scripts/ifcfg-eth0 파일 수정
+  - MAC 주소를 위의 eth0의 ATTR{address}로 변경한다.
+ * 시스템 reboot 하면 정상적으로 네트워크 접속됨.
