@@ -382,8 +382,21 @@ print "LBFGS error: %s" % (str(err_1))
 > ./run_spark_streaming_s3.sh
 ```
 
+### redis에 광고를 보내라는 메세지가 정상적으로 입력되었는지 확인
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7/
+> src/redis-cli
+> 127.0.0.1:6379> smembers 1_day_event_users
+  1) "1213"
+  2) "4099"
+  3) "1161"
+  4) "3922"
+위와 같이 해당 키에 데이터가 입력되고 있으면 정상
+```
+
 ## [STEP 5] run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 ### 기존에 구동한 sw가 동작중이라면 별도의 작업이 필요없음.
+### [중요!] stage2에서 동작한 spark streaming은 중지시켜야 한다. 
 ### 새롭게 구동해야 한다면 아래의 절차를 따름
 - 1. elasticsearch 실행
 - 2. kibana 실행 
@@ -398,6 +411,25 @@ print "LBFGS error: %s" % (str(err_1))
  - 추가된 필드인 SendEvent를 이용한 Visualization chart를 생성.
  - dashboard를 구성하고, 이를 json으로 export  
 
+## STEP 6-1) Web page(html)에 kibana 화면 삽입하기.
+- kibana Web UI를 통하지 않고, 자체 웹서버의 UI에 kibana UI를 표시하고자 하는 경우 
+- 웹에 삽입할 visualization 또는 dashboard 객체에서 [share] 버튼을 클릭하면  
+- iframe 주소가 화면에 표시되고, 이를 html 에 포함하면 자체 웹 ui에 화면이 표시됨.
+- 아래의 "kibana_iframe_sample.html" 파일을 이용하여 테스트 가능. 
+```javascript
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<title>Insert title here</title>
+<script type="text/javascript">
+
+</script>
+</head>
+<body>
+           <iframe src="<여기에 kibana에서 복사한 주소 입력>" height="800" width="1500" frameborder="0"></iframe>
+</body>
+</html>
+```
 
 
 
