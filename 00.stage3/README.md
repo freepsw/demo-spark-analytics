@@ -375,6 +375,8 @@ print "LBFGS error: %s" % (str(err_1))
 ```
 
 ### compile with scala ide(eclipse) or compile with maven command line
+- stage2에서 이미 compile & packaging이 완되어었으므로 생략 가능
+
 ### run spark streaming
 - spark-submit을 통해 spark application을 실행시킨다. 
 ```
