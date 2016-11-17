@@ -73,7 +73,18 @@ rts ALL=(ALL) ALL # 추가
 > sudo yum install ntp
 ....
 ```
-
+# timezone 변경
+- 만약 timezone이 중국(CST)과 같은 지역으로 표시된다면, 원하는 지역으로 변경해야함.
+```
+# 기존 timezone 백업
+> date
+2016. 11. 16. (수) 20:28:56 CST
+> sudo mv /etc/localtime /etc/localtime_org
+# 서울로 timezone 변경
+> sudo ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+> date
+2016. 11. 17. (목) 11:30:43 KST
+```
 
 # Issue list
 ## VMWare 이미지를 다른 PC로 이동한 후 network이 정상적으로 연결되지 않는 오류 발생
