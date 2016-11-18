@@ -80,7 +80,7 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 ```
 
 - centos7 
-- http://tecadmin.net/install-ruby-2-2-on-centos-rhel/
+- http://tecadmin.net/install-ruby-2-2-on-centos-rhel/ P
 ```
 # Step 1: Install Required Packages
 > sudo yum install gcc-c++ patch readline readline-devel zlib zlib-devel
@@ -117,8 +117,27 @@ Requirements installation successful
 - kibana의 ui(client pc)의 시간과 달라 데이터가 보아지 않을 수 있다.
 - http://webdir.tistory.com/120
 ```
+# CentOS 6x
 > sudo yum install ntp
-....
+> vi /etc/ntp.conf
+  server kr.pool.ntp.org
+  server time.bora.net
+  server time.kornet.net
+
+> chkconfig ntpd on
+> /etc/init.d/ntpd start
+> ntpq -p (확인)
+
+# CentOS 7x
+> yum install ntp
+> vi /etc/ntp.conf
+server 0.asia.pool.ntp.org
+server 1.asia.pool.ntp.org
+server 2.asia.pool.ntp.org
+server 3.asia.pool.ntp.org
+
+> systemctl start ntpd
+> systemctl enable ntpd
 ```
 # timezone 변경
 - 만약 timezone이 중국(CST)과 같은 지역으로 표시된다면, 원하는 지역으로 변경해야함.
