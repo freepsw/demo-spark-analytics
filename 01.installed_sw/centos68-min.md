@@ -80,6 +80,7 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 ```
 
 - centos7 
+- http://tecadmin.net/install-ruby-2-2-on-centos-rhel/
 ```
 # Step 1: Install Required Packages
 > sudo yum install gcc-c++ patch readline readline-devel zlib zlib-devel
