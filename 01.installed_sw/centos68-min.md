@@ -28,12 +28,16 @@ rts ALL=(ALL) ALL # 추가
 
 # install java 8
 - http://tecadmin.net/install-java-8-on-centos-rhel-and-fedora/#
+- java download site : http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 ```
 > sudo rts
 > yum install wget
 > mkdir apps
 > cd apps
 > wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jdk-8u102-linux-x64.rpm
+# 8.11 버전 url
+http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
+
 > sudo yum localinstall jdk-8u102-linux-x64.rpm
 > 
 ```
