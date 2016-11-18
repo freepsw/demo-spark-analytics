@@ -69,6 +69,48 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 > sudo easy_install pip
 ```
 
+# install ruby
+- centos6
+```
+> curl -L get.rvm.io | bash -s stable
+> source /home/rts/.rvm/scripts/rvm
+> rvm install 1.9.3
+> rvm use 1.9.3 --default
+> ruby -version
+```
+
+- centos7 
+```
+# Step 1: Install Required Packages
+> sudo yum install gcc-c++ patch readline readline-devel zlib zlib-devel
+> sudo yum install libyaml-devel libffi-devel openssl-devel make
+> sudo yum install bzip2 autoconf automake libtool bison iconv-devel sqlite-devel
+
+# Step 2: Install RVM
+> curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+> curl -L get.rvm.io | bash -s stable
+-> 위 명령어를 수행하면 아래와 같은 메세지가 보인다
+* WARNING: You have '~/.profile' file, 
+    you might want to load it,
+    to do that add the following line to '/home/rts/.bash_profile':
+      source ~/.profile
+
+# 위 메세지 대로 "source ~/.profile" 이 문구를 ~/.bash_profile에 추가한다.
+# 그리고 직접 실행도 한번 해 준다. 
+> source ~/.profile 
+> rvm reload
+RVM reloaded!
+
+# Step 3: Verify Dependencies
+> rvm requirements run
+Checking requirements for centos.
+Requirements installation successful
+
+# Step 4: Install Ruby 2.2
+> rvm install 2.2.4
+> ruby --version
+```
+
 # time 동기화
 - time 서버가 다른 지역의 서버로 설정되어 있을 경우,
 - kibana의 ui(client pc)의 시간과 달라 데이터가 보아지 않을 수 있다.
