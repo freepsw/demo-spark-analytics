@@ -33,7 +33,7 @@
 > vi config/elasticsearch.yml
 # bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
 # bind all ip server have "0.0.0.0"
- network.host: 0.0.0.0 
+ network.host: 0.0.0.0   (맨 앞에 스페이스와, ":" 다음에 스페이스를 추가해야 함.)
 ```
 
 
