@@ -8,7 +8,7 @@
  * 사용자들이 언제 어떤 음악을 듣는가? (customer_id와 track_id만 조회가능)
 
 ### - software 구성도
-![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
+![stage1 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
 
 
 ## [STEP 1] install elasticsearch and kibana
@@ -18,11 +18,11 @@
 ```
 > cd ~/demo-spark-analytics/sw
 
-# download 
+# download
 > wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.0/elasticsearch-2.4.0.tar.gz
 > tar xvf elasticsearch-2.4.0.tar.gz
 
-# install plugin 
+# install plugin
 > cd elasticsearch-2.4.0
 > bin/plugin install mobz/elasticsearch-head
 ```
@@ -77,7 +77,7 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
   - open kibana : http://localhost:5601
 
 ## [STEP 3] run data generator (data_generator.py)
-### source code 
+### source code
 - 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
 - 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
 - tracks.csv -> data generator(date를 현재 시간으로 조정) -> tracks_live.log
@@ -126,7 +126,7 @@ python data_generator.py
 
 
 ## [STEP 4] run logstash (logstash_stage1.conf)
-- tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다. 
+- tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다.
 
 ### configuration (collect logs and save to ES)
 - "demo-spark-analytics/00.stage1/logstash_stage1.conf"
@@ -160,7 +160,7 @@ output {
   stdout {
     codec => rubydebug{ }
   }
-  
+
   elasticsearch {
     hosts => "http://localhost:9200"
     index => "ba_realtime"
@@ -224,7 +224,7 @@ http://localhost:9200/_plugin/head/
 - kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
 - https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage1/kibana_visualization_guide_stage1.pptx
 
-####- index 추가 
+####- index 추가
  * http://localhost:5601/ 접속
  * [Settings] > [Indeices]로 이동
  * index name 입력 (kibana에서 시각화할 index)
@@ -233,25 +233,25 @@ http://localhost:9200/_plugin/head/
 ####- Discover
  * discovery에서 입력되는 count 확인
  * 각 record의 상세 데이터 확인
- * 조회할 기간 변경 
+ * 조회할 기간 변경
  * filter를 이용해서 검색어를 입력하여 원하는 데이터만 조회
  * 화면에 표시될 필드 선택하여 조회
  * 위의 bar 그래프에서 원하는 영역을 drag하여 drill down 조회
  * 사용자가 시각화한 포맷을 저장한다. "save"아이콘 활용
 
-####- visualization 메뉴를 이용하여 시각화 
- * [Visualize] > [Pie Chart] 
+####- visualization 메뉴를 이용하여 시각화
+ * [Visualize] > [Pie Chart]
   - 가장 많이 접속하는 지역과, 해당지역에서 접속하는 사용자 비율
   - Split Sliices > Terms > listening_zip_code
   - Split Slices > Terms > customer_id
   - Options > View options > check Donut
   - Save as "BA_S1: pie_chart Customer count per region"
 
- * [Visualize] > [Line Chart] 
+ * [Visualize] > [Line Chart]
   - X-Axis > Aggregation (Date Histogram) > Field(@timestamp) > Interval(Auto)
   - Y-Axis > Aggregation (Sum) > Field(ismobile)
-  - Dot Size > Aggregation(Unique Count) > Field(customer_id) 
- 
+  - Dot Size > Aggregation(Unique Count) > Field(customer_id)
+
  * [Visualize] > [Metrics]
 
  * [Visualize] > [Bar chart]

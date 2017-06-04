@@ -11,9 +11,9 @@
 ## Basic Concept
 https://kafka.apache.org/intro
 
-### Kafka API 
+### Kafka API
 - Producer, Consumer, Stream, Connector
-![apache kafka api] (https://kafka.apache.org/images/kafka-apis.png)
+![apache kafka api](https://kafka.apache.org/images/kafka-apis.png)
 
 ### Quick start
 https://kafka.apache.org/quickstart
@@ -22,7 +22,7 @@ https://kafka.apache.org/quickstart
 ## 1. Install (kafka_2.11-0.10.1.0)
 ```
 > cd ~/demo-spark-analytics/sw
-> wget http://apache.mirror.cdnetworks.com/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz 
+> wget http://apache.mirror.cdnetworks.com/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz
 > tar -xzf kafka_2.11-0.10.1.0.tgz
 > cd kafka_2.11-0.10.1.0
 ```
@@ -69,7 +69,7 @@ realtime-group1
 > bin/zookeeper-shell.sh localhost:2181
 ```
 
-## 7. delete topic 
+## 7. delete topic
 ```
 > bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic <topic_name>
 ```

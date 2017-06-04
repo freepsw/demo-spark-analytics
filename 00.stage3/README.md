@@ -1,13 +1,13 @@
 # Stage 3. Stage1 + Stage2 + spark mlLib
-- 회사의 매출향상을 위해 사용자들의 최근 광고 click 기록을 기반으로 요금제(FREE, SILVER, GOLD) 업그레드를 광고를 할 대상을 분류 
-- 분류된 사용자들 만을 대상으로 music을 듣기 바로 전에 광고 영상을 제공 
+- 회사의 매출향상을 위해 사용자들의 최근 광고 click 기록을 기반으로 요금제(FREE, SILVER, GOLD) 업그레드를 광고를 할 대상을 분류
+- 분류된 사용자들 만을 대상으로 music을 듣기 바로 전에 광고 영상을 제공
 
 ### - Software 구성도
-![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
+![stage3 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 
-## Stage 3의 주요 내용 
+## Stage 3의 주요 내용
 ### scenario
-- customer는 3가지 멤버십을 가지고 있다. 
+- customer는 3가지 멤버십을 가지고 있다.
 
 >
 - Free -- the base service which is free to subscribe, but has limits (for example, limited number of tracks, more ads, etc.)
@@ -17,23 +17,23 @@
 
 - 회계년도가 다가오면서 계획된 매출을 달성하기 위하여 CEO는 매출 향상을 위한 방안 제시를 지시함
 - Marketing team에서는 음악이 시작되기 바로전에 고객에게 광고(ondeay 멤버십 upgrade to gold discount(50%) event)를 보여주는 것을 제안
-- 그렇다고 모든 고객들이 접속할 때 마다 광고를 제공하는 것은 광고사업자에게 제공하는 비용이 너무 높아짐. 
+- 그렇다고 모든 고객들이 접속할 때 마다 광고를 제공하는 것은 광고사업자에게 제공하는 비용이 너무 높아짐.
 - 최근 고객들이 유사한 event 광고를 클릭한 패턴을 기반으로 event에 관심이 높을 것 같은 고객을 분류하고, 해당 고객에게만 event 광고를 하면 비용이 절약됨.
 - 그럼 어떻게? (중요한 요건)
- - The decision needs to be fast. 
+ - The decision needs to be fast.
   * 광고는 고객이 음악을 듣기 바로 전에 play되어야 한다.
   * "멤버십 upgrade 50% discount event에 참여하시겠습니까?"라는 문구로 고객관심 유
  - It needs to take into account the latest information.
   * 몇주 또는 몇개월 전의 고객 데이터는 고객의 성향이나 트렌드를 반영하지 못하므로, 최근 고객의 action을 기반으로 분류되어야 한다.
 
 ### use machine learning classification algorithm (SVM)
-- 아래의 data set을 이용할 것이다. 
-  * indicating which ad was played to the user and whether or not they clicked on it 
-  * 여기서 중요한 field는 customer가 어떤 광고(adClicked)를 클릭했고, 그때의 시간이 있을 것이다. 
+- 아래의 data set을 이용할 것이다.
+  * indicating which ad was played to the user and whether or not they clicked on it
+  * 여기서 중요한 field는 customer가 어떤 광고(adClicked)를 클릭했고, 그때의 시간이 있을 것이다.
   * 그 외에도 사용자가 성별, 나이, 주거지에 따라 다양한 변수들이 예측을 더 정확하게 할 수 있지만, 이번 실습에서는 간단하게 분류할 예정이다. (실습의 단순함을 위하여...)
 
 EventID | CustID | AdClicked | Localtime
------------- | ------------- | ------------- | ------------- 
+------------ | ------------- | ------------- | -------------
 0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
 
 ## [STEP 1] install python and packages
@@ -42,13 +42,13 @@ EventID | CustID | AdClicked | Localtime
 - 만약 centos를 사용하고, 아직 설치되어 있지 않다면 [link](https://www.lesstif.com/pages/viewpage.action?pageId=30705072)참고
 
 ### install python packages
-- package들 역시 demo용 vm에는 이미 설치되어 있다. 
+- package들 역시 demo용 vm에는 이미 설치되어 있다.
 - 만약 설치가 되어있지 않다면, 아래의 명령어로 설치
 ```
-> sudo pip install python 
+> sudo pip install python
 > sudo pip install numpy
 > sudo yum install python-devel #psutil 설치에 필요한 lib가 있음
-> sudo pip install psutil 
+> sudo pip install psutil
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
@@ -73,7 +73,7 @@ export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip
 ```
 > python create_features_for_ml.py
 RROR PythonRDD: Error while sending iterator
-java.net.SocketTimeoutException: Accept timed out 
+java.net.SocketTimeoutException: Accept timed out
 또 위와 같은 에러가 발생한다....
 ```
 - 에러가 발생되면서 종료되었지만,
@@ -378,7 +378,7 @@ print "LBFGS error: %s" % (str(err_1))
 - stage2에서 이미 compile & packaging이 완되어었으므로 생략 가능
 
 ### run spark streaming
-- spark-submit을 통해 spark application을 실행시킨다. 
+- spark-submit을 통해 spark application을 실행시킨다.
 ```
 > cd ~/demo-spark-analytics/00.stage3
 > ./run_spark_streaming_s3.sh
@@ -398,26 +398,26 @@ print "LBFGS error: %s" % (str(err_1))
 
 ## [STEP 5] run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 ### 기존에 구동한 sw가 동작중이라면 별도의 작업이 필요없음.
-### [중요!] stage2에서 동작한 spark streaming은 중지시켜야 한다. 
+### [중요!] stage2에서 동작한 spark streaming은 중지시켜야 한다.
 ### 새롭게 구동해야 한다면 아래의 절차를 따름
 - 1. elasticsearch 실행
-- 2. kibana 실행 
-- 3. zookeeper 실행 
-- 4. kafka server 실행 
-- 5. redis server 실행 
+- 2. kibana 실행
+- 3. zookeeper 실행
+- 4. kafka server 실행
+- 5. redis server 실행
 - 6. logstash 실행 (00.stage2의 logstash conf로 구동)
-- 7. data_generator 실행 
+- 7. data_generator 실행
 
 ## STEP 6) kibana를 이용한 데이터 시각화
-- 개인별 실습 과제 
+- 개인별 실습 과제
  - 추가된 필드인 SendEvent를 이용한 Visualization chart를 생성.
  - dashboard를 구성하고, 이를 json으로 export  
 
 ## STEP 6-1) Web page(html)에 kibana 화면 삽입하기.
-- kibana Web UI를 통하지 않고, 자체 웹서버의 UI에 kibana UI를 표시하고자 하는 경우 
+- kibana Web UI를 통하지 않고, 자체 웹서버의 UI에 kibana UI를 표시하고자 하는 경우
 - 웹에 삽입할 visualization 또는 dashboard 객체에서 [share] 버튼을 클릭하면  
 - iframe 주소가 화면에 표시되고, 이를 html 에 포함하면 자체 웹 ui에 화면이 표시됨.
-- 아래의 "kibana_iframe_sample.html" 파일을 이용하여 테스트 가능. 
+- 아래의 "kibana_iframe_sample.html" 파일을 이용하여 테스트 가능.
 ```javascript
 <html>
 <head>
@@ -432,6 +432,3 @@ print "LBFGS error: %s" % (str(err_1))
 </body>
 </html>
 ```
-
-
-

@@ -16,7 +16,7 @@
 ### 2). Data Model
 ####- Individual customers listening to individual tracks (tracks.csv)
 
-   ![Image of tracks table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table1.png)
+   ![Image of tracks table](https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table1.png)
  - 어떤 고객이 어떤 track(음악)을 들었는지 알려주거나, 모바일에서 접속했는지, 실제 음악을 들은 지역은 어디인지 알수 있는 정보.
  - The event, customer and track IDs tell us what occurred (a customer listened to a certain track), while the other fields tell us some associated information, like whether the customer was listening on a mobile device and a guess about their location while they were listening.
 
@@ -114,13 +114,13 @@ TrackId | Title | Artist | Length
 
 ## Part 3. Implementing demo project
 ### Stage 1 Demo scenario & implementation guide
-![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
+![stage1 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
 - https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
 
 ### Stage 2 Demo scenario & implementation guide
-![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
+![stage2 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 - https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage2
 
 ### Stage 3 Demo scenario & implementation guide
-![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
+![stage3 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
