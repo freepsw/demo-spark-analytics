@@ -22,8 +22,7 @@
 
 
 ####- Customer information (cust.csv)
-
-   ![Image of customers table] (https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
+   ![Image of customers table](https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
 >
  - The fields are defined as follows:
   - Customer ID: a unique identifier for that customer Name, gender, address, zip: the customer’s associated information  
@@ -38,18 +37,18 @@
    * WEBOFFER - an offer for web-originated customers  
 >
 
-####- Previous ad clicks(clicks.csv) 
-- indicating which ad was played to the user and whether or not they clicked on it 
+####- Previous ad clicks(clicks.csv)
+- indicating which ad was played to the user and whether or not they clicked on it
 
 EventID | CustID | AdClicked | Localtime
------------- | ------------- | ------------- | ------------- 
+------------ | ------------- | ------------- | -------------
 0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
 
 
 ####- Music information (music.csv)
 
 TrackId | Title | Artist | Length
------------- | ------------- | ------------- | ------------- 
+------------ | ------------- | ------------- | -------------
 0 | Caught Up In You | .38 Special | 200
 
 ####- Customer behaviors (live table) : summary data about listening habits, for example what time(s) of day were they listening, how much listening on a mobile device, and how many unique tracks they played
@@ -93,7 +92,7 @@ TrackId | Title | Artist | Length
 > mkdir sw
 ```
 
-### 2) demo에 필요한 open source 
+### 2) demo에 필요한 open source
 #### - development tools (library, pacakge ..) [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/centos68-min.md)
 - centos 6.8 minimal
 - java 1.8+
@@ -113,7 +112,7 @@ TrackId | Title | Artist | Length
 
 
 
-## Part 3. Implementing demo project 
+## Part 3. Implementing demo project
 ### Stage 1 Demo scenario & implementation guide
 ![stage1 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
 - https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage1
@@ -125,8 +124,3 @@ TrackId | Title | Artist | Length
 ### Stage 3 Demo scenario & implementation guide
 ![stage3 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
-
-
-
-
-
