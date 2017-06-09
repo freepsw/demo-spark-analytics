@@ -150,6 +150,10 @@ localhsot:8080
 
 # 4) authorized_keys에 해당 값(id_rsa.pub)을 복사
 > vi ~/.ssh/authorized_keys
+
+# spark 재시작
+> sbin/stop-all.sh
+> sbin/start-all.sh
 ```
 
 
