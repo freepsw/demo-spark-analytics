@@ -78,7 +78,7 @@ realtime
 - "zmalloc.h:51:31: error: jemalloc/jemalloc.h: No such file or directory"에러 발생시
 ```
 > make distclean
-> make 
+> make
 ```
 
 #### - run
@@ -131,9 +131,26 @@ export PATH=$PATH:$SPARK_HOME/bin
 > sbin/start-all.sh
 ```
 
+
 #### - open spark master web-ui with web browser
 localhsot:8080
+- 아래와 worker가 정상적으로 등록되지 않았다면,
+- ssh connection이 localhost에 정상적으로 접속하지 못해서 생기는 문제이다.
+- ssh connection을 자동으로 접속할 수 있도록 하자.
+```
+# 1) ssh key 생성
+> ssh-keygen -t rsa
 
+# 2) ssh public key를 remote서버로 복사
+#    remote server의  ~/.ssh/authorized_keys에 추가된다.
+> ssh-copy-id <계정명>@ip
+
+# 3) public key 값을 복사 (google cloud engine을 사용하는 경우에만 작업)
+> vi ~/.ssh/id_rsa.pub
+
+# 4) authorized_keys에 해당 값(id_rsa.pub)을 복사
+> vi ~/.ssh/authorized_keys
+```
 
 
 ## [STEP 2] import customer info to redis
