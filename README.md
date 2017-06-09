@@ -23,8 +23,7 @@
 
 ####- Customer information (cust.csv)
    ![Image of customers table](https://www.mapr.com/sites/default/files/blogimages/blog_RealTimeUser-table2.png)
->
- - The fields are defined as follows:
+- The fields are defined as follows:
   - Customer ID: a unique identifier for that customer Name, gender, address, zip: the customer’s associated information  
   - Sign date: the date of addition to the service  
   - Status: indicates whether or not the account is active (0 = closed, 1 = active)

@@ -1,17 +1,17 @@
 # Stage 2. Stage1 + distributed processing using apache spark
-- logstash에서  kafka로 저장하고, 이를 spark에서 실시간 분산처리 후 ES에 저장 
+- logstash에서  kafka로 저장하고, 이를 spark에서 실시간 분산처리 후 ES에 저장
  * logstash > kafka > spark streaming > ES/redis
 
-## Stage 2의 주요 내용 
+## Stage 2의 주요 내용
 ### 1 Stage1의 한계
  * Stage1에서는 실시간 Data가 많아지게 될 경우, 하나의 logstash로는 대량의 데이터 처리가 어려운 상황이다.
- * 또한 customer_id, track_id 이외의 구체적인 정보가 없어서 세분화된 분석을 하기 어렵다 (예를 들면 남성이 가장 좋아하는 음악은?) 
+ * 또한 customer_id, track_id 이외의 구체적인 정보가 없어서 세분화된 분석을 하기 어렵다 (예를 들면 남성이 가장 좋아하는 음악은?)
  * 매번 ES전체 table을 조회하여 데이터를 시각화하게 되어, 성능상의 부하가 예상된다.
 
 ### - Technical changes (support huge data processing using spark)
  * logstash의 biz logic(filter)을 단순화하여 최대한 많은 양을 전송하는 용도로 활용한다.
  * 그리고 kafka를 이용하여 대량의 데이터를 빠르고, 안전하게 저장 및 전달하는 Message queue로 활용한다.
- * Spark streaming은 kafka에서 받아온 데이터를 실시간 분산처리하여 대상 DB(ES or others)에 병렬로 저장한다. 
+ * Spark streaming은 kafka에서 받아온 데이터를 실시간 분산처리하여 대상 DB(ES or others)에 병렬로 저장한다.
   - 필요한 통계정보(최근 30분간 접속통계 등을 5분단위로 저장 등) 및  복잡한 biz logic지원
  * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
 
@@ -19,12 +19,12 @@
 ![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 
 ## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
-- elasticsearch와 kibana는 stage1의 내용 참 
+- elasticsearch와 kibana는 stage1의 내용 참
 
-### install apache kafka (kafka_2.11-0.10.1.0) 
+### install apache kafka (kafka_2.11-0.10.1.0)
 ```
 > cd ~/demo-spark-analytics/sw
-> wget http://apache.mirror.cdnetworks.com/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz 
+> wget http://apache.mirror.cdnetworks.com/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz
 > tar -xzf kafka_2.11-0.10.1.0.tgz
 > cd kafka_2.11-0.10.1.0
 ```
@@ -48,7 +48,7 @@ delete.topic.enable=true
 > cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
 > bin/kafka-server-start.sh config/server.properties
 
-# 만약 "Caused by: java.net.UnknownHostException: realtime"에러가 발생하면 
+# 만약 "Caused by: java.net.UnknownHostException: realtime"에러가 발생하면
 # /etc/hosts 파일에 hostname을 추가
 > sudo vi /etc/hosts
 127.0.0.1 호스트네임
@@ -63,7 +63,7 @@ delete.topic.enable=true
 > bin/kafka-topics.sh --list --zookeeper localhost:2181
 realtime
 ```
-- replication-factor : 메세지를 복제할 개수 (1은 원본만 유지) 
+- replication-factor : 메세지를 복제할 개수 (1은 원본만 유지)
 - partitions : 메세지를 몇개로 분산하여 저장할 것인지 결정 (갯수 만큼 병렬로 write/read 함)
 
 ### install redis (redis 3.0.7)
@@ -72,15 +72,16 @@ realtime
 > wget http://download.redis.io/releases/redis-3.0.7.tar.gz
 > tar -xzf redis-3.0.7.tar.gz
 > cd redis-3.0.7
+> sudo yum install gcc
 > make
 ```
 
-#### - run 
+#### - run
 ```
 > src/redis-server
 ```
 
-#### - test 
+#### - test
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-cli
@@ -141,7 +142,7 @@ localhsot:8080
 ### run import_customer_info.py (read customer info and insert into redis)
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> python import_customer_info.py 
+> python import_customer_info.py
 ```
 - redis에 정상적으로 저장되었는지 확인
 ```
@@ -163,11 +164,11 @@ import csv
 import numpy as np
 import random
 
-# 사용자에게 임의의 나이를 부여한다. 
+# 사용자에게 임의의 나이를 부여한다.
 # return age : 10세 단위의 나이에서 특정 나이 (11, 14..)를 랜덤으로 추출
 def get_age():
     # age10 : 10, 20..과 같은 나이대
-    # 나이대 별로 가중치를 부여하여, 20가 가장 많이 선택되고, 
+    # 나이대 별로 가중치를 부여하여, 20가 가장 많이 선택되고,
     # 그 다음으로 30, 40.. 으로 추출 되도록 설정
     age10 = random.choice([10, 20, 20, 20, 20, 30, 30, 30, 40, 40, 50, 60])
     start   = age10
@@ -176,15 +177,15 @@ def get_age():
     age = random.choice(np.arange(start, end))
     return age
 
-# 1. redis server에 접속한다. 
-r_server = redis.Redis('localhost') 
+# 1. redis server에 접속한다.
+r_server = redis.Redis('localhost')
 
 # 2. read customer info from file(csv)
 with open('./cust.csv', 'rb') as csvfile:
     # csv 파일에서 고객정보를 읽어온다.
     reader = csv.DictReader(csvfile, delimiter = ',')
     next(reader, None)
-    i = 1 
+    i = 1
     # save to redis as hashmap type
     # hash map 자료구조가 1개의 key에 다양한 사용자 정보를 저장/조회 할 수 있다.
     for row in reader:
@@ -235,7 +236,7 @@ with open('./cust.csv', 'rb') as csvfile:
 ## [STEP 3] run logstash (read logs --> kafka)
 
 ### logstash configuration
-- input 
+- input
  * tracks_live.csv (stage1에서 data_generator로 생성하는 file을 활용)
 - filter (적용하지 않음)
  * 이번 시나리오에서 logstash는 빠르게 수집하는 것에 초점.
@@ -258,7 +259,7 @@ output {
   stdout {
     codec => rubydebug{ }
   }
-  
+
   kafka {
     codec => plain {
       format => "%{message}"
@@ -308,7 +309,7 @@ Pipeline main started
 ### create spark application project using maven
 #### - 참고 create scala/java project using maven [link](https://github.com/freepsw/java_scala)
 - spark application은 scala와 java를 모두 사용할 수 있으므로,
-- maven project 구성 시에 .java, .scala파일을 모두 인식할 수 있도록 설정해야 한다. 
+- maven project 구성 시에 .java, .scala파일을 모두 인식할 수 있도록 설정해야 한다.
 - [link](https://github.com/freepsw/java_scala) 프로젝트를 참고.
 
 #### - pom.xml에 dependency 추가
@@ -352,14 +353,14 @@ Pipeline main started
 ```
 
 #### - spark streaming driver 코드 작성
--  SparkContex에 필요한 configuration을 설정한다. 
+-  SparkContex에 필요한 configuration을 설정한다.
 -  StreamingContext를 생성 (위의 sparkcontext활용, batch주기는 2초)
 
 >
 -  [STEP 1]. Create Kafka Receiver and receive message from kafka broker
- * kafka에서 데이터를 받기위한 Kafka receiver를 생성한다. 
+ * kafka에서 데이터를 받기위한 Kafka receiver를 생성한다.
  * 만얀 kafka partition이 여러개 일 경우, numReceiver를 partition 갯수만큼 지정
- * kafka receiver가 많아지면 데이터를 병렬로 읽어오게 된다. 
+ * kafka receiver가 많아지면 데이터를 병렬로 읽어오게 된다.
  * union을 활용하여 1개의 rdd로 join한다. (논리적으로 1개로 묶였을 뿐, 내부적으로는 여러개의 partition으로 구성됨)
 - [STEP 2]. parser message and join customer info from redis
  * kafkad에서 받아온 메세지 중에서 customer_id를 추출
@@ -466,7 +467,7 @@ object Stage2StreamingDriver {
 ### compile with scala ide(eclipse) or compile with maven command line
 - import project
 - compile
-- package 
+- package
  * target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar 파일이 생성됨.
  * ..-jar-with-dependencies.jar은 application에 필요한 모든 library가 포함된 파일
  * spark은 분산 환경에서 구동하기 때문에, 해당 library가 모든 서버에 존재해야만 정상적으로 실행,
@@ -480,15 +481,15 @@ object Stage2StreamingDriver {
 > mvn package
 > ls target
 # 필요한 library를 모두 합친 jar 파일이 생성되었다.
-demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar 
+demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-- spark-submit을 통해 spark application을 실행시킨다. 
+- spark-submit을 통해 spark application을 실행시킨다.
 ```
 > cd ~/demo-spark-analytics/00.stage2
 > ./run_spark_streaming_s2.sh
 ```
- 
+
 - 상세 설정
  * class : jar파일 내부에서 실제 구동할 class명
  * master : spark master의 ip:port(default 7077)
@@ -512,7 +513,7 @@ spark-submit \
   ./demo-streaming/target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## [STEP 5] generate customer log data 
+## [STEP 5] generate customer log data
 ### run data_generator
 - stage1에서 구동했던 프로세스이므로,
 - 만약 현재 구동중이라면 이 단계는 생략한다.  
@@ -530,7 +531,7 @@ spark-submit \
 
 ### kibana dashbboard하여 시각화
 - Kibana 메인메뉴 > Settings > Objects 클릭
-- "import"버튼을 클릭하고, 
+- "import"버튼을 클릭하고,
 - 00.stage2 폴더 아래에 있는 kibana_dashboard_s2.json 선택
 - 기존에 정의된 dashboard를 화면에 시각화하여 보여준다.
 
@@ -540,10 +541,10 @@ spark-submit \
 ## Etc 고려할 시나리오
  * spark : 1 node(client mode), save to ES/redis
   - customerid, trackid와 상세정보를 join(redis)하여 ES에 저장한다.
-  - 최근 30시간 동안 남자/여자가 가장 많이 들은 top 10 music 
+  - 최근 30시간 동안 남자/여자가 가장 많이 들은 top 10 music
  * customerid, trackid와 상세정보를 join(redis)하여 데이터를 추가한다. -> ES
 - compute a summary profile for each user
  * 특정기간(아침, 점심, 저녁)동안 각 사용자들이 들은 음악의 평균값 (언제 가장 많이 듣는가?)
  * 전체 사용자들이 들은 전체 음악 목록 (중복 제거한 unique값)
- * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique) 
+ * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique)
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES

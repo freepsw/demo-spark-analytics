@@ -174,10 +174,10 @@ output {
  * start_position : 처음 파일을 읽어올때 기존 내용을 전부 읽을 경우(beginning), 마지막 내용만 읽어올 경우(end, default)
 
 - filter
- * csv
+ - csv
   - csv파일의 내용을 명시한 field명으로 매핑하여 저장(elasticsearch에 저장될 field명)
   - seperator : 구분
- * date
+ - date
   - match : 지정한 field(지정한 date format을 가진)를 timestamp로 지정. (만약 아래 target이 별도로 지정되지 않는 경우.)
   - target : 위에서 매핑한 date를 elasticsearch의 기본 timestamp로 사용하지 않고, datetime으로 저장함. (만약 target이 없으면 datetime을 timestamp로 사용)
   - locale : log에 저장된 날짜 type이 영어권 지역인 경우, 지역에 맞는 parsing locale을 지정해야 한다.
