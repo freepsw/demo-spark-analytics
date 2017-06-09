@@ -83,6 +83,7 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 ### configuration (collect logs and save to ES)
 - "demo-spark-analytics/00.stage1/logstash_stage1.conf"
 - <PATH> 부분을 각자의 경로로 수정한다.
+
 ```javascript
 input {  
   file {
@@ -122,15 +123,15 @@ output {
 ```
 
 - input
- * path : 읽어올 파일이 절대 경로를 입력한다. (새로운 내용이 파일에 입력되면 즉시 해당 내용을 읽어온다. tail -f 와 동일한 기능)
- * start_position : 처음 파일을 읽어올때 기존 내용을 전부 읽을 경우(beginning), 마지막 내용만 읽어올 경우(end, default)
+ - path : 읽어올 파일이 절대 경로를 입력한다. (새로운 내용이 파일에 입력되면 즉시 해당 내용을 읽어온다. tail -f 와 동일한 기능)
+ - start_position : 처음 파일을 읽어올때 기존 내용을 전부 읽을 경우(beginning), 마지막 내용만 읽어올 경우(end, default)
 
 - filter
  - csv
-  - csv파일의 내용을 명시한 field명으로 매핑하여 저장(elasticsearch에 저장될 field명)
-  - seperator : 구분
+  > - csv파일의 내용을 명시한 field명으로 매핑하여 저장(elasticsearch에 저장될 field명)
+  > - seperator : 구분
  - date
-  - match : 지정한 field(지정한 date format을 가진)를 timestamp로 지정. (만약 아래 target이 별도로 지정되지 않는 경우.)
+  > match : 지정한 field(지정한 date format을 가진)를 timestamp로 지정. (만약 아래 target이 별도로 지정되지 않는 경우.)
   - target : 위에서 매핑한 date를 elasticsearch의 기본 timestamp로 사용하지 않고, datetime으로 저장함. (만약 target이 없으면 datetime을 timestamp로 사용)
   - locale : log에 저장된 날짜 type이 영어권 지역인 경우, 지역에 맞는 parsing locale을 지정해야 한다.
  * mutate
