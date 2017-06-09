@@ -16,7 +16,7 @@
  * redis는 spark streaming에서 customer/music id를 빠르게 join하기 위한 memory cache역할을 한다.
 
 ### - Software 구성도
-![stage2 architecture] (https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
+![stage2 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 
 ## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 - elasticsearch와 kibana는 stage1의 내용 참
@@ -490,17 +490,9 @@ object Stage2StreamingDriver {
 }
 ```
 
-### compile with scala ide(eclipse) or compile with maven command line
-- import project
-- compile
-- package
- * target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar 파일이 생성됨.
- * ..-jar-with-dependencies.jar은 application에 필요한 모든 library가 포함된 파일
- * spark은 분산 환경에서 구동하기 때문에, 해당 library가 모든 서버에 존재해야만 정상적으로 실행,
- * 이러한 문제를 해결하기 위해서 jar파일 내부에 필요한 모든 library를 포함하도록 실행파일 생성.
 
-### run spark streaming
-- compile source
+### compile spark application and run spark streaming
+- compile with maven command line
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
 > mvn compile
@@ -508,6 +500,9 @@ object Stage2StreamingDriver {
 > ls target
 # 필요한 library를 모두 합친 jar 파일이 생성되었다.
 demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
+* ..-jar-with-dependencies.jar은 application에 필요한 모든 library가 포함된 파일
+* spark은 분산 환경에서 구동하기 때문에, 해당 library가 모든 서버에 존재해야만 정상적으로 실행,
+* 이러한 문제를 해결하기 위해서 jar파일 내부에 필요한 모든 library를 포함하도록 실행파일 생성.
 ```
 
 - spark-submit을 통해 spark application을 실행시킨다.
