@@ -102,6 +102,7 @@ trainfile = open('features1.txt', 'wb')
 def make_tracks_kv(str):
     l = str.split(",")
     # key = l[1] (customer_id)
+    # Value = l[2] trackid, l[3] date, l[4] Mobile, l[5] listening_zip_code
     return [l[1], [[int(l[2]), l[3], int(l[4]), l[5]]]]
 
 def clicks_summary(str):

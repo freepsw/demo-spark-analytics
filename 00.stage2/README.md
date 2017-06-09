@@ -263,14 +263,14 @@ with open('./cust.csv', 'rb') as csvfile:
 
 ### logstash configuration
 - input
- * tracks_live.csv (stage1에서 data_generator로 생성하는 file을 활용)
+  - tracks_live.csv (stage1에서 data_generator로 생성하는 file을 활용)
 - filter (적용하지 않음)
- * 이번 시나리오에서 logstash는 빠르게 수집하는 것에 초점.
- * 실제 데이터에 대한 처라(filter, aggregation...)는 spark streaming에서 처리
+  - 이번 시나리오에서 logstash는 빠르게 수집하는 것에 초점.
+  - 실제 데이터에 대한 처라(filter, aggregation...)는 spark streaming에서 처리
 -  output
- * codec : logs에서 읽은 문자열을 그대로 kafka로 저장
- * bootstrap_servers : kafka server(broker)의 ip:port
- * topic_id : kafka에서 생성한 topic 명 (spark에서 동일 topic명으로 데이터를 읽음)
+  - codec : logs에서 읽은 문자열을 그대로 kafka로 저장
+  - bootstrap_servers : kafka server(broker)의 ip:port
+  - topic_id : kafka에서 생성한 topic 명 (spark에서 동일 topic명으로 데이터를 읽음)
 
 ```javascript
 input {  

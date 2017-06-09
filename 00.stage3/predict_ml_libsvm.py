@@ -6,7 +6,7 @@ from pyspark.mllib.classification import LogisticRegressionWithLBFGS
 import redis
 from pyspark.mllib.classification import LogisticRegressionWithSGD
 
-conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("local[1]")
+conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("spark://localhost:7077")
 sc = SparkContext(conf=conf)
 r = redis.Redis('localhost')
 r.set("key1", "value1")
@@ -132,4 +132,3 @@ print "LBFGS error: %s" % (str(err_1))
 #     return model_1.predict(p.features)
 # # 2-2.  전체 사용자를 대상으로 Event 클릭 여부를 예측한다.
 # results_2 = all.map(lambda p: (p.label,  predict_lr_lbfgs(p)))
-

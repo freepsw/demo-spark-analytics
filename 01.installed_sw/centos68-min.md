@@ -39,10 +39,10 @@ rts ALL=(ALL) ALL # 추가
 http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 
 > sudo yum localinstall jdk-8u102-linux-x64.rpm
-> 
+>
 ```
 
-# install maven 
+# install maven
 - http://xxun.tistory.com/233
 ```
 > sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
@@ -79,7 +79,7 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 > ruby -version
 ```
 
-- centos7 
+- centos7
 - http://tecadmin.net/install-ruby-2-2-on-centos-rhel/ P
 ```
 # Step 1: Install Required Packages
@@ -91,14 +91,14 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 > curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 > curl -L get.rvm.io | bash -s stable
 -> 위 명령어를 수행하면 아래와 같은 메세지가 보인다
-* WARNING: You have '~/.profile' file, 
+* WARNING: You have '~/.profile' file,
     you might want to load it,
     to do that add the following line to '/home/rts/.bash_profile':
       source ~/.profile
 
 # 위 메세지 대로 "source ~/.profile" 이 문구를 ~/.bash_profile에 추가한다.
-# 그리고 직접 실행도 한번 해 준다. 
-> source ~/.profile 
+# 그리고 직접 실행도 한번 해 준다.
+> source ~/.profile
 > rvm reload
 RVM reloaded!
 
@@ -125,7 +125,7 @@ Requirements installation successful
   server time.kornet.net
 
 > chkconfig ntpd on
-> /etc/init.d/ntpd start
+> sudo /etc/init.d/ntpd start
 > ntpq -p (확인)
 
 # CentOS 7x
@@ -136,7 +136,11 @@ server 1.asia.pool.ntp.org
 server 2.asia.pool.ntp.org
 server 3.asia.pool.ntp.org
 
-> systemctl start ntpd
+# centos 6.x
+> service ntpd restart
+
+# centos 7.x
+> systemctl restart ntpd
 > systemctl enable ntpd
 ```
 # timezone 변경
