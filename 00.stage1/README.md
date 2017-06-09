@@ -76,56 +76,8 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
   - open elasticsearch : http://localhost:9200/_plugin/head/
   - open kibana : http://localhost:5601
 
-## [STEP 3] run data generator (data_generator.py)
-### source code
-- 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
-- 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
-- tracks.csv -> data generator(date를 현재 시간으로 조정) -> tracks_live.log
-- 1,000,000건이 저장된 tracks.csv에서 파일을 읽어서, 랜덤한 시간 간격으로 tracks_live.csv에 쓴다.
-- data_generator.py
-```python
-#-*- coding: utf-8 -*-
-import time
-import random
 
-r_fname = "tracks.csv"
-w_fname = "tracks_live.csv"
-rf = open(r_fname)
-wf = open(w_fname, "a+")
-
-try:
-  num_lines = sum(1 for line in rf)
-  rf.seek(0)
-  lines = 0
-
-  while (1):
-    line = rf.readline()
-    wf.write(line)
-    wf.flush()
-
-    # sleep for weighted time period
-    stime = random.choice([1, 1, 1, 0.5, 0.5, 0.8, 0.3, 2, 0.1, 3])
-    time.sleep(stime)
-    lines += 1
-
-    # exit if read all lines
-    if(lines == num_lines):
-      break
-
-finally:
-  rf.close()
-  wf.close()
-  print "close file"
-```
-
-### run data_generator.py
-```
-cd ~/demo-spark-analytics/00.stage1
-python data_generator.py
-```
-
-
-## [STEP 4] run logstash (logstash_stage1.conf)
+## [STEP 3] run logstash (logstash_stage1.conf)
 - tracks_live.csv 파일을 읽어서온 후, 필드별로 type을 지정하고 elasticsearch에 저장한다.
 
 ### configuration (collect logs and save to ES)
@@ -217,6 +169,54 @@ http://localhost:9200/ba_realtime/_count
 //open with web brower
 http://localhost:9200/_plugin/head/
 // Overview menu에 생성한 index와 document type이 존재하는지 확인
+```
+
+## [STEP 4] run data generator (data_generator.py)
+### source code
+- 실시간으로 데이터가 유입될 수 있도록 data generator에서 특정 file에 write (random time period)
+- 이는 실시간으로 사용자들이 접속하는 log를 재연하기 위한 용도로 사용.
+- tracks.csv -> data generator(date를 현재 시간으로 조정) -> tracks_live.log
+- 1,000,000건이 저장된 tracks.csv에서 파일을 읽어서, 랜덤한 시간 간격으로 tracks_live.csv에 쓴다.
+- data_generator.py
+```python
+#-*- coding: utf-8 -*-
+import time
+import random
+
+r_fname = "tracks.csv"
+w_fname = "tracks_live.csv"
+rf = open(r_fname)
+wf = open(w_fname, "a+")
+
+try:
+  num_lines = sum(1 for line in rf)
+  rf.seek(0)
+  lines = 0
+
+  while (1):
+    line = rf.readline()
+    wf.write(line)
+    wf.flush()
+
+    # sleep for weighted time period
+    stime = random.choice([1, 1, 1, 0.5, 0.5, 0.8, 0.3, 2, 0.1, 3])
+    time.sleep(stime)
+    lines += 1
+
+    # exit if read all lines
+    if(lines == num_lines):
+      break
+
+finally:
+  rf.close()
+  wf.close()
+  print "close file"
+```
+
+### run data_generator.py
+```
+cd ~/demo-spark-analytics/00.stage1
+python data_generator.py
 ```
 
 
