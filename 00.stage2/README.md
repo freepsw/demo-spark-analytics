@@ -75,6 +75,11 @@ realtime
 > sudo yum -y install gcc-c++
 > make
 ```
+- "zmalloc.h:51:31: error: jemalloc/jemalloc.h: No such file or directory"에러 발생시
+```
+> make distclean
+> make 
+```
 
 #### - run
 ```
