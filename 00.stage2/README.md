@@ -141,14 +141,14 @@ localhsot:8080
 # 1) ssh key 생성
 > ssh-keygen -t rsa
 
-# 2) ssh public key를 remote서버로 복사
+# 2-1) 외부 ssh연결을 할 경우, ssh public key를 remote서버로 복사
 #    remote server의  ~/.ssh/authorized_keys에 추가된다.
 > ssh-copy-id <계정명>@ip
 
-# 3) public key 값을 복사 (google cloud engine을 사용하는 경우에만 작업)
+# 2-2) localhost에 ssh연결할 경우, public key 값을 복사
 > vi ~/.ssh/id_rsa.pub
 
-# 4) authorized_keys에 해당 값(id_rsa.pub)을 복사
+# 3) authorized_keys에 해당 값(id_rsa.pub)을 복사
 > vi ~/.ssh/authorized_keys
 
 # spark 재시작
@@ -512,15 +512,15 @@ demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 - 상세 설정
- * class : jar파일 내부에서 실제 구동할 class명
- * master : spark master의 ip:port(default 7077)
- * deploy-mode : spark는 driver와 executor로 구분되어 동작하게 됨. 여기서 driver의 구동 위치를 결정
+  - class : jar파일 내부에서 실제 구동할 class명
+  - master : spark master의 ip:port(default 7077)
+  - deploy-mode : spark는 driver와 executor로 구분되어 동작하게 됨. 여기서 driver의 구동 위치를 결정
   - client : 현재 spark-submit을 실행한 서버에 driver가 구동됨.
   - cluster : spark master가 cluster node 중에서 1개의 node를 지정해서, 해당 node에서 driver 구동
- * driver-memory : driver 프로세스에 할당되는 메모리
- * executor-memory : executor 1개당 할당되는 메모리
- * total-executor-cores : Total cores for all executors.
- * executor-cores : Number of cores per executor
+  - driver-memory : driver 프로세스에 할당되는 메모리
+  - executor-memory : executor 1개당 할당되는 메모리
+  - total-executor-cores : Total cores for all executors.
+  - executor-cores : Number of cores per executor
 ```shell
 spark-submit \
   --class io.skiper.driver.Stage2StreamingDriver \
