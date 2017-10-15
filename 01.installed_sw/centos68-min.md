@@ -59,13 +59,20 @@ http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm
 > ..링크된 웹페이 따라서 해보기..
 ```
 
-- 필요한 python util설치
+## - 필요한 python util설치 (1)
 - http://grompany.blogspot.kr/2013/11/python-266-centos-62-python-273.html
 ```
 > wget https://pypi.python.org/packages/source/d/distribute/distribute-0.6.49.tar.gz --no-check-certificate
 > tar xf distribute-0.6.49.tar.gz
 > cd distribute-0.6.49
 > sudo python setup.py install
+> sudo easy_install pip
+```
+
+## - python util 설치 (2)
+```
+> sudo wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
+
 > sudo easy_install pip
 ```
 
