@@ -324,7 +324,7 @@ Pipeline main started
 - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
 - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-0.10.1.0
+> cd ~/demo-spark-analytics/sw/kafka_2.11-0.11.0.2
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
