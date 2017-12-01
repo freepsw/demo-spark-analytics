@@ -496,6 +496,7 @@ object Stage2StreamingDriver {
 - compile with maven command line
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
+> sudo yum install maven
 > mvn compile
 > mvn package
 > ls target
