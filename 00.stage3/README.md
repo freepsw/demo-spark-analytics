@@ -384,6 +384,9 @@ print "LBFGS error: %s" % (str(err_1))
 > cd ~/demo-spark-analytics/00.stage3
 > ./run_spark_streaming_s3.sh
 ```
+- google compute engine에서 실행하면, spark master에 접속할 수 없다는 오류 발생함.
+- 아마도 spark master에 localhost로의 접속이 안되는것 같은데.. public ip로 바꾸어야 할듯..
+- 일단 local[2]로 변경하면 해결됨. 
 
 ### redis에 광고를 보내라는 메세지가 정상적으로 입력되었는지 확인
 ```

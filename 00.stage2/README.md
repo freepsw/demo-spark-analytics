@@ -156,6 +156,14 @@ localhsot:8080
 > sbin/start-all.sh
 ```
 
+#### permission deny 에러 발생시
+- authorized_keys 파일의 권한이 부여되지 않아서 발생함.
+- 어떤 원인으로 해당 권한이 달라졌는지는 알수 없으나, 아래와 같이 권한 부여
+```
+> chmod 700 ~/.ssh
+> chmod 600 ~/.ssh/authorized_keys
+```
+
 
 ## [STEP 2] import customer info to redis
 ### install python redis package
