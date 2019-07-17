@@ -21,7 +21,7 @@
 ## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 - elasticsearch와 kibana는 stage1의 내용 참
 
-### install apache kafka (kafka_2.11-0.10.1.0)
+### install apache kafka (kafka_2.12-2.2.0)
 ```
 > cd ~/demo-spark-analytics/sw
 > wget http://apache.mirror.cdnetworks.com/kafka/2.2.0/kafka_2.12-2.2.0.tgz
@@ -146,7 +146,8 @@ localhsot:8080
 > ssh-copy-id <계정명>@ip
 
 # 2-2) localhost에 ssh연결할 경우, public key 값을 복사
-> vi ~/.ssh/id_rsa.pub
+> cat ~/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDT8cVQAMFRbbFqnts58F+yp/3CC0hWtEeZ24HBsAt34fvoKIWGsIfIUA1F+9aRndiOzsA0lRePHegwGL/wA/N5chvJD2JGzbwaTOi+7KCp3DlvcUk4MiWd6nr1ZtfvJbMWABYF8ouNJMPdTR6Yx8Iifxr1NEo2CjBfyqxTTYmOM2btR+27TvwHuDrx47AUBZes0YmYw8IMP0K0KPikVKGblgHskqqdeKqul8KEVIHiBeitabIMp3iFtu0EM3F6lGuBT3/TFT47pEiLi9ECekmAwlSHgbFNx5vTEe7fRtIqUFE/+yulTvCb6ljJtXgfVsAWk1Vd7Z8p97xbLnqgTOMl userid@instance-vm
 
 # 3) authorized_keys에 해당 값(id_rsa.pub)을 복사
 > vi ~/.ssh/authorized_keys
@@ -171,7 +172,7 @@ localhsot:8080
 ```
 > sudo easy_install pip
 > sudo pip install redis
-> sudo yum install numpy
+> sudo yum install -y numpy
 ```
 
 ### run import_customer_info.py (read customer info and insert into redis)
@@ -282,6 +283,9 @@ with open('./cust.csv', 'rb') as csvfile:
   - topic_id : kafka에서 생성한 topic 명 (spark에서 동일 topic명으로 데이터를 읽음)
 
 ```javascript
+> cd ~/demo-spark-analytics/00.stage2
+> vi logstash_stage2.conf
+
 input {  
   file {
     path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
@@ -308,7 +312,7 @@ output {
 ### run logstash
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> logstash -f logstash_stage2.conf
+> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage2.conf
 # 아래와 같은 메세지가 출력되면 정상
 Settings: Default pipeline workers: 8
 Pipeline main started
@@ -332,7 +336,7 @@ Pipeline main started
 - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
 - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-0.11.0.2
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.2.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
@@ -504,7 +508,7 @@ object Stage2StreamingDriver {
 - compile with maven command line
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
-> sudo yum install maven
+> sudo yum install -y maven
 > mvn compile
 > mvn package
 > ls target
