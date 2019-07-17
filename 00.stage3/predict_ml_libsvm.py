@@ -6,7 +6,7 @@ from pyspark.mllib.classification import LogisticRegressionWithLBFGS
 import redis
 from pyspark.mllib.classification import LogisticRegressionWithSGD
 
-conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("spark://localhost:7077")
+conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("local[2]")
 sc = SparkContext(conf=conf)
 r = redis.Redis('localhost')
 r.set("key1", "value1")

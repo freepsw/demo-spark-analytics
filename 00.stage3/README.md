@@ -47,20 +47,14 @@ EventID | CustID | AdClicked | Localtime
 ```
 > sudo pip install python
 > sudo pip install numpy
-> sudo yum install python-devel #psutil 설치에 필요한 lib가 있음
+> sudo yum install -y python-devel #psutil 설치에 필요한 lib가 있음
 > sudo pip install psutil
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
 ## [STEP 2] make training datat set(features) from user log
-### run python script(create_features_for_ml.py)
-```
-> cd ~/demo-spark-analytics/00.stage3
-> python create_features_for_ml.py
-ERROR No module named pyspark 발생
-```
 
-- No module name pyspark 에러 수정
+### pyspark 실행을 위한 설정
 ```
 > vi ~/.bash_profile
 아래 내용을 추가
@@ -69,10 +63,11 @@ export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip
 > source ~/.bash_profile
 ```
 
-### 다시 실행 run python script(create_features_for_ml.py)
+### run python script(create_features_for_ml.py)
 ```
+> cd ~/demo-spark-analytics/00.stage3
 > python create_features_for_ml.py
-RROR PythonRDD: Error while sending iterator
+ERROR PythonRDD: Error while sending iterator
 java.net.SocketTimeoutException: Accept timed out
 또 위와 같은 에러가 발생한다....
 ```
@@ -386,7 +381,7 @@ print "LBFGS error: %s" % (str(err_1))
 ```
 - google compute engine에서 실행하면, spark master에 접속할 수 없다는 오류 발생함.
 - 아마도 spark master에 localhost로의 접속이 안되는것 같은데.. public ip로 바꾸어야 할듯..
-- 일단 local[2]로 변경하면 해결됨. 
+- 일단 local[2]로 변경하면 해결됨.
 
 ### redis에 광고를 보내라는 메세지가 정상적으로 입력되었는지 확인
 ```
