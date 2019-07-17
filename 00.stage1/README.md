@@ -46,7 +46,6 @@ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jr
 - elasticsearh [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
 ```
-> mkdir -p  ~/demo-spark-analytics/sw
 > cd ~/demo-spark-analytics/sw
 
 # download
@@ -64,7 +63,7 @@ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jr
 > vi config/elasticsearch.yml
 # bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
 # bind all ip server have "0.0.0.0"
- network.host: 0.0.0.0   (맨 앞에 스페이스와, ":" 다음에 스페이스를 추가해야 함.)
+network.host: 0.0.0.0   (":" 다음에 스페이스를 추가해야 함.)
 ```
 
 
@@ -116,6 +115,7 @@ export PATH=$PATH:~/demo-spark-analytics/sw/logstash-2.4.0/bin
 - <PATH> 부분을 각자의 경로로 수정한다.
 
 ```javascript
+> vi ~/demo-spark-analytics/00.stage1/logstash_stage1.conf
 input {  
   file {
     path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
@@ -176,7 +176,7 @@ output {
 #### run logstash
 ```
 > cd ~/demo-spark-analytics/00.stage1
-> logstash -f logstash_stage1.conf
+> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage1.conf
 ```
 
 #### check result
