@@ -69,7 +69,7 @@ export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip
 > python create_features_for_ml.py
 ERROR PythonRDD: Error while sending iterator
 java.net.SocketTimeoutException: Accept timed out
-또 위와 같은 에러가 발생한다....
+가끔 위와 같은 에러가 발생한다.... (서버의 자원이 부족한 경우 발생)
 ```
 - 에러가 발생되면서 종료되었지만,
 - features1.txt 파일을 보면, 정상적으로 결과가 write되고 있었다.
