@@ -11,11 +11,42 @@
 ![stage1 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage1.png)
 
 
+## [Prerequisite] Install system library
+
+
+
+### 실습에 필요한 라이브러리 설치
+```
+# Java 설치
+> sudo yum install -y java
+
+# console에 JAVA_HOME 설정
+> export JAVA_HOME=$(alternatives --display java | grep current | sed 's/link currently points to //' | sed 's|/bin/java||')
+> echo $JAVA_HOME
+/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
+
+# user shell에 JAVA_HOME 설정
+> vi ~/.bash_profile
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
+
+> source ~/.bash_profile
+```
+
+### Download git project
+```
+> cd ~
+> sudo yum install -y wget git
+> git clone https://github.com/freepsw/demo-spark-analytics.git
+> cd demo-spark-analytics
+> mkdir sw
+```
+
 ## [STEP 1] install elasticsearch and kibana
 
 - elasticsearh [link](https://github.com/freepsw/demo-spark-analytics/blob/master/01.installed_sw/elasticsearch.md)
 
 ```
+> mkdir -p  ~/demo-spark-analytics/sw
 > cd ~/demo-spark-analytics/sw
 
 # download
