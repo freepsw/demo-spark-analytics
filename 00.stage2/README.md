@@ -126,14 +126,26 @@ export PATH=$PATH:$SPARK_HOME/bin
 > source ~/.bash_profile
 ```
 
+#### - Set ssh connection without password
+```
+> ssh-keygen -t rsa
+> cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+> chmod og-wx ~/.ssh/authorized_keys 
+
+# 정상적으로 접속되는지 확인
+> ssh user_id@localhost
+```
+
+
 #### - run spark master
 ```
 > sbin/start-all.sh
 ```
 
-
 #### - open spark master web-ui with web browser
 localhsot:8080
+
+### Permission Error 발생시
 - 아래와 worker가 정상적으로 등록되지 않았다면,
 - ssh connection이 localhost에 정상적으로 접속하지 못해서 생기는 문제이다.
 - ssh connection을 자동으로 접속할 수 있도록 하자.
@@ -145,24 +157,14 @@ localhsot:8080
 #    remote server의  ~/.ssh/authorized_keys에 추가된다.
 > ssh-copy-id <계정명>@ip
 
-# 2-2) localhost에 ssh연결할 경우, public key 값을 복사
-> cat ~/.ssh/id_rsa.pub
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDT8cVQAMFRbbFqnts58F+yp/3CC0hWtEeZ24HBsAt34fvoKIWGsIfIUA1F+9aRndiOzsA0lRePHegwGL/wA/N5chvJD2JGzbwaTOi+7KCp3DlvcUk4MiWd6nr1ZtfvJbMWABYF8ouNJMPdTR6Yx8Iifxr1NEo2CjBfyqxTTYmOM2btR+27TvwHuDrx47AUBZes0YmYw8IMP0K0KPikVKGblgHskqqdeKqul8KEVIHiBeitabIMp3iFtu0EM3F6lGuBT3/TFT47pEiLi9ECekmAwlSHgbFNx5vTEe7fRtIqUFE/+yulTvCb6ljJtXgfVsAWk1Vd7Z8p97xbLnqgTOMl userid@instance-vm
-
-# 3) authorized_keys에 해당 값(id_rsa.pub)을 복사
-> vi ~/.ssh/authorized_keys
+# authorized_keys 파일의 권한이 부여되지 않아서 발생함.
+# 어떤 원인으로 해당 권한이 달라졌는지는 알수 없으나, 아래와 같이 권한 부여
+> chmod 700 ~/.ssh
+> chmod 600 ~/.ssh/authorized_keys
 
 # spark 재시작
 > sbin/stop-all.sh
 > sbin/start-all.sh
-```
-
-#### permission deny 에러 발생시
-- authorized_keys 파일의 권한이 부여되지 않아서 발생함.
-- 어떤 원인으로 해당 권한이 달라졌는지는 알수 없으나, 아래와 같이 권한 부여
-```
-> chmod 700 ~/.ssh
-> chmod 600 ~/.ssh/authorized_keys
 ```
 
 
