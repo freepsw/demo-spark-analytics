@@ -1,3 +1,5 @@
+# VSCode file
+*.code-workspace
 # Directories #
 /build/
 /bin/
