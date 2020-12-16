@@ -17,65 +17,27 @@
 
 ### 해결방안 
 - Cloud Service를 활용하여 하드웨어 동적 할당 및 복잡한 오픈소스 운영 비용 감소
+
+
+## Technical Changes (using gcp cloud service)
 #### Managed Service인 PubSub, DataProc를 활용하여 빅데이터 시스템 운영 최소화
 - Apache Kafka를 대체하여 메세지 큐 서비스인 PubSub을 활용
 - Apache Spark를 대체하여 실시간 대용량 처리를 위한 DataProc 활용
-#### Cloud의 사용량 기반 서비스 활용
-- 사용량에 따라 동적으로 클러스터를 할당하여 사용한 만큼만 비용 사용
-- PubSub, DataProc 모두 사용자가 클러스터 확장에 대한 고민없이, 필요한 만큼 자동으로 인프라를 할당
+- Cloud의 사용량 기반 서비스 활용
+    - 사용량에 따라 동적으로 클러스터를 할당하여 사용한 만큼만 비용 사용
+    - PubSub, DataProc 모두 사용자가 클러스터 확장에 대한 고민없이, 필요한 만큼 자동으로 인프라를 할당
+#### ELK Stack version 업그레이드
+- 최신 버전으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
 
 
-## [STEP 1] Create a topic using the GCP PubSub 
-- Apache Kafka를 대체할 메세지 큐 서비스인 PubSub을 활용하여 Topic을 생성
-- Topic 명은 realtime 
+## [STEP 0] 1단계 Apache Spark를 DataProc로 대체 & ELK 업그레이드 준비
+- 한번에 Cloud로 전환하는 것보다, 우선적으로 필요한 것을 먼저 cloud로 전환하여 안정성을 검증하고
+- 이후 필요한 서비스를 cloud로 전환한다. 
+- Apache Spark는 시간이 지날수록 많은 운영비용(인력, 인프라)이 추가되므로, 1단계 전환 대상으로 선정한다.
+- 그리고, 기존 ELK stack의 버전(2.4.0)을 최신 버전으로 업그레이드
 
 
-
-## [STEP 2] Install spark 
-```
-> cd ~/demo-spark-analytics/sw/
-> wget https://downloads.apache.org/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
-> tar xvf spark-2.4.7-bin-hadoop2.7.tgz
-> cd spark-2.4.7-bin-hadoop2.7
-
-# slave 설정
-> cp conf/slaves.template conf/slaves
-localhost //현재  별도의 slave node가 없으므로 localhost를 slave node로 사용
-
-# spark master 설정
-# 현재 demo에서는 별도로 변경할 설정이 없다. (실제 적용시 다양한 설정 값 적용)
-> cp conf/spark-env.sh.template conf/spark-env.sh
-
-> vi ~/.bash_profile
-# 마지막 line에 아래 내용을 추가한다.
-export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.4.7-bin-hadoop2.7
-export PATH=$PATH:$SPARK_HOME/bin
-export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:$PYTHONPATH
-```
-
-### 소매 데이터 중 날짜별(by-day) 데이터 사용
-- 샘플 : https://github.com/FVBros/Spark-The-Definitive-Guide/blob/master/data/retail-data/by-day/2010-12-01.csv
-> wget https://github.com/FVBros/Spark-The-Definitive-Guide/tree/master/data/retail-data
-
-```scala
-val staticDataFrame = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("/home/freepsw/Spark-The-Definitive-Guide/data/retail-data/by-day/*.csv")
-
-staticDataFrame.createOrReplaceTempView("retail_data")
-val staticSchema = staticDataFrame.schema
-
-import org.apache.spark.sql.functions.{window, column, desc, col}
-staticDataFrame.selectExpr(
-    "CustomerId",
-    "(UnitPrice * Quantity) as total_cost",
-    "InvoiceDate").groupBy(
-    col("CustomerId"), window(col("InvoiceDate"), "1 day")).sum("total_cost").show(5)
-
-```
-
-
-
-
-## [STEP 3] Install ELK Stack (Elasticsearch + Logstash + Kibana)
+## [STEP 1] Install ELK Stack (Elasticsearch + Logstash + Kibana)
 - Elasticsearch를 비즈니에서 활용시 주의사항 (OSS버전 vs Default)
     - OSS는 elasticsearch를 이용하여 별도의 제품/솔루션으로 판매할 목적인 경우에 활용
     - Basic은 기업 내부에서는 무료로 사용가능 
@@ -88,20 +50,11 @@ staticDataFrame.selectExpr(
 
 ### Install an Elasticsearch 
 - https://www.elastic.co/guide/en/elastic-stack/current/installing-elastic-stack.html 참고
-
 ```
 > cd ~/demo-spark-analytics/sw
-
-# download
 > wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-linux-x86_64.tar.gz
-
 > tar -xzf elasticsearch-7.10.1-linux-x86_64.tar.gz
-
-# install plugin
-> cd elasticsearch-7.10.1/
-> bin/plugin install mobz/elasticsearch-head
 ```
-
 - config 설정 
     - 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
     - master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
@@ -110,7 +63,8 @@ staticDataFrame.selectExpr(
 > vi config/elasticsearch.yml
 # bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
 # bind all ip server have "0.0.0.0"
-network.host: 0.0.0.0   (":" 다음에 스페이스를 추가해야 함.)
+
+network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
 
 cluster.initial_master_nodes: ["서버이름 또는 IP"]
 ```
@@ -120,6 +74,7 @@ cluster.initial_master_nodes: ["서버이름 또는 IP"]
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
 > bin/elasticsearch
 
+# 아래와 같은 에러가 발생함. 
 ERROR: [3] bootstrap checks failed
 [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]
 [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
@@ -192,7 +147,7 @@ vm.max_map_count = 262144
 [2020-12-14T10:18:18,806][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [freepsw-test] Active license is now [BASIC]; Security is disabled
 ```
 
-### Install a kibana 
+### Install and run a kibana 
 ```
 > cd ~/demo-spark-analytics/sw
 > curl -O https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-linux-x86_64.tar.gz
@@ -234,11 +189,372 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 }
 ```
 
-### Run stage1
+## [STEP 2] Run apache kafka cluster
+#### - run zookeeper
 ```
-> ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage1.conf
+> bin/zookeeper-server-start.sh config/zookeeper.properties
+```
+
+#### - run kafka
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> bin/kafka-server-start.sh config/server.properties
+```
+
+## [STEP 3] Gcloud 설정
+- gcp의 cloud 서비스를 명령어로 생성/실행 할 수 있는 gcloud라는 도구를 설치하여
+- gcp 계정과 연결한다. 
+
+### gcloud 설치 
+```
+> sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
+[google-cloud-sdk]
+name=Google Cloud SDK
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOM
+
+> sudo yum install -y google-cloud-sdk
+
+> gcloud --version
+Google Cloud SDK 320.0.0
+alpha 2020.12.04
+beta 2020.12.04
+bq 2.0.64
+core 2020.12.04
+gsutil 4.55
+kubectl 1.17.14
+
+> gcloud init
+# 아래 항목에서 [2] Log in with a new account 선택 
+.......
+Choose the account you would like to use to perform operations for
+this configuration:
+ [1] 455258827586-compute@developer.gserviceaccount.com
+ [2] Log in with a new account
+Please enter your numeric choice: 2
+
+Your credentials may be visible to others with access to this
+virtual machine. Are you sure you want to authenticate with
+your personal account?
+
+# 아래에서 Y 입력
+Do you want to continue (Y/n)?   Y
+
+# 아래 출력된 링크로 웹 브라우저에서 접속
+Go to the following link in your browser:
+
+    https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=32555940559.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&state=vJ5TtWcbjBzCMKL3ffkhCaCptt2Fea&code_challenge=S5aY4D7CmMMCUGty_6nvxtprdzxEaY_hl_Jt_JLZzDY&prompt=consent&code_challenge_method=S256&access_type=offline
+
+# 접속후 구글 계정을 선택하고, 화면에 표시되는 Code를 복사하여 아래에 붙여넣기 
+Enter verification code: 4/1AY0e-g7_v-EyHSMwSTjIyPrAW6JdeW6n8tebv1EolWx0q_B9wiGzEEpYJlw
+
+Enter verification code: 4/1AY0e-g7_v-EyHSMwSTjIyPrAW6JdeW6n8tebv1EolWx0q_B9wiGzEEpYJlw
+You are logged in as: [frexxxxw@xxxx.com].
+
+# GCP 프로젝트를 선택한다. 
+Pick cloud project to use:
+ [1] ds-ai-platform
+ [2] Create a new project
+Please enter numeric choice or text value (must exactly match list
+item):  1
+
+# 디폴트로 지정되는 리전을 지정한다. (옵션)
+Do you want to configure a default Compute Region and Zone? (Y/n)? Y
+
+# 출력되는 리전의 번호 중에서 원하는 리전을 선택한다. ([33] asia-northeast1-c 선택)
+ [29] asia-southeast1-b
+ [30] asia-southeast1-a
+ [31] asia-southeast1-c
+ [32] asia-northeast1-b
+ [33] asia-northeast1-c
+ [34] asia-northeast1-a
+Please enter numeric choice or text value (must exactly match list
+item): 33
+
+# Default region/zone을 변경하려는 경우 (서울로 변경)
+> gcloud config set compute/zone asia-northeast3-c 
+> gcloud config get-value compute/zone
+asia-northeast3-c
+
+# 설치 완료 및 테스트
+> gcloud config get-value project
+ds-ai-platform
+```
+
+- (참고)  gcloud로 다른 계정으로 로그인 하는 경우
+```
+> gcloud auth login
+> gcloud config get-value project
+my-old-project
+
+> gcloud config set project my-new-project
+> gcloud compute instances list
+```
+
+### gcloud로 사용할 gcp service 활성화 
+- GCP의 다양한 서비스를 활용하기 위해서는 해당 서비스를 활성화(enable) 해야한다. 
+    - 실습에 필요한 dataproc 서비스 활성화
+```
+> gcloud services enable \
+    dataproc.googleapis.com
+Operation "operations/acf.653a6d8d-9829-4ef4-8d47-05b54f25decf" finished successfully.
+
 ```
 
 
+## [STEP 4] Create DataProc 
+### Cretea a service account and iam role
+- GCP에 가입하면 본인의 계정이 생성된다. 
+- 여기서 생성하는 service account는 GCP에서 사용할 서비스에 접근 권한을 가지는 별도의 서비스를 의미한다.
+- 이렇게 service account를 별도로 생성하는 이유는 
+    - 내가 생성한 모든 GCP 서비스에 대한 접근을 세분화하여 관리하기 위함이다. 
+    - 예를 들어 이번 실습에서 생성할 DataProc의 접근 할 수 있는 권한을 특정 service account에만 부여하여,
+    - 다른 용도로 생성한 service account에서 접근할 수 없도록(서비스를 임의로 삭제, 중지 하는 등) 권한을 제어한다.
+```
+# Create service account 
+> export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+> gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
+Created service account [dataproc-service-account].
 
-export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"
+
+# Add an iam role to service account for dataproc
+> export PROJECT=$(gcloud info --format='value(config.project)')
+> gcloud projects add-iam-policy-binding $PROJECT \
+    --role roles/dataproc.worker \
+    --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
+```    
+
+### Cretea a dataproc cluster
+- DataProc를 생성하여 Apache Spark cluster를 쉽게 구성한다. 
+- 아래 옵션 외에도 다양한 생성 옵션을 제공
+    - 참고 : https://cloud.google.com/sdk/gcloud/reference/dataproc/clusters/create
+```
+# 아래에서 별도로 지정하지 않았지만, default로 설정되는 값은
+# worker node : 2개 (n1-standard-4 type)
+# Disk : 100GB
+# SSD : 기본은 지정되지 않으나, 아래 명령어로 할당 가능 (개수로 할당, 1개당 375G )
+#  --num-master-local-ssds=1 \
+#  --num-worker-local-ssds=1 \
+# scopes : dataproc에서 접근 가능한 gcp 서비스를 명시한다. (이번 실습에서는 pubsub에 접속하지 않지만, 다음 실습용으로 추가하여 생성)
+
+> gcloud dataproc clusters create demo-cluster \
+    --region=asia-northeast3 \
+    --zone=asia-northeast3-c\
+    --scopes=pubsub \
+    --image-version=1.2 \
+    --service-account="$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
+```
+
+
+## [STEP 5]  Run sample spark job
+- Maven에서 Java 애플리케이션을 runnable jar 파일로 만드는 방법은 아래와 같이 대략 3가지 방법이 있다.
+    - maven-jar-plugin : src/main/java, src/main/resources 만 포함한다.
+    - maven-assembling-plugin: depdendencies jar 를 파일들을 함께 모듈화 한다.
+    - maven-shade-plugin: depdendencies jar 를 파일을 함께 모듈화 하고 중복되는 클래스가 있을경우 relocate
+- https://warpgate3.tistory.com/entry/Maven-Shade 참고
+
+### Pom.xml 설정 관련 (maven-shade-plugin 활용)
+- Jar 생성시 의존관계가 있는 모든 library를 추가하는 설정
+    - 자바 어플리케이션의 모든 패키지와, 그에 의존관계에 있는 패키지 라이브러리까지 모두 하나의 'jar' 에 담겨져 있는 것
+    - http://asuraiv.blogspot.com/2016/01/maven-shade-plugin-1-resource.html 참고
+- 기본 설정 <Configuration>
+    - 1. <execution>에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
+        - 즉, mvn package를 실행하면, shade:shade를 실행하도록 하여,
+        - 모든 의존관계가 있는 library를 포함하여 jar파일을 target/ 디렉토리 아래에 생성한다. 
+    - 2. <transformers> 에서 ManifestResourcesTransformer를 이용하여 기본으로 실행할 class를 지정한다. 
+        - 기존에는 Manifest 파일에서 실행 가능한 jar를 생성할 때 지정하는 옵션
+        - Maniest.txt 파일에 "Main-Class: demo.TrendingHashtags"를 지정하는 것과 동일한 설정 
+        - 즉, java -jar ~.jar 실행시 별도로 main class를 지정하지 않아도 내부적으로 Main-Class의 main을 실행함
+    - 3. <relocations>
+        - jar 파일내의 특정 패키지 구조를 변경한다. 
+        - 여기서는 com 패키지를 repackaged.com으로 구조를 변경하고, 
+        - com을 사용하는 모든 클래스들이 변경된 패키지를 사용하도록 변경한다.
+            - 즉, 실행환경에서 동일한 라이브러리가 버전만 다르게 존재하는 경우, 
+            - 내가 원하지 않는 버전의 라이브러리가 실행되는 경우가 발생(버전만 다를 뿐 패키지 명은 동일하기 때문에 오류 유발)
+            - 이를 위해서 내가 사용하는 라이브러리의 패키지 명을 다른 이름으로 변경해서, 
+            - 명확하게 필요한 라이브러리를 호출하도록 한다. 
+        - https://javacan.tistory.com/entry/mavenshadeplugin 참고 
+
+- pom.xml
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>2.4.3</version>
+            <executions>
+                <!-- 1. mvn package 설정 -->    
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                    <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                    <!-- 2. Jar 파일의 기본 실행 Class 지정 -->    
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>io.skiper.driver.Stage4StreamingDataprocKafka</mainClass>
+<!--                  <mainClass>io.skiper.driver.Stage4StreamingDataprocPubsub</mainClass>-->
+                            </transformer>
+                        </transformers>
+
+                    <!-- 3. Jar 파일의 패키지 구조를 변경한다. com => repackaged.com -->    
+                        <relocations>
+                            <relocation>
+                            <pattern>com</pattern>
+                            <shadedPattern>repackaged.com</shadedPattern>
+                            <includes>
+                                <include>com.google.protobuf.**</include>
+                                <include>com.google.common.**</include>
+                            </includes>
+                            </relocation>
+                        </relocations>
+                    </configuration>
+                </execution>
+            </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
+
+### Compile and run spark job
+```
+# jdk 1.8이 사전에 설치되어 있어야 함. 
+> sudo yum install -y git maven
+> sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+
+> git clone https://github.com/GoogleCloudPlatform/dataproc-pubsub-spark-streaming
+> cd dataproc-pubsub-spark-streaming/spark
+> mvn clean package
+> ls -alh  target
+-rw-rw-r--. 1 freepsw freepsw 32K 12월 15 12:54 original-spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
+-rw-rw-r--. 1 freepsw freepsw 17M 12월 15 12:55 spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
+
+```
+
+# Submit spark job to dataroc
+```
+> export PROJECT=$(gcloud info --format='value(config.project)')
+> export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"
+> export SPARK_PROPERTIES="spark.dynamicAllocation.enabled=false,spark.streaming.receiver.writeAheadLog.enabled=true"
+
+> gcloud dataproc jobs submit spark \
+--cluster demo-cluster \
+--region asia-northeast3  \
+--async \
+--jar target/$JAR \
+--max-failures-per-hour 10 \
+--properties $SPARK_PROPERTIES \
+--driver-log-levels root=FATAL 
+
+# 아래와 같이 정상적으로 작업이 할당됨. 
+Job [446ca40670bf4c55be0e690710882a20] submitted.
+jobUuid: 592f937e-2310-31f2-8d91-992196c6ba3e
+placement:
+  clusterName: demo-cluster
+  clusterUuid: aa8b54c0-0b08-4a5d-adae-644d159a2f65
+reference:
+  jobId: 446ca40670bf4c55be0e690710882a20
+  projectId: ds-ai-platform
+scheduling:
+  maxFailuresPerHour: 10
+sparkJob:
+  args:
+  - ds-ai-platform
+  - '60'
+  - '20'
+  - '60'
+  - hdfs:///user/spark/checkpoint
+  mainJarFileUri: gs://dataproc-staging-asia-northeast3-455258827586-owsdz48p/google-cloud-dataproc-metainfo/aa8b54c0-0b08-4a5d-adae-644d159a2f65/jobs/446ca40670bf4c55be0e690710882a20/staging/spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
+  properties:
+    spark.dynamicAllocation.enabled: 'false'
+    spark.streaming.receiver.writeAheadLog.enabled: 'true'
+status:
+  state: PENDING
+  stateStartTime: '2020-12-15T13:07:04.803Z'
+```
+
+- 위에서 생성한 job이 정상 동작함.
+```
+> gcloud dataproc jobs list --region=asia-northeast3 --state-filter=active
+JOB_ID                            TYPE   STATUS
+446ca40670bf4c55be0e690710882a20  spark  RUNNING
+```
+
+-  아래의 jobs에 JOB_ID를 입력하여 웹브라우저로 접속하여, 실행한 job이 정상 실행 중인지 확인한다. 
+    - https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?region=asia-northeast3
+
+
+
+
+
+
+## [STEP 6] Collect the log data using logstash 
+### Run logstash 
+```
+> cd ~/demo-spark-analytics/00.stage2
+> vi logstash_stage2.conf
+```
+
+### Generate steaming data using data-generator.py
+```
+> cd ~/demo-spark-analytics/00.stage1
+> python data_generator.py
+```
+
+## [STEP 6]  최종 처리 결과 확인
+### DataProc 로그 확인 
+- 아래의 jobs에 JOB_ID를 입력하여 웹브라우저로 접속한다. 
+https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?region=asia-northeast3
+- 로그에서 정상적으로 출력되는 것을 확인
+```
+ map = Map(@timestamp -> 2020-12-16 14:25:18.027, customer_id -> 392, track_id -> 29, ismobile -> 0, listening_zip_code -> 74428, name -> Melissa Thornton, age -> 23, gender -> 1, zip -> 85646, Address -> 79994 Hazy Goat Flats, SignDate -> 02/25/2013, Status -> 0, Level -> 1, Campaign -> 3, LinkedWithApps -> 0)
+(@timestamp,2020-12-16 14:25:18.027)
+(customer_id,392)
+(track_id,29)
+(ismobile,0)
+(listening_zip_code,74428)
+(name,Melissa Thornton)
+(age,23)
+(gender,1)
+(zip,85646)
+(Address,79994 Hazy Goat Flats)
+(SignDate,02/25/2013)
+(Status,0)
+(Level,1)
+(Campaign,3)
+(LinkedWithApps,0)
+```
+- 여기서 master를 local[*]로 지정하면, 로그가 정상적으로 출력됨 
+    - 왜냐하면, worker가 driver에서 실행되므로 driver의 로그를 바로 화면에 출력
+- 만약 master를 지정하지 않았다면, 위와 같은 로그가 출력되지 않음.
+    - 왜냐하면, woker가 다른 노드에서 실행되므로 driver에서 로그를 출력할 수 없음.
+    - 따라서 디버깅 용도로 실행하려면 new SparkConf().setMaster("local[2]")로 지정해서 실행해야 함.
+
+
+### Hadoop Cluster Web UI 정보 확인 
+- DataProc은 오픈소스 Hadoop/Spark를 쉽게 사용하도록 지원하는 서비스이다. 
+- 따라서 오픈소스 hadoop에서 제공하는 web ui에도 접근이 가능한다. 
+- 브라우저에서 웹으로 접속하려면 IP/Port를 알아야 한다. 
+    - IP 확인 : COMPUTE > Compute Engine > VM Instances 접속
+        - cluster명(여기서는 demo-cluster-m)을 확인하고, 외부 IP를 확인 
+    - PORT 확인
+        - 8088은 Hadoop을 위한 포트
+        - 9870은 HDFS를 위한 포트
+        - 19888은 Hadoop 데이터 노드의 Jobhistory 정보
+- 원하는 정보를 보기 위해서 브라우저에 IP:PORT를 입력하여 접속한다. 
+- https://jeongchul.tistory.com/589 참고
+
+
+
+## [ETC]
+### DataProc의 동적 확장
+```
+> gcloud dataproc clusters update example-cluster --num-workers 4
+```

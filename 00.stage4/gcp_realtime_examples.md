@@ -82,7 +82,7 @@ asia-northeast3-c
 ds-ai-platform
 ```
 
-- gcloud로 다른 계정으로 로그인 하는 경우
+- (참고) gcloud로 다른 계정으로 로그인 하는 경우
 ```
 > gcloud auth login
 > gcloud config get-value project
@@ -92,6 +92,8 @@ my-old-project
 > gcloud compute instances list
 ```
 
+### gcloud로 사용할 gcp service 활성화 
+- GCP의 다양한 서비스를 활용하기 위해서는 해당 서비스를 활성화(enable) 해야한다. 
 ```
 > gcloud services enable \
     dataproc.googleapis.com \
@@ -140,9 +142,8 @@ object DataStoreConverter {
   ....생략 
 }
 ```
-
+### App Engine 생성하기 
 ```
-# App Engine을 생성
 > gcloud app create --region=asia-northeast3
 ```
 
@@ -291,17 +292,18 @@ Created [https://dataproc.googleapis.com/v1/projects/ds-ai-platform/regions/asia
 ```
 
 ### Compile and run spark job
+- 컴파일 하여 실행 가능한 jar 파일을 생성한다. 
 ```
 # jdk 1.8이 사전에 설치되어 있어야 함. 
 > sudo yum install -y git maven
 > sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
-> git clone https://github.com/GoogleCloudPlatform/dataproc-pubsub-spark-streaming
-> cd dataproc-pubsub-spark-streaming/spark
+> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud
+
 > mvn clean package
 > ls -alh  target
--rw-rw-r--. 1 freepsw freepsw 32K 12월 15 12:54 original-spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
--rw-rw-r--. 1 freepsw freepsw 17M 12월 15 12:55 spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
+-rw-rw-r--. 1 freepsw freepsw 111M 12월 16 12:48 demo-streaming-cloud-1.0-SNAPSHOT.jar
+-rw-rw-r--. 1 freepsw freepsw  61K 12월 16 12:47 original-demo-streaming-cloud-1.0-SNAPSHOT.jar
 
 ```
 
