@@ -75,8 +75,9 @@ TrackId | Title | Artist | Length
 - Stage2의 spark streaming에 광고타겟 사용자일 경우 SMS전송 기능 추가 (Redis로 저장 -> SMS 서버에서 발송)
 
 
-#### Stage 4. Stage 1~3 + advanced visualization for web page with c3.js or slamData
-- nodejs를 이용하여 직접 실시간 데이터의 시각화
+#### Stage 4. Stage 1~3 + replace open source sw with public cloud service (dataproc, pubsub)
+- Cloud에서 제공하는 실시간 대용량 빅데이터 처리 기술을 활용하여 서비스를 안정적으로 제공
+- 전체 서비스 중에서 대량의 데이터를 처리하는 영역인 Apache Kafka와 Apache Spark 영역을 GCP 서비스로 대체
 
 
 ## Part 2. Project settings
@@ -123,3 +124,8 @@ TrackId | Title | Artist | Length
 ### Stage 3 Demo scenario & implementation guide
 ![stage3 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage3.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
+
+
+### Stage 4 Demo scenario & implementation guide
+![stage3 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4.png)
+https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4

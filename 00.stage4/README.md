@@ -189,7 +189,7 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 }
 ```
 
-## [STEP 2] Run apache kafka cluster
+## [STEP 2] Run apache kafka cluster and redis 
 #### - run zookeeper
 ```
 > bin/zookeeper-server-start.sh config/zookeeper.properties
@@ -200,6 +200,38 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 > cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
 > bin/kafka-server-start.sh config/server.properties
 ```
+
+#### - run redis 
+```
+> src/redis-server
+```
+- redis에 정상적으로 저장되었는지 확인
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+127.0.0.1:6379> hgetall 2 #사용자 id 2번에 대한 정보를 조회
+ 1) "gender"
+ 2) "0"
+ 3) "name"
+ 4) "Paula Peltier"
+ 5) "age"
+ 6) "30"
+ 7) "zip"
+ 8) "66216"
+ 9) "Address"
+10) "10084 Easy Gate Bend"
+11) "Status"
+12) "1"
+13) "SignDate"
+14) "01/13/2013"
+15) "Campaign"
+16) "4"
+17) "Level"
+18) "0"
+19) "LinkedWithApps"
+20) "1"
+```
+
 
 ## [STEP 3] Gcloud 설정
 - gcp의 cloud 서비스를 명령어로 생성/실행 할 수 있는 gcloud라는 도구를 설치하여
