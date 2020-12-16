@@ -29,7 +29,7 @@
 - 최신 버전으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
 
 ### - Software 구성도
-![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4.png)
+![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-1.png)
 
 
 ## [STEP 0] 1단계 Apache Spark를 DataProc로 대체 & ELK 업그레이드 준비
