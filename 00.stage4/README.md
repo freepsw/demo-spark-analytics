@@ -238,3 +238,7 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 ```
 > ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage1.conf
 ```
+
+
+
+export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"

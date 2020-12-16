@@ -173,6 +173,14 @@ Created service account [dataproc-service-account].
     --role roles/dataproc.worker \
     --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
 Updated IAM policy for project [ds-ai-platform].
+bindings:
+- members:
+  - serviceAccount:455258827586@cloudbuild.gserviceaccount.com
+  role: roles/appengine.appAdmin
+  ....
+  role: roles/viewer
+etag: BwW2kwpLE0k=
+version: 1
 
 # Add an iam role to service account for datastore
 > gcloud projects add-iam-policy-binding $PROJECT \
@@ -287,6 +295,7 @@ Created [https://dataproc.googleapis.com/v1/projects/ds-ai-platform/regions/asia
 # jdk 1.8이 사전에 설치되어 있어야 함. 
 > sudo yum install -y git maven
 > sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+
 > git clone https://github.com/GoogleCloudPlatform/dataproc-pubsub-spark-streaming
 > cd dataproc-pubsub-spark-streaming/spark
 > mvn clean package
@@ -474,6 +483,20 @@ datetime
 hashtags
 [{"name":"without","occurrences":"9"},{"name":"career","occurrences":"7"},{"name":"figure","occurrences":"7"},{"occurrences":"7","name":"information"},{"name":"traditional","occurrences":"7"},{"name":"brother","occurrences":"6"},{"occurrences":"6","name":"father"},{"occurrences":"6","name":"finish"},{"occurrences":"6","name":"hospital"},{"occurrences":"6","name":"knowledge"}]
 ```
+
+### Hadoop Cluster Web UI 정보 확인 
+- DataProc은 오픈소스 Hadoop/Spark를 쉽게 사용하도록 지원하는 서비스이다. 
+- 따라서 오픈소스 hadoop에서 제공하는 web ui에도 접근이 가능한다. 
+- 브라우저에서 웹으로 접속하려면 IP/Port를 알아야 한다. 
+    - IP 확인 : COMPUTE > Compute Engine > VM Instances 접속
+        - cluster명(여기서는 demo-cluster-m)을 확인하고, 외부 IP를 확인 
+    - PORT 확인
+        - 8088은 Hadoop을 위한 포트
+        - 9870은 HDFS를 위한 포트
+        - 19888은 Hadoop 데이터 노드의 Jobhistory 정보
+- 원하는 정보를 보기 위해서 브라우저에 IP:PORT를 입력하여 접속한다. 
+- https://jeongchul.tistory.com/589 참고
+
 
 
 

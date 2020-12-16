@@ -1,5 +1,6 @@
 package io.skiper.driver
 
+import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -7,22 +8,41 @@ import java.util.Calendar
 import com.redis.RedisClient
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
+import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import org.apache.spark.streaming.pubsub.{PubsubUtils, SparkGCPCredentials}
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted, StreamingListenerBatchStarted, StreamingListenerBatchSubmitted}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.elasticsearch.spark.rdd.EsSpark
 
 import scala.collection.mutable
 
-object Stage2StreamingDriver {
+object Stage4StreamingDataprocPubsub {
   def main(args: Array[String]) {
+    if (args.length != 1) {
+      System.err.println(
+        """
+          | Usage: Stage4StreamingDataprocPubsub <projectID>
+          |
+          |     <projectID>: ID of Google Cloud project
+          |
+        """.stripMargin)
+      System.exit(1)
+    }
+    val Seq(projectID) = args.toSeq
+
 
 //    val host_server = "localhost"
     val host_server = "34.64.80.77"
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
-    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입
+//    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+
+    // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음.
+    val sparkConf = new SparkConf().setAppName("Stage2_Streaming")
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", host_server)
     sparkConf.set("es.port", "9200")
@@ -47,6 +67,8 @@ object Stage2StreamingDriver {
       "enable.auto.commit" -> (true: java.lang.Boolean)
     )
 
+
+
     val kafkaStreams = (1 to 1).map { i =>
       KafkaUtils.createDirectStream[String, String](
         ssc,
@@ -55,18 +77,30 @@ object Stage2StreamingDriver {
     }
     val messages = ssc.union(kafkaStreams)
 
+
+    val messagesStream: DStream[String] = PubsubUtils
+      .createStream(
+        ssc,
+        projectID,
+        None,
+        "tweets-subscription",  // Cloud Pub/Sub subscription for incoming tweets
+        SparkGCPCredentials.builder.build(), StorageLevel.MEMORY_AND_DISK_SER_2)
+      .map(message => new String(message.getData(), StandardCharsets.UTF_8))
+
     // [STEP 2]. parser message and join customer info from redis
     // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
     val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
-    val lines = messages.map(_.value)
+//    val lines = messages.map(_.value)
+    val lines = messagesStream
+    println(lines.toString)
 
     val wordList    = lines.mapPartitions(iter => {
       val r = new RedisClient(host_server, 6379)
       iter.toList.map(s => {
         val listMap = new mutable.LinkedHashMap[String, Any]()
         val split   = s.split(",")
-        //        println(s)
-        //        println(split(0))
+        println(s)
+        println(split(0))
 
         listMap.put(columnList(0), getTimestamp()) //timestamp
         listMap.put(columnList(1), split(1).trim) //customer_id
