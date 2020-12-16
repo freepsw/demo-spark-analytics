@@ -1,7 +1,7 @@
 # [Example] DataProc + Pub/Sub + Apache spark streaming
 - https://cloud.google.com/solutions/using-apache-spark-dstreams-with-dataproc-and-pubsub?authuser=1
 
-## [STEP 1] Gcloud 설정
+## [STEP 0] Gcloud 설정
 ```
 > sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
 [google-cloud-sdk]
@@ -102,8 +102,49 @@ Operation "operations/acf.653a6d8d-9829-4ef4-8d47-05b54f25decf" finished success
 
 ```
 
-gcloud app create --region=asia-northeast3
+## [STEP 1] Create DataStore
+- DataStore를 따로 생성하지 않고, AppEngine API를 통해서 DataStore의 Entity를 생성한다. 
+    - 참고 : https://cloud.google.com/appengine/docs/standard/java/datastore/creating-entities?hl=ko
+- 죽 Java/Scala의 Entity 클래스를 생성하면, 이를 DataStore의 Entity의 항목으로 함께 저장하는 방식이다. 
+- 여기서는 Spark Code의 DataStoreConverter 클래스를 보면 확인이 가능하다. 
+    - 내부 흐름을 보면
+    - convertToEntity --> convertToDatastore --> saveRDDtoDataStore로 저장됨. 
+    - DataStoreConverter.scala
+```scala
+object DataStoreConverter {
 
+  private def convertToDatastore(keyFactory: KeyFactory,
+                                 record: Popularity): FullEntity[IncompleteKey] =
+    FullEntity.newBuilder(keyFactory.newKey())
+      .set("name", record.tag)
+      .set("occurrences", record.amount)
+      .build()
+
+  // 수집된 데이터를 Entity로 변경하고, 
+  // 이를 다시 DataStore로 변경하는 작업을 수행. 
+  private[demo] def convertToEntity(hashtags: Array[Popularity],
+                                    keyFactory: String => KeyFactory): FullEntity[IncompleteKey] = {
+    val hashtagKeyFactory: KeyFactory = keyFactory("Hashtag")
+
+    val listValue = hashtags.foldLeft[ListValue.Builder](ListValue.newBuilder())(
+      (listValue, hashTag) => listValue.addValue(convertToDatastore(hashtagKeyFactory, hashTag))
+    )
+
+    val rowKeyFactory: KeyFactory = keyFactory("TrendingHashtags")
+
+    FullEntity.newBuilder(rowKeyFactory.newKey())
+      .set("datetime", Timestamp.now())
+      .set("hashtags", listValue.build())
+      .build()
+  }
+  ....생략 
+}
+```
+
+```
+# App Engine을 생성
+> gcloud app create --region=asia-northeast3
+```
 
 ## [STEP 2] Create Pub/Sub topic and subscription
 ```
