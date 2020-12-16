@@ -17,7 +17,7 @@
 
 ### 실습에 필요한 라이브러리 설치
 ```
-# Java 설치
+# Java 설치 (v1.8)
 > sudo yum install -y java
 
 # console에 JAVA_HOME 설정
@@ -148,7 +148,6 @@ output {
   elasticsearch {
     hosts => "http://localhost:9200"
     index => "ba_realtime"
-    document_type => "stage1"
   }
 }
 ```

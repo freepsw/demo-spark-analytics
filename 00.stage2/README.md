@@ -38,6 +38,14 @@
 delete.topic.enable=true
 ```
 
+- 외부에서 apache kafka 접속할 수 있도록 설정
+- 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> vi config/server.properties
+advertised.listeners=PLAINTEXT://서버IP:9092 
+```
+
 #### - run zookeeper
 ```
 > bin/zookeeper-server-start.sh config/zookeeper.properties
