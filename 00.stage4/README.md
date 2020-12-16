@@ -13,7 +13,6 @@
         - 적시에 하드웨어를 다시 구매하지 못하면, 증가하는 사용자를 처리하지 못하여 서비스 장애 또는 서비스 접속오류 발생
         - 늘어난 오픈소스 소프트웨어의 운영 복잡성으로 서비스 안정화에 더 많은 인력 필요. 
 - 초기 스타트업은 핵심 비즈니스에 집중해야 한다.. 
-#### 어떻게 해결할 수 있을까?
 
 ### 해결방안 
 - Cloud Service를 활용하여 하드웨어 동적 할당 및 복잡한 오픈소스 운영 비용 감소
@@ -28,6 +27,9 @@
     - PubSub, DataProc 모두 사용자가 클러스터 확장에 대한 고민없이, 필요한 만큼 자동으로 인프라를 할당
 #### ELK Stack version 업그레이드
 - 최신 버전으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
+
+### - Software 구성도
+![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4.png)
 
 
 ## [STEP 0] 1단계 Apache Spark를 DataProc로 대체 & ELK 업그레이드 준비

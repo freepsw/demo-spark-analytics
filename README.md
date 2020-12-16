@@ -127,5 +127,5 @@ https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
 
 
 ### Stage 4 Demo scenario & implementation guide
-![stage3 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4.png)
+![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4
