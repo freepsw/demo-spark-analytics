@@ -26,7 +26,7 @@ object Stage4StreamingDataprocKafka {
     // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage4_Streaming")
 
     // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음.
-    val sparkConf = new SparkConf().setAppName("Stage2_Streaming")
+    val sparkConf = new SparkConf().setAppName("Stage4_Streaming")
     
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", host_server)
