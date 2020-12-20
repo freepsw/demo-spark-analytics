@@ -3,7 +3,6 @@
 - 전체 서비스 중에서 대량의 데이터를 처리하는 영역인 Apache Kafka와 Apache Spark 영역을 GCP 서비스로 대체
 
 ## Stage4의 주요 내용 (스타트업이 비즈니스에 집중할 수 있도록 Cloud Service를 활용해 보자)
-- 아키텍처 그림 추가 
 ### 현재 스타트업의 고민(문제)
 - 자체적으로 구축한 빅데이터 오픈소스를 안정적으로 운영하기 위해서는 많은 인프라비용과 전문인력이 필요하다. 
 - 하지만, 초기 스타트업은 이러한 비용을 초기에 투자하기 어려운 경우가 많다. 
@@ -578,7 +577,7 @@ Created service account [dataproc-service-account].
   </build>
 ```
 
- ###  Spark Job 생성
+###  Spark Job 생성
 - GCP DataProc(spark cluseter)에서 실행시킬 job을 코딩하여 컴파일한다. 
 - spark cluster에서 실행 가능한 jar파일로 생성한다.
 - SparConf.SetMaster 지정 옵션
@@ -593,6 +592,8 @@ Created service account [dataproc-service-account].
         - 즉, 데이터를 분할하여 여러대 서버에서 처리함.
         - 실제 데이터를 처리하는 서버가 다른 곳에 있으므로, 작업 로그가 출력되지 않음
         - Driver에서 실행되는 작업만 출력됨
+
+- Stage4StreamingDataprocKafka.scala 파일의 주요 내용
 ```java
 object Stage4StreamingDataprocKafka {
   def main(args: Array[String]) {
@@ -682,7 +683,7 @@ object Stage4StreamingDataprocKafka {
     //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime2/stage2")
+      EsSpark.saveToEs(rdd, "ba_realtime4/stage4")
     })
 
     ssc.start()
@@ -716,6 +717,7 @@ object Stage4StreamingDataprocKafka {
 
 # Submit spark job to dataroc
 ```
+> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
 > export PROJECT=$(gcloud info --format='value(config.project)')
 > export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"
 > export SPARK_PROPERTIES="spark.dynamicAllocation.enabled=false,spark.streaming.receiver.writeAheadLog.enabled=true"
@@ -768,12 +770,9 @@ JOB_ID                            TYPE   STATUS
 
 
 
-
-
-
 ## [STEP 6] Collect the log data using logstash 
 ### Run logstash 
-- kafka topic을 2로 변경
+- kafka topic을 realtime4로 변경
 ```yaml
 input {
   file {
@@ -801,7 +800,7 @@ output {
 ```
 > cd ~/demo-spark-analytics/00.stage4
 > vi logstash_stage4.conf
-
+> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage4.conf
 ```
 
 ### Generate steaming data using data-generator.py
@@ -865,7 +864,78 @@ gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceac
 
 
 ## [ETC]
-### DataProc의 동적 확장
+### 1. DataProc의 동적 확장
 ```
 > gcloud dataproc clusters update example-cluster --num-workers 4
 ```
+
+### 2. run on intellij (원격 로컬서버에서 실행시)
+- Check point에 주석을 추가하고, sparkconf에 master 정보도 추가해야 로컬에서 실행이 가능함. 
+```
+val sparkConf = new SparkConf().setMaster("local[2]").setAppName("TrendingHashtags")
+// Set the checkpoint directory
+// val yarnTags = sparkConf.get("spark.yarn.tags")
+// val jobId = yarnTags.split(",").filter(_.startsWith("dataproc_job")).head
+// ssc.checkpoint(checkpointDirectory + '/' + jobId)
+```
+- 그리고 실행을 해도 아래와 같은 에러가 발생함. 
+- 주요 원인은 GCP의 서비에 접근하기 위한 권한(서비스 계정)이 없어서 Pub/Sub에 연결하지 못하는 에러
+- 그래서 처음에 dataproc cluster를 생성할 때, Pub/Sub에 접근할 수 있는 권한을 부여하는 부분을 추가함. 
+- 결과적으로 intellij에서 테스트를 못해보고, 바로 dataproc에서 실행하면서 테스트를 해야함. 
+    - 이 부분은 개발자에게 굉장히 부담이 되는 상황. (디버깅도 못해보고 매번 spark-submit을 한 후 log로 문제를 파악해야 하는데...)
+    - 다른 방법이 있는데 내가 모르는 것일수 도 있으니, 나중에 다시 확인해 보는 걸로. 
+```
+20/12/15 21:38:44 WARN ReceiverTracker: Error reported by receiver for stream 0: Failed to pull messages - java.io.IOException: The Application Default Credentials are not available. They are available if running on Google App Engine, Google Compute Engine, or Google Cloud Shell. Otherwise, the environment variable GOOGLE_APPLICATION_CREDENTIALS must be defined pointing to a file defining the credentials. See https://developers.google.com/accounts/docs/application-default-credentials for more information.
+
+```
+
+#### [Error] ItelliJ 에서 Run 실행시 오류 및 해결
+- Run TrendingHashtags 실행시 오류 메세지
+```
+Error: A JNI error has occurred, please check your installation and try again
+Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/spark/streaming/StreamingContext
+....
+Caused by: java.lang.ClassNotFoundException: org.apache.spark.streaming.StreamingContext
+```
+
+- 해결방안 
+    - 참고 : - 참고 : https://stackoverflow.com/questions/36437814/how-to-work-efficiently-with-sbt-spark-and-provided-dependencies?rq=1
+    - IntelliJ의 Edit Run Configuration >  'Include dependencies with "Provided" scope' 체크
+
+#### [Solve] IntelliJ 환경설정
+- GCP에서는 모든 서비스에 접근하기 위해서는 권한이 필요함.
+- 이 권한을 service account를 통해서 허용을 할 수 있으므로, 
+- Service Account를 먼저 생성하고, 
+- 이 service account를 인증하는 인증서를 생성해야 한다. 
+- 이후 Intellij와 같은 외부 서비스에서 GCP에 접근하기 위해서는 생성된 인증서을 통해서 가능하다. 
+    - 인증서는 GCP 사용권한을 가지므로, 안전하게 보관해야 함.
+
+##### 1) Service Account 생성하기
+
+##### 2) 인증서 생성 및 다운로드하기
+
+##### 3) IntelliJ에 인증서정보를 환경변수로 설정하기. 
+- Run > Edit Configuration 메뉴 클릭
+- Configuratio 탭에서 Environment variables 확인
+- 환경변수 추가
+    - Name : GOOGLE_APPLICATION_CREDENTIALS
+    - Value : 다운로드 받은 인증서 파일의 경로
+
+
+##### 4) (옵션) GCP Project ID를 프로그램 실행 argument로 전달하기
+- Run > Edit Configuration 메뉴 클릭
+- Configuratio 탭에서 "Program arguments" 선택
+- gcp project id 입력
+
+##### 5) (옵션) 실행 시 오류 
+- 에러 메세지 
+```
+Error: A JNI error has occurred, please check your installation and try again
+Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/spark/streaming/StreamingContext
+	at java.lang.Class.getDeclaredMethods0(Native Method)
+```
+- 해결방안 
+    - IntelliJ의 Edit Run Configuration >  'Include dependencies with "Provided" scope' 체크
+    - 참고
+        - https://stackoverflow.com/questions/36437814/-how-to-work-efficiently-with-sbt-spark-and-provided-dependencies?rq=1
+

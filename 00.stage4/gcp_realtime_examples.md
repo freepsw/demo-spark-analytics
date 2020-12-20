@@ -419,7 +419,7 @@ Caused by: java.lang.ClassNotFoundException: org.apache.spark.streaming.Streamin
 ## [STEP 5]  Send twitter message to pub/sub
 ### python에서 pubsub에 접근 할 수 있는 service account 인증키 생성 및 할당
 ```
-# GCP IDENTITY & SECURITY > Access > Service Account > 생성하기 클릭
+# IAM 및 관리자 > Service Account(서비스계정) > 생성하기 클릭
 # service account 명 입력 > 서비스계정 권한(Project - Owner) > 생성
 # 생성된 Service account 목록에서 "Create Key" 클릭 > Json 선택하여 파일을 로컬로 다운로드.
 # 아래 명령어로 다운로드 받은 파일을 VM Instance로 전달 

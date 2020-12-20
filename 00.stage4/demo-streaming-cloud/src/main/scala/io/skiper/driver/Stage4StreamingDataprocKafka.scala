@@ -23,7 +23,7 @@ object Stage4StreamingDataprocKafka {
 
     // Create the context with a 1 second batch size
     // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입
-    // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage4_Streaming")
 
     // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음.
     val sparkConf = new SparkConf().setAppName("Stage2_Streaming")
