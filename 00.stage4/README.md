@@ -25,8 +25,8 @@
 - Cloud의 사용량 기반 서비스 활용
     - 사용량에 따라 동적으로 클러스터를 할당하여 사용한 만큼만 비용 사용
     - PubSub, DataProc 모두 사용자가 클러스터 확장에 대한 고민없이, 필요한 만큼 자동으로 인프라를 할당
-#### ELK Stack version 업그레이드
-- 최신 버전으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
+#### ELK Stack version 업그레이드 (to V7.10.1)
+- 최신 버전(7.10.1)으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
 
 ### - Software 구성도
 ![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-1.png)
@@ -37,6 +37,24 @@
 - 이후 필요한 서비스를 cloud로 전환한다. 
 - Apache Spark는 시간이 지날수록 많은 운영비용(인력, 인프라)이 추가되므로, 1단계 전환 대상으로 선정한다.
 - 그리고, 기존 ELK stack의 버전(2.4.0)을 최신 버전으로 업그레이드
+
+### 초기 설정
+- Stage1에서 이미 했다면 다음 명령어는 생략 가능
+```
+sudo yum install -y java
+
+# console에 JAVA_HOME 설정
+> export JAVA_HOME=$(alternatives --display java | grep current | sed 's/link currently points to //' | sed 's|/bin/java||')
+> echo $JAVA_HOME
+/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
+
+# Download git project 
+> cd ~
+> sudo yum install -y wget git
+> git clone https://github.com/freepsw/demo-spark-analytics.git
+> cd demo-spark-analytics
+> mkdir sw
+```
 
 
 ## [STEP 1] Install ELK Stack (Elasticsearch + Logstash + Kibana)
@@ -60,6 +78,7 @@
 - config 설정 
     - 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
     - master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
+        - 
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
 > vi config/elasticsearch.yml
@@ -68,10 +87,19 @@
 
 network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
 
-cluster.initial_master_nodes: ["서버이름 또는 IP"]
+# Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 IP만)
+# ip를 입력하면 
+cluster.initial_master_nodes: ["서버이름"]
 ```
 
-- run elasticsearch 
+#### Error 발생 (cluster.initial_master_nodes에 IP를 입력한 경우)
+- 에러 로그 유형
+    - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.55]
+    - master not discovered yet, this node has not previously joined a bootstrapped (v7+) cluster, and [cluster.initial_master_nodes] is empty on this node
+- 해결
+    - cluster.initial_master_nodes: ["node name"] 입력 
+
+#### run elasticsearch 
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
 > bin/elasticsearch
@@ -99,7 +127,7 @@ ERROR: Elasticsearch did not exit normally - check the logs at /home/freepsw/dem
 root hard nofile 70000
 root soft nofile 70000
 
-# 적용을 위해 콘솔을 닫고 다시 연결한다.
+# 적용을 위해 콘솔을 닫고 다시 연결한다. (console 재접속)
 # 적용되었는지 확인
 > ulimit -a
 core file size          (blocks, -c) 0
@@ -149,6 +177,15 @@ vm.max_map_count = 262144
 [2020-12-14T10:18:18,806][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [freepsw-test] Active license is now [BASIC]; Security is disabled
 ```
 
+#### Elasticsearch UI로 접속하기 
+- 1) 웹브라우저에서 접속 확인 
+    - 
+- 2) Elasticsearch용 시각화 plugin(elasticsearch head) 설치 (구글 크롬 브라우저)
+    - https://chrome.google.com/webstore/detail/elasticsearch-head/ffmkiejjmecolpfloofpjologoblkegm
+    - "Chrome에 추가" 클릭
+    - 추가된 Plugin 클릭하여 접속 > "Elasticsearch 설치된 IP입력" > Connect 버튼 클릭
+
+
 ### Install and run a kibana 
 ```
 > cd ~/demo-spark-analytics/sw
@@ -169,6 +206,15 @@ server.host: "0.0.0.0"
   log   [10:40:12.690] [warning][plugins][reporting] Enabling the Chromium sandbox provides an additional layer of protection
 ```
 
+#### Kibana 에러 시 기존 index 삭제 후 재시작
+```
+curl -XDELETE http://localhost:9200/.kibana
+curl -XDELETE 'http://localhost:9200/.kibana*'
+curl -XDELETE http://localhost:9200/.kibana_2
+curl -XDELETE http://localhost:9200/.kibana_1
+```
+
+
 ### Install a logstash 
 ```
 > cd ~/demo-spark-analytics/sw
@@ -179,9 +225,11 @@ server.host: "0.0.0.0"
 - Test a logstash 
 ```
 > bin/logstash -e 'input { stdin { } } output { stdout {} }'
+# 실행까지 시간이 소요된다. (아래 메세지가 출력되면 정상 실행된 것으로 확인)
 .........
 The stdin plugin is now waiting for input:
-[2020-12-14T10:51:08,038][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
+[2020-12-20T08:20:58,728][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
+[2020-12-20T08:20:59,146][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}
 mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 설치된 것
 {
        "message" => "mytest",
@@ -192,21 +240,82 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 ```
 
 ## [STEP 2] Run apache kafka cluster and redis 
-#### - run zookeeper
+### Download apache kafka 
 ```
+> cd ~/demo-spark-analytics/sw
+> wget http://apache.mirror.cdnetworks.com/kafka/2.4.1/kafka_2.11-2.4.1.tgz
+> tar xvf kafka_2.11-2.4.1.tgz
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+```
+- edit kafka config (server.config)
+    - 외부에서 apache kafka 접속할 수 있도록 설정
+    - 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> vi config/server.properties
+advertised.listeners=PLAINTEXT://서버IP:9092 
+```
+
+#### run zookeeper
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
 > bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
-#### - run kafka
+#### run kafka
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
 > bin/kafka-server-start.sh config/server.properties
 ```
 
-#### - run redis 
+#### Create a topic (realtime)
+- 실습에 사용할 topic을 생성한다. 
 ```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime4
+# check created topic "realtime4"
+> bin/kafka-topics.sh --list --zookeeper localhost:2181
+realtime4
+```
+
+
+
+### run redis 
+#### Download redis and compile
+```
+> cd ~/demo-spark-analytics/sw
+> wget http://download.redis.io/releases/redis-3.0.7.tar.gz
+> tar -xzf redis-3.0.7.tar.gz
+> cd redis-3.0.7
+> sudo yum -y install gcc-c++
+> make
+```
+
+- (아래 명령어는 오류 발생시 실행) "zmalloc.h:51:31: error: jemalloc/jemalloc.h: No such file or directory"에러 발생시
+```
+> make distclean
+> make
+```
+
+#### run redis 
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-server
 ```
+
+#### run import_customer_info.py (read customer info and insert into redis)
+- Stage2에서 이미 진행한 내용 (Stage4가 처음인 경우에만 실행)
+- 고객의 상세정보를 redis에 입력하는 명령어
+```
+> sudo yum install -y python-setuptools
+> sudo easy_install pip
+> sudo pip install redis
+> sudo yum install -y numpy
+
+> cd ~/demo-spark-analytics/00.stage2
+> python import_customer_info.py
+```
+
 - redis에 정상적으로 저장되었는지 확인
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
@@ -286,13 +395,11 @@ Go to the following link in your browser:
 
 # 접속후 구글 계정을 선택하고, 화면에 표시되는 Code를 복사하여 아래에 붙여넣기 
 Enter verification code: 4/1AY0e-g7_v-EyHSMwSTjIyPrAW6JdeW6n8tebv1EolWx0q_B9wiGzEEpYJlw
-
-Enter verification code: 4/1AY0e-g7_v-EyHSMwSTjIyPrAW6JdeW6n8tebv1EolWx0q_B9wiGzEEpYJlw
 You are logged in as: [frexxxxw@xxxx.com].
 
 # GCP 프로젝트를 선택한다. 
 Pick cloud project to use:
- [1] ds-ai-platform
+ [1] omega-byte-286705
  [2] Create a new project
 Please enter numeric choice or text value (must exactly match list
 item):  1
@@ -300,15 +407,19 @@ item):  1
 # 디폴트로 지정되는 리전을 지정한다. (옵션)
 Do you want to configure a default Compute Region and Zone? (Y/n)? Y
 
-# 출력되는 리전의 번호 중에서 원하는 리전을 선택한다. ([33] asia-northeast1-c 선택)
- [29] asia-southeast1-b
- [30] asia-southeast1-a
- [31] asia-southeast1-c
- [32] asia-northeast1-b
- [33] asia-northeast1-c
- [34] asia-northeast1-a
+# 출력되는 리전의 번호 중에서 원하는 리전을 선택한다. (서울로 선택 52번)
+# https://cloud.google.com/compute/docs/regions-zones 참고
+ [44] asia-east2-a
+ [45] asia-east2-b
+ [46] asia-east2-c
+ [47] asia-northeast2-a
+ [48] asia-northeast2-b
+ [49] asia-northeast2-c
+ [50] asia-northeast3-a
+ [51] asia-northeast3-b
+ [52] asia-northeast3-c
 Please enter numeric choice or text value (must exactly match list
-item): 33
+item): 52
 
 # Default region/zone을 변경하려는 경우 (서울로 변경)
 > gcloud config set compute/zone asia-northeast3-c 
@@ -317,7 +428,7 @@ asia-northeast3-c
 
 # 설치 완료 및 테스트
 > gcloud config get-value project
-ds-ai-platform
+omega-byte-286705
 ```
 
 - (참고)  gcloud로 다른 계정으로 로그인 하는 경우
@@ -327,7 +438,9 @@ ds-ai-platform
 my-old-project
 
 > gcloud config set project my-new-project
-> gcloud compute instances list
+>  gcloud compute instances list
+NAME      ZONE               MACHINE_TYPE   PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP   STATUS
+mytest1   asia-northeast3-a  e2-standard-2               10.178.0.3   34.64.85.55   RUNNING
 ```
 
 ### gcloud로 사용할 gcp service 활성화 
@@ -349,12 +462,11 @@ Operation "operations/acf.653a6d8d-9829-4ef4-8d47-05b54f25decf" finished success
     - 내가 생성한 모든 GCP 서비스에 대한 접근을 세분화하여 관리하기 위함이다. 
     - 예를 들어 이번 실습에서 생성할 DataProc의 접근 할 수 있는 권한을 특정 service account에만 부여하여,
     - 다른 용도로 생성한 service account에서 접근할 수 없도록(서비스를 임의로 삭제, 중지 하는 등) 권한을 제어한다.
+- Create service account 
 ```
-# Create service account 
 > export SERVICE_ACCOUNT_NAME="dataproc-service-account"
 > gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
 Created service account [dataproc-service-account].
-
 
 # Add an iam role to service account for dataproc
 > export PROJECT=$(gcloud info --format='value(config.project)')
@@ -367,16 +479,25 @@ Created service account [dataproc-service-account].
 - DataProc를 생성하여 Apache Spark cluster를 쉽게 구성한다. 
 - 아래 옵션 외에도 다양한 생성 옵션을 제공
     - 참고 : https://cloud.google.com/sdk/gcloud/reference/dataproc/clusters/create
-```
-# 아래에서 별도로 지정하지 않았지만, default로 설정되는 값은
-# worker node : 2개 (n1-standard-4 type)
-# Disk : 100GB
-# SSD : 기본은 지정되지 않으나, 아래 명령어로 할당 가능 (개수로 할당, 1개당 375G )
-#  --num-master-local-ssds=1 \
-#  --num-worker-local-ssds=1 \
-# scopes : dataproc에서 접근 가능한 gcp 서비스를 명시한다. (이번 실습에서는 pubsub에 접속하지 않지만, 다음 실습용으로 추가하여 생성)
 
+- 아래에서 별도로 지정하지 않았지만, default로 설정되는 값은
+- worker node : 2개 
+    - --num-workers : 최소 2개 이상 지정 해야함.
+- Machine Type
+    - Default : n1-standard-4(4core, 15GB Mem) type
+    - 무료 계정은 cpu 12core가 최대 
+        - 따라서 master(4core), worker(4core) * 2대로 지정하면 
+        - 다른 vm instance를 실행할 수 없게 된다. 
+        - n1-standard-2 이하로 조정하여 설정 필요
+- Disk : 100GB
+- SSD : 기본은 지정되지 않으나, 아래 명령어로 할당 가능 (개수로 할당, 1개당 375G )
+  --num-master-local-ssds=1 \
+  --num-worker-local-ssds=1 \
+- scopes : dataproc에서 접근 가능한 gcp 서비스를 명시한다. (이번 실습에서는 pubsub에 접속하지 않지만, 다음 실습용으로 추가하여 생성)
+
+```
 > gcloud dataproc clusters create demo-cluster \
+    --worker-machine-type=n1-standard-1 \
     --region=asia-northeast3 \
     --zone=asia-northeast3-c\
     --scopes=pubsub \
@@ -455,6 +576,119 @@ Created service account [dataproc-service-account].
       </plugin>
     </plugins>
   </build>
+```
+
+ ###  Spark Job 생성
+- GCP DataProc(spark cluseter)에서 실행시킬 job을 코딩하여 컴파일한다. 
+- spark cluster에서 실행 가능한 jar파일로 생성한다.
+- SparConf.SetMaster 지정 옵션
+    - Master를 local[*]로 지정 : Spark Job을 localhost에서만 실행 (즉, 병렬처리하지 않음)
+        - local : 1개 쓰레드만 사용
+        - local[2] : 2개 쓰레드를 사용. (core 갯수만큼 지정하는 것이 효율적)
+        - local[*] : 서버에 있는 최대한 많은 core를 사용하도록 설정
+        - 모든 Log가 한군데 존재하여, 바로 출력되어 확인 가능
+    - Master를 지정하지 않음
+        - GCP의 DataProc의 Cluster를 활용하여 처리함
+        - DataProc Master에서 작업에 필요한 자원을 여러 노드(서버)에 할당
+        - 즉, 데이터를 분할하여 여러대 서버에서 처리함.
+        - 실제 데이터를 처리하는 서버가 다른 곳에 있으므로, 작업 로그가 출력되지 않음
+        - Driver에서 실행되는 작업만 출력됨
+```java
+object Stage4StreamingDataprocKafka {
+  def main(args: Array[String]) {
+
+    val host_server = "34.64.85.55"
+    val kafka_broker = host_server+":9092"
+    //[STEP 1] create spark streaming session
+
+    // Create the context with a 1 second batch size
+    // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입력
+    // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+
+    // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음. (Log를 바로 확인하기 어려움)
+    val sparkConf = new SparkConf().setAppName("Stage2_Streaming")
+    
+    sparkConf.set("es.index.auto.create", "true");
+    sparkConf.set("es.nodes", host_server)
+    sparkConf.set("es.port", "9200")
+    // 외부에서 ES에 접속할 경우 아래 설정을 추가 (localhost에서 접속시에는 불필요)
+    sparkConf.set("spark.es.nodes.wan.only","true")
+
+    val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+    addStreamListener(ssc)
+
+    // [STEP 1]. Create Kafka Receiver and receive message from kafka broker
+    // Create direct kafka stream with brokers and topics
+    val topics = "realtime4"
+    val topicsSet = topics.split(",").toSet
+    val kafkaParams = Map[String, Object](
+      "bootstrap.servers" -> kafka_broker,
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> classOf[StringDeserializer],
+      "group.id" -> "realtime-group4",
+      "auto.offset.reset" -> "latest",
+      "enable.auto.commit" -> (true: java.lang.Boolean)
+    )
+
+    val kafkaStreams = (1 to 1).map { i =>
+      KafkaUtils.createDirectStream[String, String](
+        ssc,
+        LocationStrategies.PreferConsistent,
+        ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams))
+    }
+    val messages = ssc.union(kafkaStreams)
+
+    // [STEP 2]. parser message and join customer info from redis
+    // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
+    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+    val lines = messages.map(_.value)
+
+    val wordList    = lines.mapPartitions(iter => {
+      val r = new RedisClient(host_server, 6379)
+      iter.toList.map(s => {
+        val listMap = new mutable.LinkedHashMap[String, Any]()
+        val split   = s.split(",")
+        //        println(s)
+        //        println(split(0))
+
+        listMap.put(columnList(0), getTimestamp()) //timestamp
+        listMap.put(columnList(1), split(1).trim) //customer_id
+        listMap.put(columnList(2), split(2).trim) //track_id
+        listMap.put(columnList(3), split(4).trim.toInt) //ismobile
+        listMap.put(columnList(4), split(5).trim.replace("\"", "")) //listening_zip_code
+
+        // get customer info from redis
+        val cust = r.hmget(split(1).trim, "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+
+        // extract detail info and map with elasticsearch field
+        listMap.put(columnList(5), cust.get("name"))
+        listMap.put(columnList(6), cust.get("age").toInt)
+        listMap.put(columnList(7), cust.get("gender"))
+        listMap.put(columnList(8), cust.get("zip"))
+        listMap.put(columnList(9), cust.get("Address"))
+        listMap.put(columnList(10), cust.get("SignDate"))
+        listMap.put(columnList(11), cust.get("Status"))
+        listMap.put(columnList(12), cust.get("Level"))
+        listMap.put(columnList(13), cust.get("Campaign"))
+        listMap.put(columnList(14), cust.get("LinkedWithApps"))
+
+        println(s" map = ${listMap.toString()}")
+        listMap.toString()
+        listMap
+      }).iterator
+    })
+
+    //[STEP 4]. Write to ElasticSearch
+    wordList.foreachRDD(rdd => {
+      rdd.foreach(s => s.foreach(x => println(x.toString)))
+      EsSpark.saveToEs(rdd, "ba_realtime2/stage2")
+    })
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
+}
 ```
 
 ### Compile and run spark job
@@ -585,6 +819,15 @@ https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?
 - 원하는 정보를 보기 위해서 브라우저에 IP:PORT를 입력하여 접속한다. 
 - https://jeongchul.tistory.com/589 참고
 
+## [STEP 7]  GCP 자원 해제
+```
+export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
+gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
+gcloud pubsub topics delete tweets --quiet
+gcloud pubsub subscriptions delete tweets-subscription --quiet 
+gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
+```
 
 
 ## [ETC]
