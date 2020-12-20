@@ -691,18 +691,26 @@ object Stage4StreamingDataprocKafka {
 }
 ```
 
+- 위 코드에서 
+```
+> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> vi src/main/scala/io/skiper/driver/Stage4StreamingDataprocKafka.scala
+# 아래 IP를 본인의 apache kafka/redis/elasticsearch가 설치된 IP로 변경한다. 
+    val host_server = "IP입력"
+```
+
 ### Compile and run spark job
 ```
 # jdk 1.8이 사전에 설치되어 있어야 함. 
 > sudo yum install -y git maven
 > sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
-> git clone https://github.com/GoogleCloudPlatform/dataproc-pubsub-spark-streaming
-> cd dataproc-pubsub-spark-streaming/spark
+> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
 > mvn clean package
 > ls -alh  target
--rw-rw-r--. 1 freepsw freepsw 32K 12월 15 12:54 original-spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
--rw-rw-r--. 1 freepsw freepsw 17M 12월 15 12:55 spark-streaming-pubsub-demo-1.0-SNAPSHOT.jar
+# demo-streaming-cloud-1.0-SNAPSHOT.jar파일이 original 대비 크기가 증가한 것을 볼 수 있다.
+-rw-rw-r--. 1 freepsw.09 freepsw.09  61K 12월 20 09:51 original-demo-streaming-cloud-1.0-SNAPSHOT.jar
+-rw-rw-r--. 1 freepsw.09 freepsw.09 111M 12월 20 09:52 demo-streaming-cloud-1.0-SNAPSHOT.jar
 
 ```
 
@@ -765,9 +773,35 @@ JOB_ID                            TYPE   STATUS
 
 ## [STEP 6] Collect the log data using logstash 
 ### Run logstash 
+- kafka topic을 2로 변경
+```yaml
+input {
+  file {
+    path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug{ }
+  }
+
+  kafka {
+    codec => plain {
+      format => "%{message}"
+    }
+    bootstrap_servers => "localhost:9092"
+    topic_id => "realtime4"
+  }
+}
+
 ```
-> cd ~/demo-spark-analytics/00.stage2
-> vi logstash_stage2.conf
+
+
+```
+> cd ~/demo-spark-analytics/00.stage4
+> vi logstash_stage4.conf
+
 ```
 
 ### Generate steaming data using data-generator.py

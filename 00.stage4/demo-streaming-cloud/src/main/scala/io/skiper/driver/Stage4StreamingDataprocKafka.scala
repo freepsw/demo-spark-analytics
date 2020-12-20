@@ -69,8 +69,8 @@ object Stage4StreamingDataprocKafka {
       iter.toList.map(s => {
         val listMap = new mutable.LinkedHashMap[String, Any]()
         val split   = s.split(",")
-        //        println(s)
-        //        println(split(0))
+        //println(s)
+        //println(split(0))
 
         listMap.put(columnList(0), getTimestamp()) //timestamp
         listMap.put(columnList(1), split(1).trim) //customer_id
@@ -102,7 +102,7 @@ object Stage4StreamingDataprocKafka {
     //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime2/stage2")
+      EsSpark.saveToEs(rdd, "ba_realtime4/stage4")
     })
 
 
