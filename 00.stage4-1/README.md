@@ -40,12 +40,19 @@
 ### 초기 설정
 - Stage1에서 이미 했다면 다음 명령어는 생략 가능
 ```
-sudo yum install -y java
+> sudo yum install -y java
 
 # console에 JAVA_HOME 설정
 > export JAVA_HOME=$(alternatives --display java | grep current | sed 's/link currently points to //' | sed 's|/bin/java||')
 > echo $JAVA_HOME
-/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
+/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.275.b01-0.el7_9.x86_64/jr
+
+# user shell에 JAVA_HOME 설정
+> vi ~/.bash_profile
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.275.b01-0.el7_9.x86_64/jr
+
+> source ~/.bash_profile
+
 
 # Download git project 
 > cd ~
@@ -178,7 +185,7 @@ vm.max_map_count = 262144
 
 #### Elasticsearch UI로 접속하기 
 - 1) 웹브라우저에서 접속 확인 
-    - 
+    - http://VM외부IP:9200
 - 2) Elasticsearch용 시각화 plugin(elasticsearch head) 설치 (구글 크롬 브라우저)
     - https://chrome.google.com/webstore/detail/elasticsearch-head/ffmkiejjmecolpfloofpjologoblkegm
     - "Chrome에 추가" 클릭
@@ -239,7 +246,7 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 ```
 
 ## [STEP 2] Run apache kafka cluster and redis 
-### Download apache kafka 
+### 2.1 Download apache kafka 
 ```
 > cd ~/demo-spark-analytics/sw
 > wget http://apache.mirror.cdnetworks.com/kafka/2.4.1/kafka_2.11-2.4.1.tgz
@@ -249,6 +256,8 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 - edit kafka config (server.config)
     - 외부에서 apache kafka 접속할 수 있도록 설정
     - 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
+    - Host name으로 설정하려는 경우, 외부에서 접속 가능한 host명이어야 한다. (DNS에 등록된 hostname)
+    - 즉, 외부에서 kafka에 접속 할 수 있는 정보를 입력해야 함.
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
 > vi config/server.properties
@@ -267,7 +276,7 @@ advertised.listeners=PLAINTEXT://서버IP:9092
 > bin/kafka-server-start.sh config/server.properties
 ```
 
-#### Create a topic (realtime)
+#### create a topic (realtime)
 - 실습에 사용할 topic을 생성한다. 
 ```
 > cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
@@ -279,8 +288,8 @@ realtime4
 
 
 
-### run redis 
-#### Download redis and compile
+### 2.2 Run redis 
+#### download redis and compile
 ```
 > cd ~/demo-spark-analytics/sw
 > wget http://download.redis.io/releases/redis-3.0.7.tar.gz
@@ -296,13 +305,13 @@ realtime4
 > make
 ```
 
-#### run redis 
+#### run redis server
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-server
 ```
 
-#### run import_customer_info.py (read customer info and insert into redis)
+### 2.3 Run import_customer_info.py (read customer info and insert into redis)
 - Stage2에서 이미 진행한 내용 (Stage4가 처음인 경우에만 실행)
 - 고객의 상세정보를 redis에 입력하는 명령어
 ```
@@ -342,6 +351,17 @@ realtime4
 20) "1"
 ```
 
+
+### 2.4 Run predict_ml_libsvm.py to classify the customer using ml model
+```
+> cd ~/demo-spark-analytics/00.stage3
+> python predict_ml_libsvm.py
+아래 메세지가 보이면 정상
+all: 5000 training size: 3484, test size 1516
+LBFGS error: 0.0105540897098
+```
+- 5000건 데이터 중에 3,484 건은 학습데이터로 이용하고, 1,516 건은 검증용으로 활용
+- 1,516건을 학습된 모델로 검증한 결과, 에러율리 0.01(정확도 99%)로 나타남.
 
 ## [STEP 3] Gcloud 설정
 - gcp의 cloud 서비스를 명령어로 생성/실행 할 수 있는 gcloud라는 도구를 설치하여
