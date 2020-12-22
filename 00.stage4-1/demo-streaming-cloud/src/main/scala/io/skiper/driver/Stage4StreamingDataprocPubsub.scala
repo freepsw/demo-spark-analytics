@@ -32,15 +32,15 @@ object Stage4StreamingDataprocPubsub {
     }
     val Seq(projectID) = args.toSeq
 
-    val host_server = "34.64.85.55"
+    val host_server = "서버의 외부 IP" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
     // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입
-    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage41_Streaming")
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage42_Streaming")
 
     // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음.
-    //val sparkConf = new SparkConf().setAppName("Stage41_Streaming")
+    //val sparkConf = new SparkConf().setAppName("Stage42_Streaming")
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", host_server)
     sparkConf.set("es.port", "9200")
@@ -105,7 +105,7 @@ object Stage4StreamingDataprocPubsub {
     //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime41/stage41")
+      EsSpark.saveToEs(rdd, "ba_realtime42/stage42")
     })
 
     ssc.start()

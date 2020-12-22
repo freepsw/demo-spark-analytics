@@ -17,16 +17,16 @@ import scala.collection.mutable
 object Stage4StreamingDataprocKafka {
   def main(args: Array[String]) {
 
-    val host_server = "34.64.85.55"
+    val host_server = "localhost" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
 
     // Create the context with a 1 second batch size
     // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입
-    // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage4_Streaming")
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage41_Streaming")
 
     // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음.
-    val sparkConf = new SparkConf().setAppName("Stage4_Streaming")
+    //val sparkConf = new SparkConf().setAppName("Stage41_Streaming")
     
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", host_server)
@@ -102,7 +102,7 @@ object Stage4StreamingDataprocKafka {
     //[STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime4/stage4")
+      EsSpark.saveToEs(rdd, "ba_realtime41/stage41")
     })
 
 

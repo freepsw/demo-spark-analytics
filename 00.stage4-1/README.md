@@ -353,15 +353,48 @@ realtime4
 
 
 ### 2.4 Run predict_ml_libsvm.py to classify the customer using ml model
+#### install apache spark 
 ```
+> cd ~/demo-spark-analytics/sw/
+> wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
+> tar -xvf spark-2.0.1-bin-hadoop2.7.tgz
+> cd spark-2.0.1-bin-hadoop2.7
+
+# slave 설정
+> cp conf/slaves.template conf/slaves
+localhost //현재  별도의 slave node가 없으므로 localhost를 slave node로 사용
+
+# spark master 설정
+# 현재 demo에서는 별도로 변경할 설정이 없다. (실제 적용시 다양한 설정 값 적용)
+> cp conf/spark-env.sh.template conf/spark-env.sh
+```
+
+#### run predict_ml_libsvm.py
+```
+# PySpark 실행에 필요한 환경설정 
+> vi ~/.bash_profile
+# 아래 내용을 추가
+export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
+export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$PYTHONPATH
+export PATH=$PATH:$SPARK_HOME/bin
+> source ~/.bash_profile
+
 > cd ~/demo-spark-analytics/00.stage3
 > python predict_ml_libsvm.py
-아래 메세지가 보이면 정상
+# 아래 메세지가 보이면 정상
 all: 5000 training size: 3484, test size 1516
 LBFGS error: 0.0105540897098
 ```
 - 5000건 데이터 중에 3,484 건은 학습데이터로 이용하고, 1,516 건은 검증용으로 활용
 - 1,516건을 학습된 모델로 검증한 결과, 에러율리 0.01(정확도 99%)로 나타남.
+
+#### check the binary classification model result 
+```
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+> src/redis-cli
+127.0.0.1:6379> get pred_event:2 #사용자 id 2번은 광고 대상이 아님으로 분류
+"0"
+```
 
 ## [STEP 3] Gcloud 설정
 - gcp의 cloud 서비스를 명령어로 생성/실행 할 수 있는 gcloud라는 도구를 설치하여
@@ -383,13 +416,12 @@ EOM
 > sudo yum install -y google-cloud-sdk
 
 > gcloud --version
-Google Cloud SDK 320.0.0
-alpha 2020.12.04
-beta 2020.12.04
+Google Cloud SDK 321.0.0
+alpha 2020.12.11
+beta 2020.12.11
 bq 2.0.64
-core 2020.12.04
-gsutil 4.55
-kubectl 1.17.14
+core 2020.12.11
+gsutil 4.57
 
 > gcloud init
 # 아래 항목에서 [2] Log in with a new account 선택 
@@ -484,11 +516,13 @@ Operation "operations/acf.653a6d8d-9829-4ef4-8d47-05b54f25decf" finished success
 - Create service account 
 ```
 > export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+
 > gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
 Created service account [dataproc-service-account].
 
 # Add an iam role to service account for dataproc
 > export PROJECT=$(gcloud info --format='value(config.project)')
+
 > gcloud projects add-iam-policy-binding $PROJECT \
     --role roles/dataproc.worker \
     --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
@@ -532,7 +566,7 @@ Created service account [dataproc-service-account].
     - maven-shade-plugin: depdendencies jar 를 파일을 함께 모듈화 하고 중복되는 클래스가 있을경우 relocate
 - https://warpgate3.tistory.com/entry/Maven-Shade 참고
 
-### Pom.xml 설정 관련 (maven-shade-plugin 활용)
+### 5.1 Pom.xml 설정 관련 (maven-shade-plugin 활용)
 - Jar 생성시 의존관계가 있는 모든 library를 추가하는 설정
     - 자바 어플리케이션의 모든 패키지와, 그에 의존관계에 있는 패키지 라이브러리까지 모두 하나의 'jar' 에 담겨져 있는 것
     - http://asuraiv.blogspot.com/2016/01/maven-shade-plugin-1-resource.html 참고
@@ -597,7 +631,7 @@ Created service account [dataproc-service-account].
   </build>
 ```
 
-###  Spark Job 생성
+### 5.2 Spark Job 생성
 - GCP DataProc(spark cluseter)에서 실행시킬 job을 코딩하여 컴파일한다. 
 - spark cluster에서 실행 가능한 jar파일로 생성한다.
 - SparConf.SetMaster 지정 옵션
@@ -618,16 +652,16 @@ Created service account [dataproc-service-account].
 object Stage4StreamingDataprocKafka {
   def main(args: Array[String]) {
 
-    val host_server = "34.64.85.55"
+    val host_server = "서버의 외부 IP" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
 
     // Create the context with a 1 second batch size
     // 1) Local Node에서만 실행 하는 경우 "local[2]"를 지정하거나, spark master url을 입력
-    // val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage41_Streaming")
 
     // 2) DataProc를 사용하는 경우 setMaster를 지정하지 않음. (Log를 바로 확인하기 어려움)
-    val sparkConf = new SparkConf().setAppName("Stage2_Streaming")
+    //val sparkConf = new SparkConf().setAppName("Stage41_Streaming")
     
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", host_server)
@@ -714,19 +748,20 @@ object Stage4StreamingDataprocKafka {
 
 - 위 코드에서 
 ```
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > vi src/main/scala/io/skiper/driver/Stage4StreamingDataprocKafka.scala
 # 아래 IP를 본인의 apache kafka/redis/elasticsearch가 설치된 IP로 변경한다. 
     val host_server = "IP입력"
 ```
 
-### Compile and run spark job
+### 5.3 Compile and run spark job
 ```
 # jdk 1.8이 사전에 설치되어 있어야 함. 
 > sudo yum install -y git maven
+# (옵션-생략가능 JAVA_HOME 설정이 되어 있는 경우)
 > sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > mvn clean package
 > ls -alh  target
 # demo-streaming-cloud-1.0-SNAPSHOT.jar파일이 original 대비 크기가 증가한 것을 볼 수 있다.
@@ -735,9 +770,9 @@ object Stage4StreamingDataprocKafka {
 
 ```
 
-# Submit spark job to dataroc
+### 5.4 Submit spark job to dataroc
 ```
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > export PROJECT=$(gcloud info --format='value(config.project)')
 > export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"
 > export SPARK_PROPERTIES="spark.dynamicAllocation.enabled=false,spark.streaming.receiver.writeAheadLog.enabled=true"
@@ -748,8 +783,7 @@ object Stage4StreamingDataprocKafka {
 --async \
 --jar target/$JAR \
 --max-failures-per-hour 10 \
---properties $SPARK_PROPERTIES \
---driver-log-levels root=FATAL 
+--properties $SPARK_PROPERTIES 
 
 # 아래와 같이 정상적으로 작업이 할당됨. 
 Job [446ca40670bf4c55be0e690710882a20] submitted.
@@ -793,6 +827,10 @@ JOB_ID                            TYPE   STATUS
 ## [STEP 6] Collect the log data using logstash 
 ### Run logstash 
 - kafka topic을 realtime4로 변경
+```
+> cd ~/demo-spark-analytics/00.stage4-1
+> vi logstash_stage4-1.conf
+```
 ```yaml
 input {
   file {
@@ -816,11 +854,22 @@ output {
 
 ```
 
-
+- run logstash 
 ```
-> cd ~/demo-spark-analytics/00.stage4
-> vi logstash_stage4.conf
-> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage4.conf
+> cd ~/demo-spark-analytics/00.stage4-1
+> ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage4-1.conf
+```
+
+- check received message from kafka using kafka-console_consumer
+    - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
+    - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime4
+# logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
+0,48,453,"2014-10-23 03:26:20",0,"72132"
+1,1081,19,"2014-10-15 18:32:14",1,"17307"
+2,532,36,"2014-12-10 15:33:16",1,"66216
 ```
 
 ### Generate steaming data using data-generator.py
@@ -870,16 +919,20 @@ https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?
         - 9870은 HDFS를 위한 포트
         - 19888은 Hadoop 데이터 노드의 Jobhistory 정보
 - 원하는 정보를 보기 위해서 브라우저에 IP:PORT를 입력하여 접속한다. 
+    - http://<demo-cluster-m의 IP>:8088
+    - http://<demo-cluster-m의 IP>:9870
+    - http://<demo-cluster-m의 IP>:19888
+
 - https://jeongchul.tistory.com/589 참고
 
 ## [STEP 7]  GCP 자원 해제
 ```
-export SERVICE_ACCOUNT_NAME="dataproc-service-account"
-gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
-gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
-gcloud pubsub topics delete tweets --quiet
-gcloud pubsub subscriptions delete tweets-subscription --quiet 
-gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
+> export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+> gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
+> gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
+> gcloud pubsub topics delete tweets --quiet
+> gcloud pubsub subscriptions delete tweets-subscription --quiet 
+> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
 ```
 
 
@@ -931,8 +984,9 @@ Caused by: java.lang.ClassNotFoundException: org.apache.spark.streaming.Streamin
     - 인증서는 GCP 사용권한을 가지므로, 안전하게 보관해야 함.
 
 ##### 1) Service Account 생성하기
-
+- IAM에서 service account 생성 
 ##### 2) 인증서 생성 및 다운로드하기
+- json 파일로 다운로드 
 
 ##### 3) IntelliJ에 인증서정보를 환경변수로 설정하기. 
 - Run > Edit Configuration 메뉴 클릭

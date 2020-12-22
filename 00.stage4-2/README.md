@@ -31,17 +31,7 @@ gcloud dataproc clusters create demo-cluster \
 ## [STEP 5] Create Pub/Sub topic and subscription
 - pubsub 서비스 api를 시용할 수 있도록 서비스를 활성화 한다. 
 ```
-> export SERVICE_ACCOUNT_NAME="dataproc-service-account"
-
-> gcloud services enable \
-    pubsub.googleapis.com
-
-# Add an iam role to service account for pub/sub
-> gcloud beta pubsub subscriptions add-iam-policy-binding \
-    realtime-subscription \
-    --role roles/pubsub.subscriber \
-    --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
-
+> gcloud services enable pubsub.googleapis.com
 ```
 
 - topic & subscription 생성
@@ -53,8 +43,31 @@ Created topic [projects/omega-byte-286705/topics/realtime].
 Created subscription [projects/omega-byte-286705/subscriptions/realtime-subscription].
 ```
 
-## [STEP 5]  Run sample spark job
-### Spark Job 생성
+- Add an iam role to service account for pub/sub
+```
+> export PROJECT=$(gcloud info --format='value(config.project)')
+> export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+
+# topic에 메세지를 전달 할 수 있는 권한 부여
+> gcloud beta pubsub topics add-iam-policy-binding \
+  realtime \
+  --role roles/pubsub.publisher \
+  --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
+
+# topic의 메세지를 구독(subscription) 할 수 있는 권한 부여 
+> gcloud beta pubsub subscriptions add-iam-policy-binding \
+    realtime-subscription \
+    --role roles/pubsub.subscriber \
+    --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
+
+
+```
+
+
+
+## [STEP 6]  Compile and run sample spark job
+### 6.1 Compile spark job 
+#### Spark Job 코드 이해
 - GCP DataProc(spark cluseter)에서 실행시킬 job을 코딩하여 컴파일한다. 
 - spark cluster에서 실행 가능한 jar파일로 생성한다.
 - Stage4StreamingDataprocPubsub.scala 파일의 주요 내용
@@ -73,7 +86,7 @@ object Stage4StreamingDataprocPubsub {
     }
     val Seq(projectID) = args.toSeq
 
-    val host_server = "34.64.85.55"
+    val host_server = "서버의 외부 IP" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
@@ -155,10 +168,9 @@ object Stage4StreamingDataprocPubsub {
 }
 ```
 
-### PubSub 실행을 위한 코드 수정
-#### Spark code 수정 ( IP 변경)
+#### PubSub 실행을 위한 Spark code 수정 ( IP 변경)
 ```
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > vi src/main/scala/io/skiper/driver/Stage4StreamingDataprocPubsub.scala
 # 아래 IP를 본인의 apache kafka/redis/elasticsearch가 설치된 IP로 변경한다. 
     val host_server = "IP입력"
@@ -174,9 +186,9 @@ object Stage4StreamingDataprocPubsub {
               </transformers>
 ```
 
-### Compile and run spark job
+#### compile spark job
 ```
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > mvn clean package
 > ls -alh  target
 # demo-streaming-cloud-1.0-SNAPSHOT.jar파일이 original 대비 크기가 증가한 것을 볼 수 있다.
@@ -185,9 +197,9 @@ object Stage4StreamingDataprocPubsub {
 
 ```
 
-# Submit spark job to dataroc
+### 6.2 Submit spark job to dataroc
 ```
-> cd ~/demo-spark-analytics/00.stage4/demo-streaming-cloud/
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > export PROJECT=$(gcloud info --format='value(config.project)')
 > export JAR="demo-streaming-cloud-1.0-SNAPSHOT.jar"
 > export SPARK_PROPERTIES="spark.dynamicAllocation.enabled=false,spark.streaming.receiver.writeAheadLog.enabled=true"
@@ -211,18 +223,40 @@ object Stage4StreamingDataprocPubsub {
 JOB_ID                            TYPE   STATUS
 446ca40670bf4c55be0e690710882a20  spark  RUNNING
 ```
-
 -  아래의 jobs에 JOB_ID를 입력하여 웹브라우저로 접속하여, 실행한 job이 정상 실행 중인지 확인한다. 
     - https://console.cloud.google.com/dataproc/jobs/223a633aeb514c91818534ad89adc39d?region=asia-northeast3
+```
 
 
 
+## [STEP 7] Collect the log data using logstash and send to the gcp pubsub
+### 7.1 Download the credential key file(json) of gcp service account
+- Google Cloud Console > IAM 및 관리자 > 서비스 계정
+- "dataproc-service-account@프로젝트-id-286705.iam.gserviceaccount.com" > 작업 선택
+- "키 만들기" 클릭 
+- 자동으로 로컬 PC/Notebook의 "Download" 디렉토리에 "project-id-xxxx.json"파일이 생성됨.
 
+### 7.2 Sent a downloaded credential key file to the vm instance
+- VM Instance > 연결(ssh) > "브라우저에서 창열기" 클릭
+- 오픈된 브라우저 창에서  우측 상단 설정(톱니바퀴 모양 아이콘) 클릭
+- "파일 업로드" 클릭 > 다운로드 받은 credential file(json) 선택 
+- 업로드 완료 메세지 확인 후, 아래 명령어로 업로드된 파일 확인 가능
+```
+> ls
+projectid-2xxxx-9ada3ee4266b.json
+```
 
-
-## [STEP 6] Collect the log data using logstash 
-### Run logstash 
-- kafka topic을 2로 변경
+### 7.3 Run logstash 
+- PubSub으로 데이터를 전송하기 위한 logstash 설정
+- 위에서 생성한 pubsub의 topic(realtime)으로 전송
+- 수정항목
+  - input file path : rts --> 본인의 계정명으로 변경
+  - google_pubsub > project_id : 본인의 gcp project id로 변경
+  - google_pubsub > json_key_file : 다운받은 credential key로 변경
+```
+> cd ~/demo-spark-analytics/00.stage4-2
+> vi logstash_stage4-2.conf
+```
 ```yaml
 input {
   file {
@@ -235,22 +269,29 @@ output {
     codec => rubydebug{ }
   }
 
-  kafka {
-    codec => plain {
-      format => "%{message}"
-    }
-    bootstrap_servers => "localhost:9092"
-    topic_id => "realtime4"
+  google_pubsub {
+    # Required attributes (본인의 gcp project id를 입력)
+    project_id => "my_project" 
+    topic => "realtime"
+
+    # Optional if you're using app default credentials
+    json_key_file => "/home/rts/projectid-2xxxx-9ada3ee4266b.json"
   }
 }
 
 ```
 
-
+- install gcp pubsub output plugin
 ```
-> cd ~/demo-spark-analytics/00.stage4
-> vi logstash_stage4.conf
-> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage4.conf
+> cd ~/demo-spark-analytics/sw/logstash-7.10.1/
+> bin/logstash-plugin install logstash-output-google_pubsub
+```
+
+
+- run logstash
+```
+> cd ~/demo-spark-analytics/00.stage4-2
+> ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage4-2.conf
 ```
 
 ### Generate steaming data using data-generator.py
