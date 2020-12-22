@@ -32,8 +32,6 @@ object Stage4StreamingDataprocPubsub {
     }
     val Seq(projectID) = args.toSeq
 
-
-//    val host_server = "localhost"
     val host_server = "34.64.85.55"
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session

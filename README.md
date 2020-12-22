@@ -126,10 +126,10 @@ TrackId | Title | Artist | Length
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage3
 
 
-### Stage 4 Demo scenario & implementation guide
+### Stage 4-1 Demo scenario & implementation guide
 ![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-1.png)
-https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4
+https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4-1
 
 ### Stage 4-1 Demo scenario & implementation guide
 ![stage4-1 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-2.png)
-https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4
+https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4-2

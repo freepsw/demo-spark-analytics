@@ -507,8 +507,13 @@ hashtags
 export SERVICE_ACCOUNT_NAME="dataproc-service-account"
 gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
 gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
-gcloud pubsub topics delete tweets --quiet
-gcloud pubsub subscriptions delete tweets-subscription --quiet 
+gcloud pubsub topics delete realtime --quiet
+gcloud pubsub subscriptions delete realtime-subscription --quiet 
 gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
 ```
 
+
+
+## [ETC]
+### 1. IntelliJ에서 Pubsub 연결하기 (Local 환경에서 GCP 연결)
+- 
