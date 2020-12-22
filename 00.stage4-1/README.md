@@ -1018,3 +1018,9 @@ Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/spark/stre
     - 참고
         - https://stackoverflow.com/questions/36437814/-how-to-work-efficiently-with-sbt-spark-and-provided-dependencies?rq=1
 
+
+### 3. Windows에서 ssh terminal 사용하기
+- 참고 : https://m.blog.naver.com/PostView.nhn?blogId=mincoding&logNo=221713417061&proxyReferer=https:%2F%2Fwww.google.com%2F
+- https://mobaxterm.mobatek.net/
+
+
