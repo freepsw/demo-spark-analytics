@@ -356,5 +356,5 @@ JOB_ID                            TYPE   STATUS
 > gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
 > gcloud pubsub topics delete realtime --quiet
 > gcloud pubsub subscriptions delete realtime-subscription --quiet 
-> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
+> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet
 ```
