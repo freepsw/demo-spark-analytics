@@ -59,10 +59,7 @@ Created subscription [projects/omega-byte-286705/subscriptions/realtime-subscrip
     realtime-subscription \
     --role roles/pubsub.subscriber \
     --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
-
-
 ```
-
 
 
 ## [STEP 6]  Compile and run sample spark job
@@ -341,21 +338,23 @@ https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?
         - 9870은 HDFS를 위한 포트
         - 19888은 Hadoop 데이터 노드의 Jobhistory 정보
 - 원하는 정보를 보기 위해서 브라우저에 IP:PORT를 입력하여 접속한다. 
+    - http://<demo-cluster-m의 IP>:8088
+    - http://<demo-cluster-m의 IP>:9870
+    - http://<demo-cluster-m의 IP>:19888
+
 - https://jeongchul.tistory.com/589 참고
 
 ## [STEP 7]  GCP 자원 해제
 ```
-export SERVICE_ACCOUNT_NAME="dataproc-service-account"
-gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
-gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
-gcloud pubsub topics delete tweets --quiet
-gcloud pubsub subscriptions delete tweets-subscription --quiet 
-gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
-```
+> export SERVICE_ACCOUNT_NAME="dataproc-service-account"
 
+> gcloud dataproc jobs list --region=asia-northeast3 --state-filter=active
+JOB_ID                            TYPE   STATUS
+446ca40670bf4c55be0e690710882a20  spark  RUNNING
 
-## [ETC]
-### DataProc의 동적 확장
-```
-> gcloud dataproc clusters update example-cluster --num-workers 4
+> gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
+> gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
+> gcloud pubsub topics delete tweets --quiet
+> gcloud pubsub subscriptions delete tweets-subscription --quiet 
+> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
 ```

@@ -928,6 +928,11 @@ https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?
 ## [STEP 7]  GCP 자원 해제
 ```
 > export SERVICE_ACCOUNT_NAME="dataproc-service-account"
+
+> gcloud dataproc jobs list --region=asia-northeast3 --state-filter=active
+JOB_ID                            TYPE   STATUS
+446ca40670bf4c55be0e690710882a20  spark  RUNNING
+
 > gcloud dataproc jobs kill 446ca40670bf4c55be0e690710882a20 --region=asia-northeast3 --quiet
 > gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
 > gcloud pubsub topics delete tweets --quiet
