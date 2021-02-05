@@ -80,7 +80,7 @@ realtime
 > wget http://download.redis.io/releases/redis-3.0.7.tar.gz
 > tar -xzf redis-3.0.7.tar.gz
 > cd redis-3.0.7
-> sudo yum -y install gcc-c++
+> sudo yum -y install gcc-c++ make
 > make
 ```
 - "zmalloc.h:51:31: error: jemalloc/jemalloc.h: No such file or directory"에러 발생시
