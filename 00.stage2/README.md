@@ -180,8 +180,14 @@ localhsot:8080
 ### install python redis package
 - python에서 redis에 접속하기 위해서 redis client package를 설치
 ```
+> cd ~
 > sudo yum install -y python-setuptools
 > sudo easy_install pip
+
+# sys.stderr.write(f"ERROR: {exc}") 에러 해결 (https://github.com/pypa/pip/issues/9500)
+> curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
+> sudo python get-pip.py 
+
 > sudo pip install redis
 > sudo yum install -y numpy
 ```
