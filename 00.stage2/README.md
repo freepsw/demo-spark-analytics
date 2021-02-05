@@ -21,18 +21,18 @@
 ## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
 - elasticsearch와 kibana는 stage1의 내용 참
 
-### install apache kafka (kafka_2.11-2.4.1)
+### install apache kafka (kafka_2.12-2.6.0)
 ```
 > cd ~/demo-spark-analytics/sw
-> wget http://apache.mirror.cdnetworks.com/kafka/2.4.1/kafka_2.11-2.4.1.tgz
-> tar xvf kafka_2.11-2.4.1.tgz
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz
+> tar xvf kafka_2.12-2.6.0.tgz
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 ```
 
 #### - edit kafka config (server.config)
 - 실습을 위해서 topic을 delete한 후 재생성할 수 있도록 설정
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > vi config/server.properties
 # Switch to enable topic deletion or not, default value is false
 delete.topic.enable=true
@@ -41,7 +41,7 @@ delete.topic.enable=true
 - 외부에서 apache kafka 접속할 수 있도록 설정
 - 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > vi config/server.properties
 advertised.listeners=PLAINTEXT://서버IP:9092 
 ```
@@ -53,7 +53,7 @@ advertised.listeners=PLAINTEXT://서버IP:9092
 
 #### - run kafka
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-server-start.sh config/server.properties
 
 # 만약 "Caused by: java.net.UnknownHostException: realtime"에러가 발생하면
@@ -65,7 +65,7 @@ advertised.listeners=PLAINTEXT://서버IP:9092
 #### - create kafka topic(realtime)
 - logstash에서 수집한 log 메세지를 kafka로 보낼 때, realtime topic을 지정한다.
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime
 # check created topic "realtime"
 > bin/kafka-topics.sh --list --zookeeper localhost:2181
@@ -347,7 +347,7 @@ Pipeline main started
 - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
 - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
