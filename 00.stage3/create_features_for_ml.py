@@ -32,21 +32,22 @@ def compute_stats_byuser(tracks):
         trackid, dtime, mobile, zip = t
         if trackid not in tracklist:
             tracklist.append(trackid)
-    # dtime = "2014-10-15 18:32:14"
-	d, t = dtime.split(" ")
-	hourofday = int(t.split(":")[0])
 
-	mcount += mobile
-        if (hourofday < 5):
-	    night += 1
-        elif (hourofday < 12):
-            morn += 1
-        elif (hourofday < 17):
-            aft += 1
-        elif (hourofday < 22):
-            eve += 1
-        else:
-            night += 1
+    # dtime = "2014-10-15 18:32:14"
+    d,t = dtime.split(" ")
+    hourofday = int(t.split(":")[0])
+
+    mcount += mobile
+    if (hourofday < 5):
+        night += 1
+    elif (hourofday < 12):
+        morn += 1
+    elif (hourofday < 17):
+        aft += 1
+    elif (hourofday < 22):
+        eve += 1
+    else:
+        night += 1
 
     return [len(tracklist), morn, aft, eve, night, mcount]
 
@@ -61,8 +62,8 @@ def user_clicked(line, which):
         return (custid, 0)
 
 def test(a):
-    print a[0]
-    print a[1]
+    print(a[0])
+    print(a[1])
     return a[1]
 # 1. tracks.csv(최근 사용자들의 음악 청취 이력 log)
 #   spark에서 처리할 수 있는 데이터 구조(RDD)로 변환 (make a k,v RDD out of the input data)
@@ -127,6 +128,6 @@ for k, v in custdata.collect():
     trainfile.flush()
 
 
-print "averages1:  unique: %d morning: %d afternoon: %d evening: %d night: %d mobile: %d" % \
-    (unique, morn, aft, eve, night, mobile)
-print "done"
+print ("averages1:  unique: %d morning: %d afternoon: %d evening: %d night: %d mobile: %d" % \
+    (unique, morn, aft, eve, night, mobile))
+print ("done")

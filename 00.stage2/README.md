@@ -193,16 +193,13 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 > sudo pip3 install numpy
 ```
 
-### Old - install python redis package (python 2.7)
+### install python  package for spark 2.0 version (python 2.7)
 - Python 2.7 reached the end of its life on January 1st, 2020.
-- 2.7은 더 이상 지원하지 않으므로, python3을 사용 (아래는 python2.7을 꼭 사용해야 하는 상황인 경우)
+- 본 실습에서는 spark2.x 버전을 사용하므로, python2.7을 활용한다. 
 ```
 > cd ~
 > sudo yum install -y python-setuptools
-> sudo easy_install pip
-
-# sys.stderr.write(f"ERROR: {exc}") 에러 해결 (https://github.com/pypa/pip/issues/9500)
-> curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
+> curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 > sudo python get-pip.py 
 
 > sudo pip install redis
