@@ -190,7 +190,7 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 
 # install python packages
 > sudo pip3 install redis
-> sudo yum install -y numpy
+> sudo pip3 install numpy
 ```
 
 ### Old - install python redis package (python 2.7)
