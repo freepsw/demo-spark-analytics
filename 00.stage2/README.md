@@ -177,8 +177,25 @@ localhsot:8080
 
 
 ## [STEP 2] import customer info to redis
-### install python redis package
+### install python redis package (python 3.6)
 - python에서 redis에 접속하기 위해서 redis client package를 설치
+```
+> cd ~
+> sudo yum install -y https://repo.ius.io/ius-release-el7.rpm
+> sudo yum install -y python36u python36u-libs python36u-devel python36u-pip
+> python3 -V
+Python 3.6.8
+> pip3 -V
+pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
+
+# install python packages
+> sudo pip3 install redis
+> sudo yum install -y numpy
+```
+
+### Old - install python redis package (python 2.7)
+- Python 2.7 reached the end of its life on January 1st, 2020.
+- 2.7은 더 이상 지원하지 않으므로, python3을 사용 (아래는 python2.7을 꼭 사용해야 하는 상황인 경우)
 ```
 > cd ~
 > sudo yum install -y python-setuptools
@@ -189,13 +206,13 @@ localhsot:8080
 > sudo python get-pip.py 
 
 > sudo pip install redis
-> sudo yum install -y numpy
+> sudo pip install numpy
 ```
 
 ### run import_customer_info.py (read customer info and insert into redis)
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> python import_customer_info.py
+> python3 import_customer_info.py
 ```
 - redis에 정상적으로 저장되었는지 확인
 ```
@@ -234,7 +251,7 @@ def get_age():
 r_server = redis.Redis('localhost')
 
 # 2. read customer info from file(csv)
-with open('./cust.csv', 'rb') as csvfile:
+with open('./cust.csv', 'rt') as csvfile:
     # csv 파일에서 고객정보를 읽어온다.
     reader = csv.DictReader(csvfile, delimiter = ',')
     next(reader, None)
@@ -526,9 +543,8 @@ object Stage2StreamingDriver {
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
 > sudo yum install -y maven
-> mvn compile
 > mvn package
-> ls target
+> ls -alh target
 # 필요한 library를 모두 합친 jar 파일이 생성되었다.
 demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 * ..-jar-with-dependencies.jar은 application에 필요한 모든 library가 포함된 파일

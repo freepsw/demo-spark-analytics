@@ -21,7 +21,8 @@ def get_age():
 r_server = redis.Redis('localhost') 
 
 # 2. read customer info from file(csv)
-with open('./cust.csv', 'rb') as csvfile:
+#with open('./cust.csv', 'rb') as csvfile: # python2.7
+with open('./cust.csv', 'rt') as csvfile:  # python3.6
     # csv 파일에서 고객정보를 읽어온다.
     reader = csv.DictReader(csvfile, delimiter = ',')
     next(reader, None)

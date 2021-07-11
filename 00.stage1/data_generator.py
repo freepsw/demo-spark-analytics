@@ -34,4 +34,4 @@ try:
 finally:
 	rf.close()
 	wf.close()
-	print "close file"
+	print("close file")
