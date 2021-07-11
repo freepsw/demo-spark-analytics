@@ -213,7 +213,7 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 ### run import_customer_info.py (read customer info and insert into redis)
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> python3 import_customer_info.py
+> python import_customer_info.py
 ```
 - redis에 정상적으로 저장되었는지 확인
 ```

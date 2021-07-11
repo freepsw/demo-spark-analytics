@@ -45,11 +45,9 @@ EventID | CustID | AdClicked | Localtime
 - package들 역시 demo용 vm에는 이미 설치되어 있다.
 - 만약 설치가 되어있지 않다면, 아래의 명령어로 설치
 ```
-> sudo pip3 install numpy
-> sudo yum install -y python35u python35u-libs python35u-devel python35u-pip #psutil 설치에 필요한 lib가 있음
-> sudo pip3 install psutil
+> sudo pip install numpy
+> sudo pip install psutil
 
-sudo yum delete -y python36u python36u-libs python36u-devel python36u-pip
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
@@ -57,8 +55,6 @@ sudo yum delete -y python36u python36u-libs python36u-devel python36u-pip
 
 ### pyspark 실행을 위한 설정
 ```
-> sudo pip3 install pyspark
-
 > vi ~/.bash_profile
 아래 내용을 추가
 export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
@@ -385,6 +381,15 @@ print "LBFGS error: %s" % (str(err_1))
 - google compute engine에서 실행하면, spark master에 접속할 수 없다는 오류 발생함.
 - 아마도 spark master에 localhost로의 접속이 안되는것 같은데.. public ip로 바꾸어야 할듯..
 - 일단 local[2]로 변경하면 해결됨.
+
+### run data_generator
+- stage1에서 구동했던 프로세스이므로,
+- 만약 현재 구동중이라면 이 단계는 생략한다.  
+```
+> cd ~/demo-spark-analytics/00.stage1
+> python data_generator.py
+```
+
 
 ### redis에 광고를 보내라는 메세지가 정상적으로 입력되었는지 확인
 ```
