@@ -177,8 +177,23 @@ localhsot:8080
 
 
 ## [STEP 2] import customer info to redis
-### install python redis package (python 3.6)
+
+### install python package for spark 2.0 version (python 2.7)
 - python에서 redis에 접속하기 위해서 redis client package를 설치
+- Python 2.7 reached the end of its life on January 1st, 2020.
+- 본 실습에서는 spark2.x 버전을 사용하므로, python2.7을 활용한다. 
+```
+> cd ~
+> sudo yum install -y python-setuptools
+> curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+> sudo python get-pip.py 
+
+> sudo pip install redis
+> sudo pip install numpy
+```
+
+### install python redis package (python 3.6)
+
 ```
 > cd ~
 > sudo yum install -y https://repo.ius.io/ius-release-el7.rpm
@@ -193,18 +208,7 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 > sudo pip3 install numpy
 ```
 
-### install python  package for spark 2.0 version (python 2.7)
-- Python 2.7 reached the end of its life on January 1st, 2020.
-- 본 실습에서는 spark2.x 버전을 사용하므로, python2.7을 활용한다. 
-```
-> cd ~
-> sudo yum install -y python-setuptools
-> curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-> sudo python get-pip.py 
 
-> sudo pip install redis
-> sudo pip install numpy
-```
 
 ### run import_customer_info.py (read customer info and insert into redis)
 ```

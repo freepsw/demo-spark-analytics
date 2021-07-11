@@ -45,10 +45,11 @@ EventID | CustID | AdClicked | Localtime
 - package들 역시 demo용 vm에는 이미 설치되어 있다.
 - 만약 설치가 되어있지 않다면, 아래의 명령어로 설치
 ```
-> sudo pip install python
-> sudo pip install numpy
-> sudo yum install -y python-devel #psutil 설치에 필요한 lib가 있음
-> sudo pip install psutil
+> sudo pip3 install numpy
+> sudo yum install -y python35u python35u-libs python35u-devel python35u-pip #psutil 설치에 필요한 lib가 있음
+> sudo pip3 install psutil
+
+sudo yum delete -y python36u python36u-libs python36u-devel python36u-pip
 ```
 - psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
@@ -56,6 +57,8 @@ EventID | CustID | AdClicked | Localtime
 
 ### pyspark 실행을 위한 설정
 ```
+> sudo pip3 install pyspark
+
 > vi ~/.bash_profile
 아래 내용을 추가
 export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
