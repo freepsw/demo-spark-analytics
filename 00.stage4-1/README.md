@@ -325,7 +325,9 @@ realtime4
 ```
 
 - redis에 정상적으로 저장되었는지 확인
+    - > config set stop-writes-on-bgsave-error no
 ```
+
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-cli
 127.0.0.1:6379> hgetall 2 #사용자 id 2번에 대한 정보를 조회
@@ -569,8 +571,8 @@ Created service account [dataproc-service-account].
 - Jar 생성시 의존관계가 있는 모든 library를 추가하는 설정
     - 자바 어플리케이션의 모든 패키지와, 그에 의존관계에 있는 패키지 라이브러리까지 모두 하나의 'jar' 에 담겨져 있는 것
     - http://asuraiv.blogspot.com/2016/01/maven-shade-plugin-1-resource.html 참고
-- 기본 설정 "< Configuration >"
-    - "< execution >"에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
+- 기본 설정 
+    - "< executions >"에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
         - 즉, mvn package를 실행하면, shade:shade를 실행하도록 하여,
         - 모든 의존관계가 있는 library를 포함하여 jar파일을 target/ 디렉토리 아래에 생성한다. 
     - "< transformers >" 에서 ManifestResourcesTransformer를 이용하여 기본으로 실행할 class를 지정한다. 
@@ -936,7 +938,7 @@ JOB_ID                            TYPE   STATUS
 > gcloud dataproc clusters delete demo-cluster --quiet --region=asia-northeast3
 > gcloud pubsub topics delete realtime --quiet
 > gcloud pubsub subscriptions delete realtime-subscription --quiet 
-> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet --region=asia-northeast3
+> gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com --quiet
 ```
 
 
