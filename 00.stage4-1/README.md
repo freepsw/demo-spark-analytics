@@ -249,9 +249,9 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
 ### 2.1 Download apache kafka 
 ```
 > cd ~/demo-spark-analytics/sw
-> wget http://apache.mirror.cdnetworks.com/kafka/2.4.1/kafka_2.11-2.4.1.tgz
-> tar xvf kafka_2.11-2.4.1.tgz
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz
+> tar xvf kafka_2.12-2.6.0.tgz
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 ```
 - edit kafka config (server.config)
     - 외부에서 apache kafka 접속할 수 있도록 설정
@@ -259,27 +259,27 @@ mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 �
     - Host name으로 설정하려는 경우, 외부에서 접속 가능한 host명이어야 한다. (DNS에 등록된 hostname)
     - 즉, 외부에서 kafka에 접속 할 수 있는 정보를 입력해야 함.
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > vi config/server.properties
 advertised.listeners=PLAINTEXT://서버IP:9092 
 ```
 
 #### run zookeeper
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
 #### run kafka
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-server-start.sh config/server.properties
 ```
 
 #### create a topic (realtime)
 - 실습에 사용할 topic을 생성한다. 
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime4
 # check created topic "realtime4"
 > bin/kafka-topics.sh --list --zookeeper localhost:2181
@@ -864,7 +864,7 @@ output {
     - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
     - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.11-2.4.1
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime4
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
