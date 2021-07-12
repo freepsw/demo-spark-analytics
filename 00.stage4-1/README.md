@@ -498,8 +498,7 @@ mytest1   asia-northeast3-a  e2-standard-2               10.178.0.3   34.64.85.5
 - GCP의 다양한 서비스를 활용하기 위해서는 해당 서비스를 활성화(enable) 해야한다. 
     - 실습에 필요한 dataproc 서비스 활성화
 ```
-> gcloud services enable \
-    dataproc.googleapis.com
+> gcloud services enable dataproc.googleapis.com
 Operation "operations/acf.653a6d8d-9829-4ef4-8d47-05b54f25decf" finished successfully.
 
 ```
@@ -570,15 +569,15 @@ Created service account [dataproc-service-account].
 - Jar 생성시 의존관계가 있는 모든 library를 추가하는 설정
     - 자바 어플리케이션의 모든 패키지와, 그에 의존관계에 있는 패키지 라이브러리까지 모두 하나의 'jar' 에 담겨져 있는 것
     - http://asuraiv.blogspot.com/2016/01/maven-shade-plugin-1-resource.html 참고
-- 기본 설정 <Configuration>
-    - 1. <execution>에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
+- 기본 설정 "<Configuration>"
+    - 1. "<execution>"에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
         - 즉, mvn package를 실행하면, shade:shade를 실행하도록 하여,
         - 모든 의존관계가 있는 library를 포함하여 jar파일을 target/ 디렉토리 아래에 생성한다. 
-    - 2. <transformers> 에서 ManifestResourcesTransformer를 이용하여 기본으로 실행할 class를 지정한다. 
+    - 2. "<transformers>" 에서 ManifestResourcesTransformer를 이용하여 기본으로 실행할 class를 지정한다. 
         - 기존에는 Manifest 파일에서 실행 가능한 jar를 생성할 때 지정하는 옵션
         - Maniest.txt 파일에 "Main-Class: demo.TrendingHashtags"를 지정하는 것과 동일한 설정 
         - 즉, java -jar ~.jar 실행시 별도로 main class를 지정하지 않아도 내부적으로 Main-Class의 main을 실행함
-    - 3. <relocations>
+    - 3. "<relocations>"
         - jar 파일내의 특정 패키지 구조를 변경한다. 
         - 여기서는 com 패키지를 repackaged.com으로 구조를 변경하고, 
         - com을 사용하는 모든 클래스들이 변경된 패키지를 사용하도록 변경한다.
