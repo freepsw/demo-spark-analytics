@@ -218,7 +218,12 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 - redis에 정상적으로 저장되었는지 확인
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
+
+# 
 > src/redis-cli
+redis> config set stop-writes-on-bgsave-error no
+
+# 전체 키를 조회하는 명령어
 redis> keys *
 # 아래와 같이 사용자 id별로 key가 생성된 것을 볼 수 있다.
 4995) "2567"
@@ -617,3 +622,20 @@ spark-submit \
  * 전체 사용자들이 들은 전체 음악 목록 (중복 제거한 unique값)
  * 모바일 기기에서 들은 전체 음악 목록(중복 제거한 unique)
 - 특정 시간(30분) 이내에 같은 곡을 3번 이상 들은 사용자는 해당곡을 관심 list로 등록 -> Redis, ES
+
+
+## [ETC]
+### Redis Error 
+- https://league-cat.tistory.com/384
+- https://gist.github.com/kapkaev/4619127
+#### Error
+- Failed opening .rdb for saving: Permission denied 
+
+#### 원인
+- 디스크 쓰기에 실패하는 경우는 여유 공간이 부족하거나, 권한(permission) 부족, 디스크 물리적 오류 등이 있을 수 있다.
+- 이 파라미터는 save 이벤트에만 해당한다.
+#### 해결
+```
+> src/redis-cli
+redis> config set stop-writes-on-bgsave-error no
+```
