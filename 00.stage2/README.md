@@ -90,8 +90,10 @@ realtime
 ```
 
 #### - run
+- sudo로 실행하는 이유는 memory의 데이터를 백업하기 위하여 .rdb 파일을 저장함. 
+- 그런데 그 경로가 디폴트로 /etc로 지정되어, root로 실행하지 않으면 permission 에러가 발생함.  
 ```
-> src/redis-server
+> sudo src/redis-server
 ```
 
 #### - test
@@ -218,10 +220,6 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 - redis에 정상적으로 저장되었는지 확인
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
-
-# 
-> src/redis-cli
-redis> config set stop-writes-on-bgsave-error no
 
 # 전체 키를 조회하는 명령어
 redis> keys *
@@ -634,8 +632,15 @@ spark-submit \
 #### 원인
 - 디스크 쓰기에 실패하는 경우는 여유 공간이 부족하거나, 권한(permission) 부족, 디스크 물리적 오류 등이 있을 수 있다.
 - 이 파라미터는 save 이벤트에만 해당한다.
+```
+# 아래 rdb파일을 저장하는 디렉토리를 보면 /etc로 설정되어 있음. 
+127.0.0.1:6379> config get dir
+1) "dir"
+2) "/etc"
+```
+- 그런데 실제 src/redis-server의 실행은 root로 실행하지 않았기 때문에, 
+- /etc/~.rdb파일을 저장하려고 할때 에러가 발생함. 
 #### 해결
 ```
-> src/redis-cli
-redis> config set stop-writes-on-bgsave-error no
+> sudo src/redis-server
 ```
