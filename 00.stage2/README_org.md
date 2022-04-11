@@ -18,91 +18,63 @@
 ### - Software 구성도
 ![stage2 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage2.png)
 
-## [STEP 1] Install the elastic stack (Stage01 내용 참고)
-- Stage01 내용을 참고하여 elsaticsearch, logstash, kibana를 설치 및 실행
+## [STEP 1] install and run apache kafka, redis, apache spark + stage1(elasticsearch & kibana)
+- elasticsearch와 kibana는 stage1의 내용 참
 
-
-
-## [STEP 2] Install & start kafka [link](http://kafka.apache.org/documentation.html#quickstart)
-### Download the apache kafka binary files
+### install apache kafka (kafka_2.12-2.6.0)
 ```
-> sudo yum install -y wget
-> mkdir ~/apps
-> cd ~/apps/
-> wget https://archive.apache.org/dist/kafka/3.0.0/kafka_2.12-3.0.0.tgz
-> tar xvf kafka_2.12-3.0.0.tgz
+> cd ~/demo-spark-analytics/sw
+> wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz
+> tar xvf kafka_2.12-2.6.0.tgz
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 ```
 
-### Start Zookeeper server
+#### - edit kafka config (server.config)
+- 실습을 위해서 topic을 delete한 후 재생성할 수 있도록 설정
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> vi config/server.properties
+# Switch to enable topic deletion or not, default value is false
+delete.topic.enable=true
+```
 
-# 1) Foreground 실행 (테스트 용으로 zookeeper 로그를 직접 확인)
+- 외부에서 apache kafka 접속할 수 있도록 설정
+- 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
+```
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> vi config/server.properties
+advertised.listeners=PLAINTEXT://서버IP:9092 
+```
+
+#### - run zookeeper
+```
 > bin/zookeeper-server-start.sh config/zookeeper.properties
-
-# 2) Background 실행
-> bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
-> ps -ef | grep zookeeper
 ```
 
-### Start Kafka Broker 
--  kafka delete option 설정
-  - topic을 삭제할 수 있는 옵션 추가 (운영서버에서는 이 옵션을 false로 설정. topic을 임의로 삭제할 수 없도록)
+#### - run kafka
 ```
-> cd ~/apps/kafka_2.12-3.0.0
-# 1) Foregroud 
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
 > bin/kafka-server-start.sh config/server.properties
 
-# 2) background 실행
-> bin/kafka-server-start.sh -daemon config/server.properties
-
-```
-#### Kafka Broker 설치후 생성되는 로그파일
-- config/server.properties의 log.dir에 정의된 파일
-  - https://github.com/apache/kafka/blob/3.0/config/server.properties
-```
-## Broker 관련 메타 정보를 출력 
-> cat /tmp/kafka-logs/meta.properties
-#
-#Sun Mar 27 00:10:12 UTC 2022
-cluster.id=OX9OhkJmRZWJ9xFCE8CIgw
-version=0
-broker.id=0
+# 만약 "Caused by: java.net.UnknownHostException: realtime"에러가 발생하면
+# /etc/hosts 파일에 hostname을 추가
+> sudo vi /etc/hosts
+127.0.0.1 호스트네임
 ```
 
-### Create a topic
-#### topic 생성 후 조회 
+#### - create kafka topic(realtime)
+- logstash에서 수집한 log 메세지를 kafka로 보낼 때, realtime topic을 지정한다.
 ```
-> cd ~/apps/kafka_2.12-3.0.0
-> bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic realtime
-
-> bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime
+# check created topic "realtime"
+> bin/kafka-topics.sh --list --zookeeper localhost:2181
 realtime
 ```
 - replication-factor : 메세지를 복제할 개수 (1은 원본만 유지)
 - partitions : 메세지를 몇개로 분산하여 저장할 것인지 결정 (갯수 만큼 병렬로 write/read 함)
 
-
-### Test Apache kafka 
-- Create a topic "test" and send message using kafka producer
-```
-> cd ~/apps/kafka_2.12-3.0.0
-> bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
-
-> bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
-my message
-second message
-```
-
-- Receive the messages from topic "test" using consumer 
-```
-> cd ~/apps/kafka_2.12-3.0.0
-> bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
-my message
-second message
-```
-
-## [STEP 3] Install & start redis (redis 3.0.7)
+### install redis (redis 3.0.7)
 ```
 > cd ~/demo-spark-analytics/sw
 > wget http://download.redis.io/releases/redis-3.0.7.tar.gz
@@ -117,14 +89,14 @@ second message
 > make
 ```
 
-### Start redis server 
+#### - run
 - sudo로 실행하는 이유는 memory의 데이터를 백업하기 위하여 .rdb 파일을 저장함. 
 - 그런데 그 경로가 디폴트로 /etc로 지정되어, root로 실행하지 않으면 permission 에러가 발생함.  
 ```
 > sudo src/redis-server
 ```
 
-#### Test redis 
+#### - test
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-cli
@@ -134,15 +106,15 @@ redis> get foo
 "bar"
 ```
 
-## [STEP 4] Install & start apahche spark (spark-2.4.8-bin-hadoop2.7)
+### install apahche spark (spark-2.0.1-bin-hadoop2.7)
 ```
 > cd ~/demo-spark-analytics/sw/
-> curl -O https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
-> tar xvf spark-2.4.8-bin-hadoop2.7.tgz
-> cd spark-2.4.8-bin-hadoop2.7
+> wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
+> tar -xvf spark-2.0.1-bin-hadoop2.7.tgz
+> cd spark-2.0.1-bin-hadoop2.7
 ```
 
-### Set spark configuration
+#### - set spark configuration
 - spark environment
 ```
 # slave 설정
@@ -158,13 +130,13 @@ localhost //현재  별도의 slave node가 없으므로 localhost를 slave node
 ```
 > vi ~/.bash_profile
 # 마지막 line에 아래 내용을 추가한다.
-export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.4.8-bin-hadoop2.7
+export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
 export PATH=$PATH:$SPARK_HOME/bin
 
 > source ~/.bash_profile
 ```
 
-### Set ssh connection without password
+#### - Set ssh connection without password
 ```
 > ssh-keygen -t rsa
 > cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -175,15 +147,15 @@ export PATH=$PATH:$SPARK_HOME/bin
 ```
 
 
-### Start spark master
+#### - run spark master
 ```
 > sbin/start-all.sh
 ```
 
-### Open spark master web-ui with web browser
+#### - open spark master web-ui with web browser
 localhsot:8080
 
-#### [Error 1] Permission Error 발생시
+### Permission Error 발생시
 - 아래와 worker가 정상적으로 등록되지 않았다면,
 - ssh connection이 localhost에 정상적으로 접속하지 못해서 생기는 문제이다.
 - ssh connection을 자동으로 접속할 수 있도록 하자.
@@ -206,9 +178,24 @@ localhsot:8080
 ```
 
 
-## [STEP 5] Import customer info to redis
+## [STEP 2] import customer info to redis
 
-### Install python redis package (python 3.6)
+### install python package for spark 2.0 version (python 2.7)
+- python에서 redis에 접속하기 위해서 redis client package를 설치
+- Python 2.7 reached the end of its life on January 1st, 2020.
+- 본 실습에서는 spark2.x 버전을 사용하므로, python2.7을 활용한다. 
+```
+> cd ~
+> sudo yum install -y python-setuptools
+> curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+> sudo python get-pip.py 
+
+> sudo pip install redis
+> sudo pip install numpy
+```
+
+### install python redis package (python 3.6)
+
 ```
 > cd ~
 > sudo yum install -y https://repo.ius.io/ius-release-el7.rpm
@@ -225,10 +212,10 @@ pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 
 
 
-### Run import_customer_info.py (read customer info and insert into redis)
+### run import_customer_info.py (read customer info and insert into redis)
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> python3 import_customer_info.py
+> python import_customer_info.py
 ```
 - redis에 정상적으로 저장되었는지 확인
 ```
@@ -320,7 +307,7 @@ with open('./cust.csv', 'rt') as csvfile:
 20) "1"
 ```
 
-## [STEP 6] Run logstash (read logs --> kafka)
+## [STEP 3] run logstash (read logs --> kafka)
 
 ### logstash configuration
 - input
@@ -337,9 +324,11 @@ with open('./cust.csv', 'rt') as csvfile:
 > cd ~/demo-spark-analytics/00.stage2
 > vi logstash_stage2.conf
 
-input {
+input {  
   file {
-    path => "/home/본인계정으로변경/demo-spark-analytics/00.stage1/tracks_live.csv"
+    path => "/home/rts/demo-spark-analytics/00.stage1/tracks_live.csv"
+    sincedb_path => "/dev/null"
+    start_position => "beginning"
   }
 }
 
@@ -361,7 +350,7 @@ output {
 ### run logstash
 ```
 > cd ~/demo-spark-analytics/00.stage2
-> ~/demo-spark-analytics/sw/logstash-7.10.2/bin/logstash -f logstash_stage2.conf
+> ~/demo-spark-analytics/sw/logstash-2.4.0/bin/logstash -f logstash_stage2.conf
 # 아래와 같은 메세지가 출력되면 정상
 Settings: Default pipeline workers: 8
 Pipeline main started
@@ -381,7 +370,7 @@ Pipeline main started
 .....
 ```
 
-### Check received message from kafka using kafka-console_consumer
+### check received message from kafka using kafka-console_consumer
 - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
 - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
@@ -393,7 +382,7 @@ Pipeline main started
 2,532,36,"2014-12-10 15:33:16",1,"66216
 ```
 
-## [STEP 7] run apache spark streaming application
+## [STEP 4] run apache spark streaming application
 ### create spark application project using maven
 #### - 참고 create scala/java project using maven [link](https://github.com/freepsw/java_scala)
 - spark application은 scala와 java를 모두 사용할 수 있으므로,
@@ -440,24 +429,25 @@ Pipeline main started
     </dependencies>
 ```
 
-#### Spark streaming driver 코드 작성
+#### - spark streaming driver 코드 작성
 -  SparkContex에 필요한 configuration을 설정한다.
 -  StreamingContext를 생성 (위의 sparkcontext활용, batch주기는 2초)
 
+>
 -  [STEP 1]. Create Kafka Receiver and receive message from kafka broker
  * kafka에서 데이터를 받기위한 Kafka receiver를 생성한다.
  * 만얀 kafka partition이 여러개 일 경우, numReceiver를 partition 갯수만큼 지정
  * kafka receiver가 많아지면 데이터를 병렬로 읽어오게 된다.
  * union을 활용하여 1개의 rdd로 join한다. (논리적으로 1개로 묶였을 뿐, 내부적으로는 여러개의 partition으로 구성됨)
-
 - [STEP 2]. parser message and join customer info from redis
  * kafkad에서 받아온 메세지 중에서 customer_id를 추출
  * customer_id를 key로 redis에서 사용자 상세 정보를 조회 (import_customer_info.py에서 저장한 고객정보)
  * kibana에서 사용할 timestamp field는 현재 시간으로 설정
-
 - [STEP 3]. Write to ElasticSearch
  * kafka data + redis 고객정보를 합쳐서 elasticsearch에 저장
- * full source code [link](https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/demo-streaming/src/main/scala/io/skiper/driver/Stage2StreamingDriver.scala)
+>
+
+- full source code [link](https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/demo-streaming/src/main/scala/io/skiper/driver/Stage2StreamingDriver.scala)
 
 ```scala
 object Stage2StreamingDriver {
@@ -552,7 +542,7 @@ object Stage2StreamingDriver {
 ```
 
 
-### Compile spark application and run spark streaming
+### compile spark application and run spark streaming
 - compile with maven command line
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
@@ -595,7 +585,7 @@ spark-submit \
   ./demo-streaming/target/demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## [STEP 8] Generate customer log data
+## [STEP 5] generate customer log data
 ### run data_generator
 - stage1에서 구동했던 프로세스이므로,
 - 만약 현재 구동중이라면 이 단계는 생략한다.  
@@ -605,7 +595,7 @@ spark-submit \
 ```
 
 
-## [STEP 9] visualize collected data using kibana
+## [STEP 6] visualize collected data using kibana
 ### kibana 시각화 가이드 참고
 - kibana를 이용한 시각화 가이드는 아래의 link에 있는 ppt파일을 참고
 - https://github.com/freepsw/demo-spark-analytics/blob/master/00.stage2/kibana_visualization_guide_stage2.pptx
@@ -616,6 +606,8 @@ spark-submit \
 - "import"버튼을 클릭하고,
 - 00.stage2 폴더 아래에 있는 kibana_dashboard_s2.json 선택
 - 기존에 정의된 dashboard를 화면에 시각화하여 보여준다.
+
+
 
 
 ## Etc 고려할 시나리오
