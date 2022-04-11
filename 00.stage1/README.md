@@ -164,7 +164,7 @@ vm.max_map_count = 262144
 ```
 
 ### elasticsearch 실행
-- 1. Foreground 실행
+1). Foreground 실행
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > bin/elasticsearch
@@ -172,7 +172,7 @@ vm.max_map_count = 262144
 [2020-12-14T10:18:18,803][INFO ][o.e.l.LicenseService     ] [freepsw-test] license [944a4695-3ec0-41f1-b3f8-5752b71c759e] mode [basic] - valid
 [2020-12-14T10:18:18,806][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [freepsw-test] Active license is now [BASIC]; Security is disabled
 ```
-- 2. background(daemon)으로 실행시 명령어 (실행된 프로세스의 pid 값을 elastic_pid 파일에 기록)
+2. background(daemon)으로 실행시 명령어 (실행된 프로세스의 pid 값을 elastic_pid 파일에 기록)
 ```
 > cd ~/apps/elasticsearch-7.10.2
 > ./bin/elasticsearch -d -p elastic_pid
