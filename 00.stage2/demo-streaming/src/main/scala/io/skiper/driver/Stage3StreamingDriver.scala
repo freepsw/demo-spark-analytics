@@ -3,15 +3,14 @@ package io.skiper.driver
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
-
 import scala.collection.mutable
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted, StreamingListenerBatchStarted, StreamingListenerBatchSubmitted}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-
 import org.elasticsearch.spark.rdd.EsSpark
 import com.redis._
+import org.apache.kafka.common.serialization.StringDeserializer
 
 object Stage3StreamingDriver {
   def main(args: Array[String]) {
@@ -26,17 +25,33 @@ object Stage3StreamingDriver {
     addStreamListener(ssc)
 
     // [STEP 1]. Create Kafka Receiver and receive message from kafka broker
-    val Array(zkQuorum, group, topics, numThreads) = Array("localhost:2181" ,"realtime-group1", "realtime", "2")
-    ssc.checkpoint("checkpoint")
-    val topicMap    = topics.split(",").map((_, numThreads.toInt)).toMap
-    val numReceiver = 1
+    val host_server = "localhost" // apache kafka, elasticsearch, redis가 설치된 서버의 IP
+    val kafka_broker = host_server+":9092"
+    val topics = "realtime"
+    val topicsSet = topics.split(",").toSet
+    val kafkaParams = Map[String, Object](
+      "bootstrap.servers" -> kafka_broker,
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> classOf[StringDeserializer],
+      "group.id" -> "realtime-group4",
+      "auto.offset.reset" -> "latest",
+      "enable.auto.commit" -> (true: java.lang.Boolean)
+    )
+
+//    val Array(zkQuorum, group, topics, numThreads) = Array("localhost:2181" ,"realtime-group1", "realtime", "2")
+//    ssc.checkpoint("checkpoint")
+//    val topicMap    = topics.split(",").map((_, numThreads.toInt)).toMap
+//    val numReceiver = 1
 
     // parallel receiver per partition
-    val kafkaStreams = (1 to numReceiver).map{i =>
-      KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
+    val kafkaStreams = (1 to 1).map { i =>
+      KafkaUtils.createDirectStream[String, String](
+        ssc,
+        LocationStrategies.PreferConsistent,
+        ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams))
     }
-    val lines = ssc.union(kafkaStreams)
-
+    val messages = ssc.union(kafkaStreams)
+    val lines = messages.map(_.value)
     // [STEP 2]. parser message and join customer info from redis
     // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
     val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps", "SendEvent")

@@ -4,25 +4,21 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import com.redis.RedisClient
-import org.apache.kafka.common.serialization.StringDeserializer
+import scala.collection.mutable
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted, StreamingListenerBatchStarted, StreamingListenerBatchSubmitted}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+
 import org.elasticsearch.spark.rdd.EsSpark
+import com.redis._
 
-import scala.collection.mutable
-import scala.collection.mutable
-
-import scala.util.{Failure, Success, Try}
-
-object Stage2StreamingDriver {
+object Stage3StreamingDriver {
   def main(args: Array[String]) {
 
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
-    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage3_Streaming")
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
@@ -30,40 +26,20 @@ object Stage2StreamingDriver {
     addStreamListener(ssc)
 
     // [STEP 1]. Create Kafka Receiver and receive message from kafka broker
-//    val Array(zkQuorum, group, topics, numThreads) = Array("localhost:2181" ,"realtime-group1", "realtime", "2")
-//    ssc.checkpoint("checkpoint")
-//    val topicMap    = topics.split(",").map((_, numThreads.toInt)).toMap
-//    val numReceiver = 1
-
-    val host_server = "localhost" // apache kafka, elasticsearch, redis가 설치된 서버의 IP
-    val kafka_broker = host_server+":9092"
-    val topics = "realtime"
-    val topicsSet = topics.split(",").toSet
-    val kafkaParams = Map[String, Object](
-      "bootstrap.servers" -> kafka_broker,
-      "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> classOf[StringDeserializer],
-      "group.id" -> "realtime-group1",
-      "auto.offset.reset" -> "latest",
-      "enable.auto.commit" -> (true: java.lang.Boolean)
-    )
+    val Array(zkQuorum, group, topics, numThreads) = Array("localhost:2181" ,"realtime-group1", "realtime", "2")
+    ssc.checkpoint("checkpoint")
+    val topicMap    = topics.split(",").map((_, numThreads.toInt)).toMap
+    val numReceiver = 1
 
     // parallel receiver per partition
-    val kafkaStreams = (1 to 1).map { i =>
-      KafkaUtils.createDirectStream[String, String](
-        ssc,
-        LocationStrategies.PreferConsistent,
-        ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams))
+    val kafkaStreams = (1 to numReceiver).map{i =>
+      KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
     }
-//    val kafkaStreams = (1 to numReceiver).map{i =>
-//      KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
-//    }
-    val messages = ssc.union(kafkaStreams)
-    val lines = messages.map(_.value)
+    val lines = ssc.union(kafkaStreams)
 
     // [STEP 2]. parser message and join customer info from redis
     // original msg = ["event_id","customer_id","track_id","datetime","ismobile","listening_zip_code"]
-    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps")
+    val columnList  = List("@timestamp", "customer_id","track_id","ismobile","listening_zip_code", "name", "age", "gender", "zip", "Address", "SignDate", "Status", "Level", "Campaign", "LinkedWithApps", "SendEvent")
     val wordList    = lines.mapPartitions(iter => {
       val r = new RedisClient("localhost", 6379)
       iter.toList.map(s => {
@@ -92,14 +68,26 @@ object Stage2StreamingDriver {
         listMap.put(columnList(14), cust.get("LinkedWithApps"))
 
         println(s" map = ${listMap.toString()}")
+
+        // 광고 대상 사용자인지 체크하고, 광고 대상자라면 광고 메세지를 보낸다.
+        // 광고 여부 확인
+        val pred_key = s"pred_event:${split(1).trim}"
+        val pred = r.get(pred_key).get.toInt
+        // 광고 대상이 맞다면, 광고를 보내라는 신호를 redis에 전송
+        if(pred == 1) {
+          r.sadd("1_day_event_users", split(1).trim)
+          println(s"insert into redis ${pred_key}  : ${split(1).trim}")
+          //elasticsearch user 정보에 추가 (광고를 보낸 이력)
+        }
+        listMap.put(columnList(15), pred.toInt)
         listMap
       }).iterator
     })
 
-    //[STEP 4]. Write to ElasticSearch
+    //[STEP 3]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
-      EsSpark.saveToEs(rdd, "ba_realtime2/stage2")
+      EsSpark.saveToEs(rdd, "ba_realtime3/stage3")
     })
 
     ssc.start()
