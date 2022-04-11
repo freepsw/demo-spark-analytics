@@ -36,36 +36,35 @@ EventID | CustID | AdClicked | Localtime
 ------------ | ------------- | ------------- | -------------
 0 | 109 | ADV_FREE_REFERRAL | 2014-12-18 08:15:16
 
-## [STEP 1] install python and packages
-### install python
-- 현재 demo용으로 사용하는 vm장비에는 이미 python2.7이 설치되어 있다.
-- 만약 centos를 사용하고, 아직 설치되어 있지 않다면 [link](https://www.lesstif.com/pages/viewpage.action?pageId=30705072)참고
 
-### install python packages
-- package들 역시 demo용 vm에는 이미 설치되어 있다.
-- 만약 설치가 되어있지 않다면, 아래의 명령어로 설치
-```
-> sudo pip install numpy
-> sudo pip install psutil
-
-```
-- psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
-
-## [STEP 2] make training datat set(features) from user log
-
+## [STEP 1] Install python packages
 ### pyspark 실행을 위한 설정
+- pyspark 실행을 위하 패스 설정 
+- PYTHONHASHSEED : hash의 결과값이 매번 변하지 않도록 특정 정수 값을 지정
 ```
+> cd ~/demo-spark-analytics
 > vi ~/.bash_profile
 아래 내용을 추가
-export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
 export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$PYTHONPATH
+export PYTHONHASHSEED=0
 > source ~/.bash_profile
 ```
 
+## [STEP 2] make training datat set(features) from user log
+
 ### run python script(create_features_for_ml.py)
 ```
-> cd ~/demo-spark-analytics/00.stage3
-> python create_features_for_ml.py
+> cd ~/demo-spark-analytics
+> source venv/bin/activate
+
+(venv)> pip install psutil
+(venv)> pip install pyspark
+## psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
+
+
+(venv)>  cd ~/demo-spark-analytics/00.stage3
+(venv)>  python create_features_for_ml.py
+
 ERROR PythonRDD: Error while sending iterator
 java.net.SocketTimeoutException: Accept timed out
 가끔 위와 같은 에러가 발생한다.... (서버의 자원이 부족한 경우 발생)
@@ -208,8 +207,9 @@ print "done"
 ## [STEP 3] feature를 이용하여 머신러닝 알고리즘(SVM)으로 학습하고, 사용자 분류하
 ### run python script(predict_ml_libsvm.py)
 ```
-> cd ~/demo-spark-analytics/00.stage3
-> python predict_ml_libsvm.py
+(venv)> cd ~/demo-spark-analytics/00.stage3
+(venv)> python predict_ml_libsvm.py
+
 아래 메세지가 보이면 정상
 all: 5000 training size: 3484, test size 1516
 LBFGS error: 0.0105540897098

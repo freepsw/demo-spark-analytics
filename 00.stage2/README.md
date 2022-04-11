@@ -118,9 +118,9 @@ second message
 
 ### Start redis server 
 - sudo로 실행하는 이유는 memory의 데이터를 백업하기 위하여 .rdb 파일을 저장함. 
-- 그런데 그 경로가 디폴트로 /etc로 지정되어, root로 실행하지 않으면 permission 에러가 발생함.  
 ```
-> sudo src/redis-server
+> sudo setenforce 0 
+> src/redis-server
 ```
 
 #### Test redis 
@@ -136,7 +136,7 @@ redis> get foo
 ## [STEP 4] Install & start apahche spark (spark-2.4.8-bin-hadoop2.7)
 ```
 > cd ~/demo-spark-analytics/sw/
-> curl -O https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
+> wget https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
 > tar xvf spark-2.4.8-bin-hadoop2.7.tgz
 > cd spark-2.4.8-bin-hadoop2.7
 ```
@@ -151,6 +151,7 @@ localhost //현재  별도의 slave node가 없으므로 localhost를 slave node
 # spark master 설정
 # 현재 demo에서는 별도로 변경할 설정이 없다. (실제 적용시 다양한 설정 값 적용)
 > cp conf/spark-env.sh.template conf/spark-env.sh
+> cp conf/log4j.properties.template conf/log4j.properties
 ```
 
 - add spark path to system path
@@ -216,23 +217,33 @@ localhsot:8080
 Python 3.6.8
 > pip3 -V
 pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
-
-# install python packages
-> sudo pip3 install redis
-> sudo pip3 install numpy
 ```
 
+#### Creatte python virtual env
+```
+> cd ~/demo-spark-analytics
+> sudo pip3 install virtualenv
+> virtualenv venv
+> source venv/bin/activate
+
+(venv)> python -V
+Python 3.6.8
+
+(venv)> pip install redis
+(venv)> pip install numpy
+```
 
 
 ### Run import_customer_info.py (read customer info and insert into redis)
 ```
-> cd ~/demo-spark-analytics/00.stage2
-> python3 import_customer_info.py
+(venv)> cd ~/demo-spark-analytics/00.stage2
+(venv)> python import_customer_info.py
+(venv)> deactivate
 ```
 - redis에 정상적으로 저장되었는지 확인
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
-
+> src/redis-cli
 # 전체 키를 조회하는 명령어
 redis> keys *
 # 아래와 같이 사용자 id별로 key가 생성된 것을 볼 수 있다.
@@ -384,7 +395,7 @@ Pipeline main started
 - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
 - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"
@@ -406,35 +417,30 @@ Pipeline main started
 ```xml
     <dependencies>
         <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.11.8</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_2.11</artifactId>
+            <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
             <version>${spark.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka-0-8_2.11</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-        <!-- third pary plugins-->
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark-20_2.11</artifactId>
-            <version>5.0.0-rc1</version>
+            <version>7.10.1</version>
         </dependency>
         <dependency>
             <groupId>net.debasishg</groupId>
             <artifactId>redisclient_2.10</artifactId>
             <version>3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.11</artifactId>
+            <version>${spark.version}</version>
         </dependency>
     </dependencies>
 ```
@@ -555,11 +561,15 @@ object Stage2StreamingDriver {
 - compile with maven command line
 ```
 > cd ~/demo-spark-analytics/00.stage2/demo-streaming
+
 > sudo yum install -y maven
 > mvn package
+
 > ls -alh target
 # 필요한 library를 모두 합친 jar 파일이 생성되었다.
-demo-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar
+-rw-rw-r--. 1 freepsw.12 freepsw.12 110M  4월 11 12:11 demo-streaming-1.0-SNAPSHOT.jar
+-rw-rw-r--. 1 freepsw.12 freepsw.12  31K  4월 11 12:10 original-demo-streaming-1.0-SNAPSHOT.jar
+
 * ..-jar-with-dependencies.jar은 application에 필요한 모든 library가 포함된 파일
 * spark은 분산 환경에서 구동하기 때문에, 해당 library가 모든 서버에 존재해야만 정상적으로 실행,
 * 이러한 문제를 해결하기 위해서 jar파일 내부에 필요한 모든 library를 포함하도록 실행파일 생성.
