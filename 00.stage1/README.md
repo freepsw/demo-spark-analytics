@@ -68,8 +68,9 @@
 ```
 
 ### config 설정 
-    - 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
-    - master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
+- 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
+- master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
+
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > vi config/elasticsearch.yml
@@ -79,7 +80,7 @@
 network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
 
 # Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 IP만)
-cluster.initial_master_nodes: ["서버이름"]
+cluster.initial_master_nodes: ["demo-server"]
 
 ## 위의 설정에서 IP를 입력하면, 아래 오류 발생
     - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.xx]
@@ -163,7 +164,7 @@ vm.max_map_count = 262144
 ```
 
 ### elasticsearch 실행
-- 1) Foreground 실행
+- 1. Foreground 실행
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > bin/elasticsearch
@@ -171,7 +172,7 @@ vm.max_map_count = 262144
 [2020-12-14T10:18:18,803][INFO ][o.e.l.LicenseService     ] [freepsw-test] license [944a4695-3ec0-41f1-b3f8-5752b71c759e] mode [basic] - valid
 [2020-12-14T10:18:18,806][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [freepsw-test] Active license is now [BASIC]; Security is disabled
 ```
-- 2) background(daemon)으로 실행시 명령어 (실행된 프로세스의 pid 값을 elastic_pid 파일에 기록)
+- 2. background(daemon)으로 실행시 명령어 (실행된 프로세스의 pid 값을 elastic_pid 파일에 기록)
 ```
 > cd ~/apps/elasticsearch-7.10.2
 > ./bin/elasticsearch -d -p elastic_pid
