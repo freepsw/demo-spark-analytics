@@ -164,7 +164,7 @@ vm.max_map_count = 262144
 ```
 
 ### elasticsearch 실행
-1). Foreground 실행
+1. Foreground 실행
 ```
 > cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > bin/elasticsearch
@@ -184,6 +184,24 @@ vm.max_map_count = 262144
 #### elasticsearch 정상 동작 확인
 ```
 > curl -X GET "localhost:9200/?pretty"
+
+{
+  "name" : "demo-server",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "rr5WktSmTYGCEEVlte0fGA",
+  "version" : {
+    "number" : "7.10.2",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "747e1cc71def077253878a59143c1f785afa92b9",
+    "build_date" : "2021-01-13T00:42:12.435326Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.7.0",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
 ```
 
 #### Elasticsearch UI로 접속하기 
@@ -253,7 +271,7 @@ curl -XDELETE http://localhost:9200/.kibana_1
 > curl -OL https://artifacts.elastic.co/downloads/logstash/logstash-oss-7.10.2-linux-x86_64.tar.gz
 > tar xvf logstash-oss-7.10.2-linux-x86_64.tar.gz
 > rm -rf logstash-oss-7.10.2-linux-x86_64.tar.gz
-> cd ~/logstash-7.10.2
+> cd logstash-7.10.2
 ```
 ### Test the logstash 
 ```
