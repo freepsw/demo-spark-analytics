@@ -85,7 +85,7 @@ realtime
 ### Test Apache kafka 
 - Create a topic "test" and send message using kafka producer
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
 
 > bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
