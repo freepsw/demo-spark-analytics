@@ -27,15 +27,14 @@
 ### Download the apache kafka binary files
 ```
 > sudo yum install -y wget
-> mkdir ~/apps
-> cd ~/apps/
+> cd ~/demo-spark-analytics/sw
 > wget https://archive.apache.org/dist/kafka/3.0.0/kafka_2.12-3.0.0.tgz
 > tar xvf kafka_2.12-3.0.0.tgz
 ```
 
 ### Start Zookeeper server
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 
 # 1) Foreground 실행 (테스트 용으로 zookeeper 로그를 직접 확인)
 > bin/zookeeper-server-start.sh config/zookeeper.properties
@@ -49,7 +48,7 @@
 -  kafka delete option 설정
   - topic을 삭제할 수 있는 옵션 추가 (운영서버에서는 이 옵션을 false로 설정. topic을 임의로 삭제할 수 없도록)
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 # 1) Foregroud 
 > bin/kafka-server-start.sh config/server.properties
 
@@ -73,7 +72,7 @@ broker.id=0
 ### Create a topic
 #### topic 생성 후 조회 
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic realtime
 
 > bin/kafka-topics.sh --list --bootstrap-server localhost:9092
@@ -96,7 +95,7 @@ second message
 
 - Receive the messages from topic "test" using consumer 
 ```
-> cd ~/apps/kafka_2.12-3.0.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
 my message
 second message
