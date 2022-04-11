@@ -66,7 +66,8 @@
 > wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-linux-x86_64.tar.gz
 > tar -xzf elasticsearch-7.10.2-linux-x86_64.tar.gz
 ```
-- config 설정 
+
+### config 설정 
     - 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
     - master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
 ```
@@ -78,8 +79,11 @@
 network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
 
 # Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 IP만)
-# ip를 입력하면 
 cluster.initial_master_nodes: ["서버이름"]
+
+## 위의 설정에서 IP를 입력하면, 아래 오류 발생
+    - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.xx]
+    - master not discovered yet, this node has not previously joined a bootstrapped (v7+) cluster, and [cluster.initial_master_nodes] is empty on this node
 ```
 
 #### Error 발생 (cluster.initial_master_nodes에 IP를 입력한 경우)
@@ -87,7 +91,7 @@ cluster.initial_master_nodes: ["서버이름"]
     - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.55]
     - master not discovered yet, this node has not previously joined a bootstrapped (v7+) cluster, and [cluster.initial_master_nodes] is empty on this node
 - 해결
-    - cluster.initial_master_nodes: ["broker01"] 입력 
+    - cluster.initial_master_nodes: ["서버이름"] 입력 
 
 #### run elasticsearch 
 ```

@@ -133,3 +133,20 @@ https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4-1
 ### Stage 4-1 Demo scenario & implementation guide
 ![stage4-1 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-2.png)
 https://github.com/freepsw/demo-spark-analytics/tree/master/00.stage4-2
+
+
+## ETC 
+
+### Git version 관리
+
+```
+# tag 목록 확인 
+> git tag
+
+# git tag 추가 (현재 master branch의 버전을 tag로 생성)
+> git tag -a v2.0.0 -m "2022.04 stage4 cloud data pipeline" 
+
+# github에 tag 정보 업데이트 
+> git push  origin master v2.0.0 
+```
+
