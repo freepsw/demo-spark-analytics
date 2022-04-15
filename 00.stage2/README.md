@@ -656,36 +656,46 @@ spark-submit \
 
 
 #### 현상
-- Failed opening .rdb for saving: Permission denied 
+- 갑자기 Failed opening .rdb for saving: Permission denied 
 
 #### 원인
-- 디스크 쓰기에 실패하는 경우는 여유 공간이 부족하거나, 권한(permission) 부족, 디스크 물리적 오류 등이 있을 수 있다.
-- 이 파라미터는 save 이벤트에만 해당한다.
+- 원래 설정한 redis dir은 default 설정이 redis server를 실행하는 경로임 (dir ./)
+- 그런데 일정 시간이 지난후 위의 에러가 발생한 후 redis 설정을 redis-cli에서 확인해 보면, 
+- 아래와 같이 /etc로 변경된 것이 보임. (redis.conf 파일에는 ./로 변경사항 없음...)
+- 아무도 dir 설정을 바꾸지 않았는데, 갑자기 바뀌다니....??????
 ```
 # 아래 rdb파일을 저장하는 디렉토리를 보면 /etc로 설정되어 있음. 
 127.0.0.1:6379> config get dir
 1) "dir"
 2) "/etc"
 
-> config get dbfilename
+# dbfilename은 "dump.rdb"에서 "crontab"으로 변경됨. 
+127.0.0.1:6379> config get dbfilename
+1) "dbfilename"
+2) "crontab"
+
 ```
-- 그런데 실제 src/redis-server의 실행은 root로 실행하지 않았기 때문에, 
-- /etc/~.rdb파일을 저장하려고 할때 에러가 발생함. 
+
+- redis github에 유사한 문제에 대한 답변이 등록됨 (2016년)
+- https://github.com/redis/redis/issues/3594
+- 핵심 내용은 redis server를 실행하고, 외부에서 접근가능한 네트워크 환경으로 구성하면,
+- redis-cli를 통해 누구가 redis-cli 명령을 실행할 수 있음. 
+- 따라사 config set dir "/etc"와 같이 원하는 설정으로 변경이 가능함... 헐.... (하긴 redis에 따로 접근제어를 설정한 것이 없으니....)
+- 그래서 bot을 이용하여 전 세계 IP와 Port를 탐지하면서 redis를 통해서 공격을 시도하는 경우가 많고,
+- 위 redis dir을 바꾸는 것도 이로 인한 결과라고 답변함. 
+  - 즉, 쓰기 가능한 디렉토리를 /etc로 변경하고, 
+  - 거기에 crontab을 생성하여 원하는 작업(공격)을 하기 위함.  
+
 #### 해결
-- memory의 데이터를 disk에 쓰지 않도록 설정 
-- https://stackoverflow.com/questions/27681402/how-to-disable-redis-rdb-and-aof/34736871#34736871
-- redis.conf 파일 수정 후 redis 시작
+
+- 첫번쨰, redis server가 실행되는 서버에 외부에서 접근할 수 없도록 네트워크 제어 (방화벽 등)
+- 두전쨰, protected-mode가 적용된 redis V3.2 이상을 사용 
+```
+bind 127.0.0.1
+protected-mode yes
+rename-command CONFIG ""
 
 ```
-## redis conf 수정 
-> vi redis.conf
-## 아래 설정 적용 후 redis 시작 
-# 메모리의 내용을 파일로 백업하는 경로 변경 
-dir /tmp
-
-> src/redis-server redis.conf
-```
-
 
 ### Spark application을  Master Cluster로 실행하기
 - SparkConf().setMaster("local[2]") 설정 변경

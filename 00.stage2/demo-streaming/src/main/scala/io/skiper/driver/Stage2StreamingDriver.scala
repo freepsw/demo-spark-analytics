@@ -20,7 +20,7 @@ import scala.util.{Failure, Success, Try}
 object Stage2StreamingDriver {
   def main(args: Array[String]) {
 
-    // [STEP 1] create spark streaming session
+    // [STEP 0] create spark streaming session
     // Create the context with a 1 second batch size
     val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
     // val sparkConf = new SparkConf().setMaster("spark://demo-server:7077]").setAppName("Stage2_Streaming")
