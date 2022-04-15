@@ -20,9 +20,11 @@ import scala.util.{Failure, Success, Try}
 object Stage2StreamingDriver {
   def main(args: Array[String]) {
 
-    //[STEP 1] create spark streaming session
+    // [STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
     val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage2_Streaming")
+    // val sparkConf = new SparkConf().setMaster("spark://demo-server:7077]").setAppName("Stage2_Streaming")
+    
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
@@ -30,10 +32,6 @@ object Stage2StreamingDriver {
     addStreamListener(ssc)
 
     // [STEP 1]. Create Kafka Receiver and receive message from kafka broker
-//    val Array(zkQuorum, group, topics, numThreads) = Array("localhost:2181" ,"realtime-group1", "realtime", "2")
-//    ssc.checkpoint("checkpoint")
-//    val topicMap    = topics.split(",").map((_, numThreads.toInt)).toMap
-//    val numReceiver = 1
 
     val host_server = "localhost" // apache kafka, elasticsearch, redis가 설치된 서버의 IP
     val kafka_broker = host_server+":9092"
@@ -55,9 +53,7 @@ object Stage2StreamingDriver {
         LocationStrategies.PreferConsistent,
         ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams))
     }
-//    val kafkaStreams = (1 to numReceiver).map{i =>
-//      KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
-//    }
+
     val messages = ssc.union(kafkaStreams)
     val lines = messages.map(_.value)
 
@@ -96,7 +92,7 @@ object Stage2StreamingDriver {
       }).iterator
     })
 
-    //[STEP 4]. Write to ElasticSearch
+    // [STEP 4]. Write to ElasticSearch
     wordList.foreachRDD(rdd => {
       rdd.foreach(s => s.foreach(x => println(x.toString)))
       EsSpark.saveToEs(rdd, "ba_realtime2/stage2")

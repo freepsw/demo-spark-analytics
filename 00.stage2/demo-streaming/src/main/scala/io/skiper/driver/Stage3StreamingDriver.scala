@@ -15,9 +15,12 @@ import org.apache.kafka.common.serialization.StringDeserializer
 object Stage3StreamingDriver {
   def main(args: Array[String]) {
 
-    //[STEP 1] create spark streaming session
+    // [STEP 0] create spark streaming session
     // Create the context with a 1 second batch size
     val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Stage3_Streaming")
+    // val sparkConf = new SparkConf().setMaster("spark://demo-server:7077]").setAppName("Stage2_Streaming")
+
+
     sparkConf.set("es.index.auto.create", "true");
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))

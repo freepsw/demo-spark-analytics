@@ -119,8 +119,15 @@ second message
 ### Start redis server 
 - sudo로 실행하는 이유는 memory의 데이터를 백업하기 위하여 .rdb 파일을 저장함. 
 ```
-> sudo setenforce 0 
-> src/redis-server
+> cd ~/demo-spark-analytics/sw/redis-3.0.7
+
+## redis conf 수정 
+> vi redis.conf
+## 아래 설정 적용 후 redis 시작 
+# 메모리의 내용을 파일로 백업하는 경로 변경 
+dir /tmp
+
+> src/redis-server redis.conf
 ```
 
 #### Test redis 
@@ -177,6 +184,7 @@ export PATH=$PATH:$SPARK_HOME/bin
 
 ### Start spark master
 ```
+> cd ~/demo-spark-analytics/sw/spark-2.4.8-bin-hadoop2.7
 > sbin/start-all.sh
 ```
 
@@ -201,7 +209,9 @@ localhsot:8080
 > chmod 600 ~/.ssh/authorized_keys
 
 # spark 재시작
+> cd ~/demo-spark-analytics/sw/spark-2.4.8-bin-hadoop2.7
 > sbin/stop-all.sh
+
 > sbin/start-all.sh
 ```
 
@@ -640,10 +650,12 @@ spark-submit \
 
 
 ## [ETC]
-### Redis Error 
+### Redis Error 1
 - https://league-cat.tistory.com/384
 - https://gist.github.com/kapkaev/4619127
-#### Error
+
+
+#### 현상
 - Failed opening .rdb for saving: Permission denied 
 
 #### 원인
@@ -654,10 +666,33 @@ spark-submit \
 127.0.0.1:6379> config get dir
 1) "dir"
 2) "/etc"
+
+> config get dbfilename
 ```
 - 그런데 실제 src/redis-server의 실행은 root로 실행하지 않았기 때문에, 
 - /etc/~.rdb파일을 저장하려고 할때 에러가 발생함. 
 #### 해결
+- memory의 데이터를 disk에 쓰지 않도록 설정 
+- https://stackoverflow.com/questions/27681402/how-to-disable-redis-rdb-and-aof/34736871#34736871
+- redis.conf 파일 수정 후 redis 시작
+
 ```
-> sudo src/redis-server
+## redis conf 수정 
+> vi redis.conf
+## 아래 설정 적용 후 redis 시작 
+# 메모리의 내용을 파일로 백업하는 경로 변경 
+dir /tmp
+
+> src/redis-server redis.conf
 ```
+
+
+### Spark application을  Master Cluster로 실행하기
+- SparkConf().setMaster("local[2]") 설정 변경
+
+## local[] 방식 
+- 현재 로컬 환경에서 별도로 실행된다.
+- 따라서 Spark Cluster UI에서 실행 application이 조회되지 않음. 
+- 다만, 실행되는 코드의 모든 로그를 바로 콘솔에서 확인 가능함. 
+
+## 
