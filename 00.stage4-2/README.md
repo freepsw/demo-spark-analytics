@@ -282,7 +282,7 @@ output {
 
 - install gcp pubsub output plugin
 ```
-> cd ~/demo-spark-analytics/sw/logstash-7.10.1/
+> cd ~/demo-spark-analytics/sw/logstash-7.10.2/
 > bin/logstash-plugin install logstash-output-google_pubsub
 ```
 
@@ -290,7 +290,7 @@ output {
 - run logstash
 ```
 > cd ~/demo-spark-analytics/00.stage4-2
-> ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage4-2.conf
+> ~/demo-spark-analytics/sw/logstash-7.10.2/bin/logstash -f logstash_stage4-2.conf
 ```
 
 ### Generate steaming data using data-generator.py
