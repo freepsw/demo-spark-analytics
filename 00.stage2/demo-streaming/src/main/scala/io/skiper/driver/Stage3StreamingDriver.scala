@@ -25,7 +25,7 @@ object Stage3StreamingDriver {
     sparkConf.set("es.nodes", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
 
-    # Set log level 
+    // Set log level 
     val sc = ssc.sparkContext
     sc.setLogLevel("ERROR")
 

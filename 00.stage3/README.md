@@ -144,6 +144,7 @@ def user_clicked(line, which):
 # 2. tracks.csv(최근 사용자들의 음악 청취 이력 log)
 #   spark에서 처리할 수 있는 데이터 구조(RDD)로 변환 (make a k,v RDD out of the input data)
 #   customer_id 별로 데이터를 grouping 한다. (reduceByKey)
+#   (customer_id, (trackid, date, isMobile, ,listening_zip_code))
 tbycust = trackfile.map(lambda line: make_tracks_kv(line)).reduceByKey(lambda a,b: a + b)
 
 # 3. customer 별로 음악을 청취한 시간대 별 요약정보를 생성한다.
@@ -224,7 +225,14 @@ LBFGS error: 0.0105540897098
  * spark streaming에서 해당 정보를 이용하여 광고 표출여부를 판단.
 - 참고 : LibSVM https://www.csie.ntu.edu.tw/~cjlin/libsvm/
 ```python
-conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("local[1]")
+from pyspark import SparkContext, SparkConf
+from pyspark.mllib.linalg import SparseVector
+from pyspark.mllib.util import MLUtils
+from pyspark.mllib.classification import LogisticRegressionWithLBFGS
+import redis
+from pyspark.mllib.classification import LogisticRegressionWithSGD
+
+conf = SparkConf().setAppName('Stage3_AdPredictor').setMaster("local[2]")
 sc = SparkContext(conf=conf)
 r = redis.Redis('localhost')
 r.set("key1", "value1")
@@ -247,7 +255,7 @@ model_1 = LogisticRegressionWithLBFGS.train(train)
 results_1 = test.map(lambda p: (p.label, model_1.predict(p.features)))
 
 # 2-2. calculate the error
-err_1 = results_1.filter(lambda (v, p): v != p).count() / float(te_count)
+err_1 = results_1.filter(lambda x: x[0] != x[1]).count() / float(te_count)
 
 def predict_all_user():
     r = redis.Redis('localhost')
@@ -274,7 +282,8 @@ def predict_all_user():
                 break
     finally:
         rf.close()
-        print "close file"
+        print ("close file")
+
 
 def make_SparseVector(line):
     # s0 = "0 1:0.00 2:0.00 3:0.00 4:1.00 5:0.00 6:1.00"
@@ -294,8 +303,9 @@ def make_SparseVector(line):
 #3. predict all user using trained ml model
 predict_all_user()
 
-print "\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count)
-print "LBFGS error: %s" % (str(err_1))
+
+print ("\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count))
+print ("LBFGS error: %s" % (str(err_1)))
 ```
 
 - 1 day upgrade 이벤트 광고를 클릭할 사용자를 분류하였는지 redis에서 확인
@@ -304,6 +314,12 @@ print "LBFGS error: %s" % (str(err_1))
 > src/redis-cli
 127.0.0.1:6379> get pred_event:2 #사용자 id 2번은 광고 대상이 아님으로 분류
 "0"
+
+127.0.0.1:6379> get pred_event:223
+"1"
+
+127.0.0.1:6379> get pred_event:225
+"1"
 ```
 
 ## [STEP 4] spark streaming 기능 추가 (사용자 접속시 광고이벤트 발생)
