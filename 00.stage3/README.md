@@ -141,11 +141,6 @@ def user_clicked(line, which):
     else:
         return (custid, 0)
 
-def test(a):
-    print a[0]
-    print a[1]
-    return a[1]
-
 # 2. tracks.csv(최근 사용자들의 음악 청취 이력 log)
 #   spark에서 처리할 수 있는 데이터 구조(RDD)로 변환 (make a k,v RDD out of the input data)
 #   customer_id 별로 데이터를 grouping 한다. (reduceByKey)

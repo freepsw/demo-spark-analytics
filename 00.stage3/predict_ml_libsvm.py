@@ -29,7 +29,7 @@ model_1 = LogisticRegressionWithLBFGS.train(train)
 results_1 = test.map(lambda p: (p.label, model_1.predict(p.features)))
 
 # 2-2. calculate the error
-err_1 = results_1.filter(lambda (v, p): v != p).count() / float(te_count)
+err_1 = results_1.filter(lambda x: x[0] != x[1]).count() / float(te_count)
 
 def predict_all_user():
     r = redis.Redis('localhost')
@@ -56,7 +56,7 @@ def predict_all_user():
                 break
     finally:
         rf.close()
-        print "close file"
+        print ("close file")
 
 
 def make_SparseVector(line):
@@ -78,8 +78,8 @@ def make_SparseVector(line):
 predict_all_user()
 
 
-print "\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count)
-print "LBFGS error: %s" % (str(err_1))
+print ("\nall: %d training size: %d, test size %d" % (all.count(), tr_count, te_count))
+print ("LBFGS error: %s" % (str(err_1)))
 
 
 
