@@ -117,7 +117,6 @@ second message
 ```
 
 ### Start redis server 
-- sudo로 실행하는 이유는 memory의 데이터를 백업하기 위하여 .rdb 파일을 저장함. 
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 
@@ -134,9 +133,9 @@ dir /tmp
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-cli
-redis> set foo bar
+redis> set use_id 001
 OK
-redis> get foo
+redis> get use_id
 "bar"
 ```
 
@@ -174,7 +173,25 @@ export PATH=$PATH:$SPARK_HOME/bin
 ### Set ssh connection without password
 ```
 > ssh-keygen -t rsa
+
+## 생성된 key (public, private) 확인 
+> ls ~/.ssh
+authorized_keys  id_rsa  id_rsa.pub
+
+## 현재 인증된 ssh key 확인 (사용자계정@gmail.com으로 생성된 키만 존재)
+> cat ~/.ssh/authorized_keys
+# Added by Google
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQ........TmGP5rBf7KAtNtHL0= freeeeee@gmail.com
+
+## 방금 생성한 public key도 등록하여, password 없이 접속 가능하도록 설정 
 > cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+## ssh public key가 정상 등록되었는지 확인 
+> cat ~/.ssh/authorized_keys
+# Added by Google
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQ........TmGP5rBf7KAtNtHL0= freeeeee@gmail.com
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQ........Uo980M4Y/qclAxRsWb freeeeee@demo-test
+
 > chmod og-wx ~/.ssh/authorized_keys 
 
 # 정상적으로 접속되는지 확인
@@ -229,11 +246,28 @@ Python 3.6.8
 pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
 ```
 
-#### Creatte python virtual env
+#### Create python virtual env
 ```
 > cd ~/demo-spark-analytics
 > sudo pip3 install virtualenv
+
+## python 3.6 가상환경 생성 
 > virtualenv venv
+
+## 생성된 python3.6 가상환경 정보 확인 
+> ls venv
+bin  lib  lib64  pyvenv.cfg
+
+> ls venv/bin
+activate       activate.nu       deactivate.nu  pip3    python3    wheel-3.6
+activate.csh   activate.ps1      pip            pip3.6  python3.6  wheel3
+activate.fish  activate_this.py  pip-3.6        python  wheel      wheel3.6
+
+## 현재 python 환경 확인 (2.7 버전)
+> python -V
+Python 2.7.5
+
+## 생성한 python 가상환경으로 변경 (3.6 버전 환경으로 변경됨)
 > source venv/bin/activate
 
 (venv)> python -V
@@ -248,6 +282,8 @@ Python 3.6.8
 ```
 (venv)> cd ~/demo-spark-analytics/00.stage2
 (venv)> python import_customer_info.py
+
+## 현재 가상환경 종료하기 
 (venv)> deactivate
 ```
 - redis에 정상적으로 저장되었는지 확인
