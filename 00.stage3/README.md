@@ -209,6 +209,8 @@ print "done"
 아래 메세지가 보이면 정상
 all: 5000 training size: 3484, test size 1516
 LBFGS error: 0.0105540897098
+
+(venv)> deactivate
 ```
 - 5000건 데이터 중에 3,484 건은 학습데이터로 이용하고, 1,516 건은 검증용으로 활용
 - 1,516건을 학습된 모델로 검증한 결과, 에러율리 0.01(정확도 99%)로 나타남.
@@ -283,7 +285,6 @@ def predict_all_user():
     finally:
         rf.close()
         print ("close file")
-
 
 def make_SparseVector(line):
     # s0 = "0 1:0.00 2:0.00 3:0.00 4:1.00 5:0.00 6:1.00"

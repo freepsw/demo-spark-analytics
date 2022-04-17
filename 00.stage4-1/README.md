@@ -6,7 +6,7 @@
 ### 현재 스타트업의 고민(문제)
 - 자체적으로 구축한 빅데이터 오픈소스를 안정적으로 운영하기 위해서는 많은 인프라비용과 전문인력이 필요하다. 
 - 하지만, 초기 스타트업은 이러한 비용을 초기에 투자하기 어려운 경우가 많다. 
-    - 만약 특별한 상황으로 사용자가 급격하게 줄면? (
+    - 만약 특별한 상황으로 사용자가 급격하게 줄면? 
         - 미리 구해한 하드웨어 비용이 낭비되고, 전문 인력에 대한 비용도 꾸준히 소비됨
     - 만약 예상한 규모 이상으로 서비스/사용자가 급격하게 늘어나면? 
         - 적시에 하드웨어를 다시 구매하지 못하면, 증가하는 사용자를 처리하지 못하여 서비스 장애 또는 서비스 접속오류 발생
@@ -24,8 +24,7 @@
 - Cloud의 사용량 기반 서비스 활용
     - 사용량에 따라 동적으로 클러스터를 할당하여 사용한 만큼만 비용 사용
     - PubSub, DataProc 모두 사용자가 클러스터 확장에 대한 고민없이, 필요한 만큼 자동으로 인프라를 할당
-#### ELK Stack version 업그레이드 (to V7.10.1)
-- 최신 버전(7.10.1)으로 오픈소스를 업그레이드 하여, 성능 및 보안성 등이 추가된 기능을 활용한다. 
+
 
 ### - Software 구성도
 ![stage4 architecture](https://github.com/freepsw/demo-spark-analytics/blob/master/resources/images/stage4-1.png)
@@ -53,350 +52,62 @@ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.275.b01-0.el7_9.x86_64/jr
 
 > source ~/.bash_profile
 
-
 # Download git project 
 > cd ~
 > sudo yum install -y wget git
 > git clone https://github.com/freepsw/demo-spark-analytics.git
 > cd demo-spark-analytics
-> mkdir sw
 ```
-
 
 ## [STEP 1] Install ELK Stack (Elasticsearch + Logstash + Kibana)
-- Elasticsearch를 비즈니에서 활용시 주의사항 (OSS버전 vs Default)
-    - OSS는 elasticsearch를 이용하여 별도의 제품/솔루션으로 판매할 목적인 경우에 활용
-    - Basic은 기업 내부에서는 무료로 사용가능 
-        - 즉 OSS 버전을 기반으로 elastic사에서 추가기능(ML, SIEM등)을 무료로 제공하는 것
-    - 정리하면, OSS는 누구나 활용 가능한 오픈소스
-        - 이를 이용해 별도의 제품을 만들어도 가능함.
-        - elastic사도 OSS를 이용해서 basic 제품을 개발하고, 이를 무료로 제공함. 
-        - 하지만, basic 버전의 소유권은 elastic사에 귀속됨(무로지만, 이를 이용해 비즈니스/사업을 하면 안됨)
-    - http://kimjmin.net/2020/06/2020-06-elastic-devrel/
-
-### Install an Elasticsearch 
-- https://www.elastic.co/guide/en/elastic-stack/current/installing-elastic-stack.html 참고
-```
-> cd ~/demo-spark-analytics/sw
-> wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-linux-x86_64.tar.gz
-> tar -xzf elasticsearch-7.10.1-linux-x86_64.tar.gz
-```
-- config 설정 
-    - 외부 접속 허용(network.host) : server와 client가 다른 ip가 있을 경우, 외부에서 접속할 수 있도록 설정을 추가해야함.
-    - master host 설정 (cluster.initial_master_nodes) : Master Node의 후보를 명시하여, Master Node 다운시 새로운 Master로 선출한다.
-        - 
-```
-> cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
-> vi config/elasticsearch.yml
-# bind ip to connect from client  (lan이 여러개 있을 경우 외부에서 접속할 ip를 지정할 수 있음.)
-# bind all ip server have "0.0.0.0"
-
-network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
-
-# Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 IP만)
-# ip를 입력하면 
-cluster.initial_master_nodes: ["서버이름"]
-```
-
-#### Error 발생 (cluster.initial_master_nodes에 IP를 입력한 경우)
-- 에러 로그 유형
-    - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.55]
-    - master not discovered yet, this node has not previously joined a bootstrapped (v7+) cluster, and [cluster.initial_master_nodes] is empty on this node
-- 해결
-    - cluster.initial_master_nodes: ["node name"] 입력 
 
 #### run elasticsearch 
 ```
-> cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
+> cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > bin/elasticsearch
-
-# 아래와 같은 에러가 발생함. 
-ERROR: [3] bootstrap checks failed
-[1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]
-[2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
-ERROR: Elasticsearch did not exit normally - check the logs at /home/freepsw/demo-spark-analytics/sw/elasticsearch-7.10.1/logs/elasticsearch.log
-[2020-12-14T08:16:54,358][INFO ][o.e.n.Node               ] [freepsw-test] stopping ...
-[2020-12-14T08:16:54,395][INFO ][o.e.n.Node               ] [freepsw-test] stopped
-[2020-12-14T08:16:54,395][INFO ][o.e.n.Node               ] [freepsw-test] closing ...
-[2020-12-14T08:16:54,431][INFO ][o.e.n.Node               ] [freepsw-test] closed
-```
-- Elasticsearch를 실행하기 위해서 필요한 OS 설정이 충족되지 못하여 발생하는 오류 (이를 해결하기 위한 설정 변경)
-#### 오류1) File Descriptor 오류 해결
-- file descriptor 갯수를 증가시켜야 한다.
-- 에러 : [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#limits.conf
-```
-> sudo vi /etc/security/limits.conf
-# 아래 내용 추가 
-* hard nofile 70000
-* soft nofile 70000
-root hard nofile 70000
-root soft nofile 70000
-
-# 적용을 위해 콘솔을 닫고 다시 연결한다. (console 재접속)
-# 적용되었는지 확인
-> ulimit -a
-core file size          (blocks, -c) 0
-data seg size           (kbytes, -d) unlimited
-scheduling priority             (-e) 0
-file size               (blocks, -f) unlimited
-pending signals                 (-i) 59450
-max locked memory       (kbytes, -l) 64
-max memory size         (kbytes, -m) unlimited
-open files                      (-n) 70000  #--> 정상적으로 적용됨을 확인함
 ```
 
-#### 오류2) virtual memory error 해결
-- 시스템의 nmap count를 증가기켜야 한다.
-- 에러 : [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+### run a kibana 
 ```
-# 0) 현재 설정 값 확인
-> cat /proc/sys/vm/max_map_count
-65530
-
-# 아래 3가지 방법 중 1가지를 선택하여 적용 가능
-# 1-1) 현재 서버상태에서만 적용하는 방식
-> sudo sysctl -w vm.max_map_count=262144
-
-# 1-2) 영구적으로 적용 (서버 재부팅시 자동 적용)
-> sudo vi /etc/sysctl.conf
-
-# 아래 내용 추가
-vm.max_map_count = 262144
-
-# 1-3) 또는 아래 명령어 실행 
-> echo vm.max_map_count=262144 | sudo tee -a /etc/sysctl.conf
-
-
-# 3) 시스템에 적용하여 변경된 값을 확인
-> sudo sysctl -p
-vm.max_map_count = 262144
-```
-
-- rerun elasticsearch 
-```
-> cd ~/demo-spark-analytics/sw/elasticsearch-7.10.1
-> bin/elasticsearch
-......
-[2020-12-14T10:18:18,803][INFO ][o.e.l.LicenseService     ] [freepsw-test] license [944a4695-3ec0-41f1-b3f8-5752b71c759e] mode [basic] - valid
-[2020-12-14T10:18:18,806][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [freepsw-test] Active license is now [BASIC]; Security is disabled
-```
-
-#### Elasticsearch UI로 접속하기 
-- 1) 웹브라우저에서 접속 확인 
-    - http://VM외부IP:9200
-- 2) Elasticsearch용 시각화 plugin(elasticsearch head) 설치 (구글 크롬 브라우저)
-    - https://chrome.google.com/webstore/detail/elasticsearch-head/ffmkiejjmecolpfloofpjologoblkegm
-    - "Chrome에 추가" 클릭
-    - 추가된 Plugin 클릭하여 접속 > "Elasticsearch 설치된 IP입력" > Connect 버튼 클릭
-
-
-### Install and run a kibana 
-```
-> cd ~/demo-spark-analytics/sw
-> curl -O https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-linux-x86_64.tar.gz
-> tar -xzf kibana-7.10.1-linux-x86_64.tar.gz
-> cd kibana-7.10.1-linux-x86_64/
-
-# 외부 접속 가능하도록 설정 값 변경 
-# 외부의 어떤 IP에서도 접속 가능하도록 0.0.0.0으로 변경 (운영환경에서는 특정 ip대역만 지정하여 보안강화)
-> vi config/kibana.yml
-server.host: "0.0.0.0"
-
-
-> cd ~/demo-spark-analytics/sw/kibana-7.10.1-linux-x86_64/
+> cd ~/demo-spark-analytics/sw/kibana-7.10.2-linux-x86_64
 > bin/kibana
 .....
   log   [10:40:10.296] [info][server][Kibana][http] http server running at http://localhost:5601
   log   [10:40:12.690] [warning][plugins][reporting] Enabling the Chromium sandbox provides an additional layer of protection
 ```
 
-#### Kibana 에러 시 기존 index 삭제 후 재시작
-```
-curl -XDELETE http://localhost:9200/.kibana
-curl -XDELETE 'http://localhost:9200/.kibana*'
-curl -XDELETE http://localhost:9200/.kibana_2
-curl -XDELETE http://localhost:9200/.kibana_1
-```
 
-
-### Install a logstash 
-```
-> cd ~/demo-spark-analytics/sw
-> wget https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-linux-x86_64.tar.gz
-> tar xvf logstash-7.10.1-linux-x86_64.tar.gz
-> cd logstash-7.10.1
-```
-- Test a logstash 
-```
-> bin/logstash -e 'input { stdin { } } output { stdout {} }'
-# 실행까지 시간이 소요된다. (아래 메세지가 출력되면 정상 실행된 것으로 확인)
-.........
-The stdin plugin is now waiting for input:
-[2020-12-20T08:20:58,728][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
-[2020-12-20T08:20:59,146][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}
-mytest  <-- 메세지 입력 후 아래와 같이 출력되면 정상적으로 설치된 것
-{
-       "message" => "mytest",
-      "@version" => "1",
-          "host" => "freepsw-test",
-    "@timestamp" => 2020-12-14T10:51:12.408Z
-}
-```
 
 ## [STEP 2] Run apache kafka cluster and redis 
-### 2.1 Download apache kafka 
-```
-> cd ~/demo-spark-analytics/sw
-> wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz
-> tar xvf kafka_2.12-2.6.0.tgz
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
-```
-- edit kafka config (server.config)
-    - 외부에서 apache kafka 접속할 수 있도록 설정
-    - 아래 "서버IP"를 kafka가 실행중인 서버 IP로 변경한다.
-    - Host name으로 설정하려는 경우, 외부에서 접속 가능한 host명이어야 한다. (DNS에 등록된 hostname)
-    - 즉, 외부에서 kafka에 접속 할 수 있는 정보를 입력해야 함.
-```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
-> vi config/server.properties
-advertised.listeners=PLAINTEXT://서버IP:9092 
-```
 
-#### run zookeeper
+### run zookeeper
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
-#### run kafka
+### run kafka
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-server-start.sh config/server.properties
 ```
 
-#### create a topic (realtime)
+### create a topic (realtime4)
 - 실습에 사용할 topic을 생성한다. 
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
-> bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic realtime4
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
+> bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic realtime4
 # check created topic "realtime4"
-> bin/kafka-topics.sh --list --zookeeper localhost:2181
+> bin/kafka-topics.sh --list --bootstrap-server localhost:9092
 realtime4
 ```
 
-
-
-### 2.2 Run redis 
-#### download redis and compile
-```
-> cd ~/demo-spark-analytics/sw
-> wget http://download.redis.io/releases/redis-3.0.7.tar.gz
-> tar -xzf redis-3.0.7.tar.gz
-> cd redis-3.0.7
-> sudo yum -y install gcc-c++
-> make
-```
-
-- (아래 명령어는 오류 발생시 실행) "zmalloc.h:51:31: error: jemalloc/jemalloc.h: No such file or directory"에러 발생시
-```
-> make distclean
-> make
-```
-
-#### run redis server
+### run redis server
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-server
 ```
 
-### 2.3 Run import_customer_info.py (read customer info and insert into redis)
-- Stage2에서 이미 진행한 내용 (Stage4가 처음인 경우에만 실행)
-- 고객의 상세정보를 redis에 입력하는 명령어
-```
-> sudo yum install -y python-setuptools
-> sudo easy_install pip
-> sudo pip install redis
-> sudo yum install -y numpy
-
-> cd ~/demo-spark-analytics/00.stage2
-> python import_customer_info.py
-```
-
-- redis에 정상적으로 저장되었는지 확인
-    - > config set stop-writes-on-bgsave-error no
-```
-
-> cd ~/demo-spark-analytics/sw/redis-3.0.7
-> src/redis-cli
-127.0.0.1:6379> hgetall 2 #사용자 id 2번에 대한 정보를 조회
- 1) "gender"
- 2) "0"
- 3) "name"
- 4) "Paula Peltier"
- 5) "age"
- 6) "30"
- 7) "zip"
- 8) "66216"
- 9) "Address"
-10) "10084 Easy Gate Bend"
-11) "Status"
-12) "1"
-13) "SignDate"
-14) "01/13/2013"
-15) "Campaign"
-16) "4"
-17) "Level"
-18) "0"
-19) "LinkedWithApps"
-20) "1"
-```
-
-
-### 2.4 Run predict_ml_libsvm.py to classify the customer using ml model
-#### install apache spark 
-```
-> cd ~/demo-spark-analytics/sw/
-> wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
-> tar -xvf spark-2.0.1-bin-hadoop2.7.tgz
-> cd spark-2.0.1-bin-hadoop2.7
-
-# slave 설정
-> cp conf/slaves.template conf/slaves
-localhost //현재  별도의 slave node가 없으므로 localhost를 slave node로 사용
-
-# spark master 설정
-# 현재 demo에서는 별도로 변경할 설정이 없다. (실제 적용시 다양한 설정 값 적용)
-> cp conf/spark-env.sh.template conf/spark-env.sh
-```
-
-#### run predict_ml_libsvm.py
-```
-# PySpark 실행에 필요한 환경설정 
-> vi ~/.bash_profile
-# 아래 내용을 추가
-export SPARK_HOME=~/demo-spark-analytics/sw/spark-2.0.1-bin-hadoop2.7
-export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$PYTHONPATH
-export PATH=$PATH:$SPARK_HOME/bin
-> source ~/.bash_profile
-
-> cd ~/demo-spark-analytics/00.stage3
-> python predict_ml_libsvm.py
-# 아래 메세지가 보이면 정상
-all: 5000 training size: 3484, test size 1516
-LBFGS error: 0.0105540897098
-```
-- 5000건 데이터 중에 3,484 건은 학습데이터로 이용하고, 1,516 건은 검증용으로 활용
-- 1,516건을 학습된 모델로 검증한 결과, 에러율리 0.01(정확도 99%)로 나타남.
-
-#### check the binary classification model result 
-```
-> cd ~/demo-spark-analytics/sw/redis-3.0.7
-> src/redis-cli
-127.0.0.1:6379> get pred_event:2 #사용자 id 2번은 광고 대상이 아님으로 분류
-"0"
-```
 
 ## [STEP 3] Gcloud 설정
 - gcp의 cloud 서비스를 명령어로 생성/실행 할 수 있는 gcloud라는 도구를 설치하여
@@ -404,6 +115,7 @@ LBFGS error: 0.0105540897098
 
 ### gcloud 설치 
 ```
+> cd ~
 > sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
 [google-cloud-sdk]
 name=Google Cloud SDK
@@ -425,7 +137,7 @@ bq 2.0.64
 core 2020.12.11
 gsutil 4.57
 
-> gcloud init
+> gcloud init --console-only
 # 아래 항목에서 [2] Log in with a new account 선택 
 .......
 Choose the account you would like to use to perform operations for
@@ -523,6 +235,8 @@ Created service account [dataproc-service-account].
 
 # Add an iam role to service account for dataproc
 > export PROJECT=$(gcloud info --format='value(config.project)')
+>  echo $PROJECT
+apt-xxxx-344201
 
 > gcloud projects add-iam-policy-binding $PROJECT \
     --role roles/dataproc.worker \
