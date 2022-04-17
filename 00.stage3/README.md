@@ -45,7 +45,7 @@ EventID | CustID | AdClicked | Localtime
 > cd ~/demo-spark-analytics
 > vi ~/.bash_profile
 아래 내용을 추가
-export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$PYTHONPATH
+export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:$PYTHONPATH
 export PYTHONHASHSEED=0
 > source ~/.bash_profile
 ```
@@ -62,8 +62,8 @@ export PYTHONHASHSEED=0
 ## psutil은 "(shuffle.py:58: UserWarning: Please install psutil to have better support with spilling))"와 같은 warning을 방지하기 위해 설치 (pyspark ml 실행시 발생)
 
 
-(venv)>  cd ~/demo-spark-analytics/00.stage3
-(venv)>  python create_features_for_ml.py
+(venv)> cd ~/demo-spark-analytics/00.stage3
+(venv)> python create_features_for_ml.py
 
 ERROR PythonRDD: Error while sending iterator
 java.net.SocketTimeoutException: Accept timed out

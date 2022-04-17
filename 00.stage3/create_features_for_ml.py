@@ -11,7 +11,7 @@ sc.setLogLevel("INFO")
 
 trackfile = sc.textFile('../00.stage1/tracks_live.csv')
 clicksfile = sc.textFile('clicks.csv')
-trainfile = open('features1.txt', 'w')
+trainfile = open('features1.txt', 'wb')
 
 def make_tracks_kv(str):
     l = str.split(",")
@@ -122,7 +122,7 @@ for k, v in custdata.collect():
 
     # the libSVM format wants features to start with 1
     for i in range(1, len(training_row) + 1):
-        trainfile.write(" %d:%.2f" % (i, training_row[i - 1]))
+        trainfile.write(b" %d:%.2f" % (i, training_row[i - 1]))
     trainfile.write(b"\n")
 
     # (optional) so we can watch the output
