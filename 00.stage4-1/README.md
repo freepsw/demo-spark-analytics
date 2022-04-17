@@ -105,7 +105,7 @@ realtime4
 ### run redis server
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
-> src/redis-server
+> src/redis-server redis.conf
 ```
 
 
@@ -235,7 +235,7 @@ Created service account [dataproc-service-account].
 
 # Add an iam role to service account for dataproc
 > export PROJECT=$(gcloud info --format='value(config.project)')
->  echo $PROJECT
+> echo $PROJECT
 apt-xxxx-344201
 
 > gcloud projects add-iam-policy-binding $PROJECT \
@@ -262,6 +262,10 @@ apt-xxxx-344201
   --num-master-local-ssds=1 \
   --num-worker-local-ssds=1 \
 - scopes : dataproc에서 접근 가능한 gcp 서비스를 명시한다. (이번 실습에서는 pubsub에 접속하지 않지만, 다음 실습용으로 추가하여 생성)
+- image-version : 
+  - https://cloud.google.com/dataproc/docs/concepts/versioning/dataproc-versions#supported_dataproc_versions
+  - Debian 기반 클러스터를 만들 때는 이미지 버전 OS 배포 코드 서픽스를 생략할 수 있습니다. 예를 들어 2.0-debian10 이미지를 선택하려면 2.0만 지정해도 됩니다. Rocky Linux 또는 Ubuntu 기반 이미지를 선택하려면 OS 서픽스를 반드시 사용해야 합니다. 예를 들어 2.0-ubuntu18을 지정합니다. 이미지 선택 예시는 버전 선택을 참조하세요.
+  - 현재 실습 버전은 1.4 (spark 2.4.8, scala 2.11.12)
 
 ```
 > gcloud dataproc clusters create demo-cluster \
@@ -269,7 +273,7 @@ apt-xxxx-344201
     --region=asia-northeast3 \
     --zone=asia-northeast3-c\
     --scopes=pubsub \
-    --image-version=1.2 \
+    --image-version=1.4 \
     --service-account="$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
 ```
 
@@ -286,7 +290,7 @@ apt-xxxx-344201
     - 자바 어플리케이션의 모든 패키지와, 그에 의존관계에 있는 패키지 라이브러리까지 모두 하나의 'jar' 에 담겨져 있는 것
     - http://asuraiv.blogspot.com/2016/01/maven-shade-plugin-1-resource.html 참고
 - 기본 설정 
-    - "< executions >"에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
+    -  "<artifactId>maven-shade-plugin</artifactId>"의 "< executions >"에서 package 페이지를 통해서 shade를 직접 실행 할 수 있도록 설정
         - 즉, mvn package를 실행하면, shade:shade를 실행하도록 하여,
         - 모든 의존관계가 있는 library를 포함하여 jar파일을 target/ 디렉토리 아래에 생성한다. 
     - "< transformers >" 에서 ManifestResourcesTransformer를 이용하여 기본으로 실행할 class를 지정한다. 
@@ -465,7 +469,7 @@ object Stage4StreamingDataprocKafka {
 ```
 > cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > vi src/main/scala/io/skiper/driver/Stage4StreamingDataprocKafka.scala
-# 아래 IP를 본인의 apache kafka/redis/elasticsearch가 설치된 IP로 변경한다. 
+# 아래 IP를 본인의 apache kafka/redis/elasticsearch가 설치된 IP(내부 IP도 가능)로 변경한다. 
     val host_server = "IP입력"
 ```
 
@@ -473,8 +477,6 @@ object Stage4StreamingDataprocKafka {
 ```
 # jdk 1.8이 사전에 설치되어 있어야 함. 
 > sudo yum install -y git maven
-# (옵션-생략가능 JAVA_HOME 설정이 되어 있는 경우)
-> sudo update-java-alternatives -s java-1.8.0-openjdk-amd64 && export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 
 > cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
 > mvn clean package
@@ -535,7 +537,7 @@ JOB_ID                            TYPE   STATUS
 ```
 
 -  아래의 jobs에 JOB_ID를 입력하여 웹브라우저로 접속하여, 실행한 job이 정상 실행 중인지 확인한다. 
-    - https://console.cloud.google.com/dataproc/jobs/446ca40670bf4c55be0e690710882a20?region=asia-northeast3
+    - https://console.cloud.google.com/dataproc/jobs/"위의 JOB_ID 입력"?region=asia-northeast3
 
 
 
@@ -572,14 +574,14 @@ output {
 - run logstash 
 ```
 > cd ~/demo-spark-analytics/00.stage4-1
-> ~/demo-spark-analytics/sw/logstash-7.10.1/bin/logstash -f logstash_stage4-1.conf
+> ~/demo-spark-analytics/sw/logstash-7.10.2/bin/logstash -f logstash_stage4-1.conf --path.data ./logstash_data
 ```
 
 - check received message from kafka using kafka-console_consumer
     - logstash에서 kafka로 정상적으로 메세지가 전송되고 있는지 모니터링
     - 아래의 kafka-console-consumer 명령어를 통해 전송되는 메세지를 확인
 ```
-> cd ~/demo-spark-analytics/sw/kafka_2.12-2.6.0
+> cd ~/demo-spark-analytics/sw/kafka_2.12-3.0.0
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic realtime4
 # logstash에서 정상적으로 메세지를 보내면, 아래와 같은 메세지가 출력될 것임.
 0,48,453,"2014-10-23 03:26:20",0,"72132"

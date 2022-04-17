@@ -36,6 +36,10 @@ object Stage4StreamingDataprocKafka {
 
     val ssc = new StreamingContext(sparkConf, Seconds(2))
 
+    // Set log level 
+    val sc = ssc.sparkContext
+    sc.setLogLevel("ERROR")
+    
     addStreamListener(ssc)
 
     // [STEP 1]. Create Kafka Receiver and receive message from kafka broker

@@ -48,6 +48,11 @@ object Stage4StreamingDataprocPubsub {
     sparkConf.set("spark.es.nodes.wan.only","true")
 
     val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+    // Set log level 
+    val sc = ssc.sparkContext
+    sc.setLogLevel("ERROR")
+
     addStreamListener(ssc)
 
     // [STEP 1]. Create PubSub Receiver and receive message from kafka broker

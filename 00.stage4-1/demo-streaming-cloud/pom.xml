@@ -7,10 +7,6 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <jvm.options.xms>-Xms512M</jvm.options.xms>
-    <jvm.options.xmx>-Xmx2048M</jvm.options.xmx>
-    <jvm.options.maxpermsize>-XX:MaxPermSize=2048M</jvm.options.maxpermsize>
-    <jvm.options.xx>-XX:+CMSClassUnloadingEnabled</jvm.options.xx>
     <spark.version>2.4.0</spark.version>
   </properties>
 
@@ -18,9 +14,7 @@
   <artifactId>demo-streaming-cloud</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-
   <dependencies>
-
 <!--    Add dependencies for demo-spark-->
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -43,13 +37,10 @@
       <version>3.2</version>
     </dependency>
 
-
-<!--    Original dependencies-->
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-streaming_2.11</artifactId>
       <version>${spark.version}</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -63,23 +54,6 @@
       <artifactId>google-cloud-datastore</artifactId>
       <version>1.34.0</version>
     </dependency>
-
-
-
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.11</artifactId>
-      <version>3.2.0-SNAP10</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.scalacheck</groupId>
-      <artifactId>scalacheck_2.11</artifactId>
-      <version>1.14.0</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -108,25 +82,6 @@
             <phase>process-resources</phase>
             <goals>
               <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest-maven-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-          <argLine>${jvm.options.xms} ${jvm.options.xmx} ${jvm.options.maxpermsize} ${jvm.options.xx}</argLine>
-          <stdout>W</stdout>
-        </configuration>
-        <executions>
-          <execution>
-            <id>scala-test</id>
-            <goals>
-              <goal>test</goal>
             </goals>
           </execution>
         </executions>
