@@ -20,13 +20,6 @@
 ## [STEP 3] Gcloud 설정
 
 ## [STEP 4] Create DataProc 
-gcloud dataproc clusters create demo-cluster \
-    --region=asia-northeast3 \
-    --zone=asia-northeast3-c\
-    --scopes=pubsub,datastore \
-    --image-version=1.2 \
-    --service-account="$SERVICE_ACCOUNT_NAME@$PROJECT.iam.gserviceaccount.com"
-
 
 ## [STEP 5] Create Pub/Sub topic and subscription
 - pubsub 서비스 api를 시용할 수 있도록 서비스를 활성화 한다. 
@@ -174,7 +167,12 @@ object Stage4StreamingDataprocPubsub {
 ```
 #### Main Class 설정 변경 
 - 이번에 실행할 Spark job의 main class 명을 지정해 준다. (io.skiper.driver.Stage4StreamingDataprocPubSub)
-- pom.xml
+
+```
+> cd ~/demo-spark-analytics/00.stage4-1/demo-streaming-cloud/
+> vi pom.xml 
+```
+- pom.xml에 실행할 클래스명을 추가한다. 
 ```xml
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -234,7 +232,7 @@ JOB_ID                            TYPE   STATUS
 - 자동으로 로컬 PC/Notebook의 "Download" 디렉토리에 "project-id-xxxx.json"파일이 생성됨.
 
 ### 7.2 Sent a downloaded credential key file to the vm instance
-- VM Instance > 연결(ssh) > "브라우저에서 창열기" 클릭
+- VM Instance > 실습서버 선택 > 연결(ssh) > "브라우저에서 창열기" 클릭
 - 오픈된 브라우저 창에서  우측 상단 설정(톱니바퀴 모양 아이콘) 클릭
 - "파일 업로드" 클릭 > 다운로드 받은 credential file(json) 선택 
 - 업로드 완료 메세지 확인 후, 아래 명령어로 업로드된 파일 확인 가능
@@ -254,6 +252,10 @@ projectid-2xxxx-9ada3ee4266b.json
 > cd ~/demo-spark-analytics/00.stage4-2
 > vi logstash_stage4-2.conf
 ```
+####  logstash config 파일 수정
+- input file path 변경
+- gcp project id 변경 
+- json_key_file 명 변경 
 ```yaml
 input {
   file {

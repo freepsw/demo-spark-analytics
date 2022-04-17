@@ -32,7 +32,7 @@ object Stage4StreamingDataprocPubsub {
     }
     val Seq(projectID) = args.toSeq
 
-    val host_server = "서버의 외부 IP" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
+    val host_server = "서버의 IP" // apache kafka, elasticsearch, redis가 설치된 서버의 IP 
     val kafka_broker = host_server+":9092"
     //[STEP 1] create spark streaming session
     // Create the context with a 1 second batch size
