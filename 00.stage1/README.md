@@ -79,7 +79,7 @@
 
 network.host: 0.0.0.0   #(":" 다음에 스페이스를 추가해야 함.)
 
-# Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 IP만)
+# Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 현재 서버의 host name)
 cluster.initial_master_nodes: ["demo-server"]
 
 ## 위의 설정에서 IP를 입력하면, 아래 오류 발생
@@ -174,7 +174,7 @@ vm.max_map_count = 262144
 ```
 2. background(daemon)으로 실행시 명령어 (실행된 프로세스의 pid 값을 elastic_pid 파일에 기록)
 ```
-> cd ~/apps/elasticsearch-7.10.2
+> cd ~/demo-spark-analytics/sw/elasticsearch-7.10.2
 > ./bin/elasticsearch -d -p elastic_pid
 
 ### daemon으로 실행시 서비스 종료하려면 아래 명령어 실행 (기록된 pid 값을 읽어와서 프로세스 종료)

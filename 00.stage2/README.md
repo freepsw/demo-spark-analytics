@@ -119,13 +119,6 @@ second message
 ### Start redis server 
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
-
-## redis conf 수정 
-> vi redis.conf
-## 아래 설정 적용 후 redis 시작 
-# 메모리의 내용을 파일로 백업하는 경로 변경 
-dir /tmp
-
 > src/redis-server redis.conf
 ```
 
@@ -133,10 +126,10 @@ dir /tmp
 ```
 > cd ~/demo-spark-analytics/sw/redis-3.0.7
 > src/redis-cli
-redis> set use_id 001
+redis> set user_id 001
 OK
-redis> get use_id
-"bar"
+redis> get user_id
+"001"
 ```
 
 ## [STEP 4] Install & start apahche spark (spark-2.4.8-bin-hadoop2.7)

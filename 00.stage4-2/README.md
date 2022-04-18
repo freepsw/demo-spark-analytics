@@ -211,6 +211,7 @@ object Stage4StreamingDataprocPubsub {
 --max-failures-per-hour 10 \
 --properties $SPARK_PROPERTIES \
 -- $ARGUMENTS
+```
 
 - 위에서 생성한 job이 정상 동작하는지 확인 
 ```
@@ -220,7 +221,7 @@ JOB_ID                            TYPE   STATUS
 ```
 -  아래의 jobs에 JOB_ID를 입력하여 웹브라우저로 접속하여, 실행한 job이 정상 실행 중인지 확인한다. 
     - https://console.cloud.google.com/dataproc/jobs/223a633aeb514c91818534ad89adc39d?region=asia-northeast3
-```
+
 
 
 
@@ -250,7 +251,7 @@ projectid-2xxxx-9ada3ee4266b.json
   - google_pubsub > json_key_file : 다운받은 credential key로 변경
 ```
 > cd ~/demo-spark-analytics/00.stage4-2
-> vi logstash_stage4-2.conf
+> vi logstash-stage4-2.conf
 ```
 ####  logstash config 파일 수정
 - input file path 변경
@@ -290,7 +291,7 @@ output {
 - run logstash
 ```
 > cd ~/demo-spark-analytics/00.stage4-2
-> ~/demo-spark-analytics/sw/logstash-7.10.2/bin/logstash -f logstash_stage4-2.conf
+> ~/demo-spark-analytics/sw/logstash-7.10.2/bin/logstash -f logstash-stage4-2.conf
 ```
 
 ### Generate steaming data using data-generator.py
