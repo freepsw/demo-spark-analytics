@@ -75,7 +75,6 @@ object Stage4StreamingDataprocKafka {
         val split   = s.split(",")
         //println(s)
         //println(split(0))
-        s.print()
 
         listMap.put(columnList(0), getTimestamp()) //timestamp
         listMap.put(columnList(1), split(1).trim) //customer_id
