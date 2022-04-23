@@ -30,10 +30,10 @@
 - topic & subscription 생성
 ```
 > gcloud pubsub topics create realtime
-Created topic [projects/omega-byte-286705/topics/realtime].
+Created topic [projects/omega-xxx-xxxxx/topics/realtime].
 
 > gcloud pubsub subscriptions create realtime-subscription --topic=realtime
-Created subscription [projects/omega-byte-286705/subscriptions/realtime-subscription].
+Created subscription [projects/omega-xxx-xxxxx/subscriptions/realtime-subscription].
 ```
 
 - Add an iam role to service account for pub/sub
