@@ -156,15 +156,15 @@ Do you want to continue (Y/n)?   Y
 # 아래 출력된 링크로 웹 브라우저에서 접속
 Go to the following link in your browser:
 
-    https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=32555940559.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&state=vJ5TtWcbjBzCMKL3ffkhCaCptt2Fea&code_challenge=S5aY4D7CmMMCUGty_6nvxtprdzxEaY_hl_Jt_JLZzDY&prompt=consent&code_challenge_method=S256&access_type=offline
+    https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=325xxxxxxxxx.apps.googleusercontent.com&redirect_uri=urnxxxxxxxg%3Aoauth........
 
 # 접속후 구글 계정을 선택하고, 화면에 표시되는 Code를 복사하여 아래에 붙여넣기 
-Enter verification code: 4/1AY0e-g7_v-EyHSMwSTjIyPrAW6JdeW6n8tebv1EolWx0q_B9wiGzEEpYJlw
+Enter verification code: 4/1AY0e-g7_vxxxxxxxxx9wiGxxxxYJlw
 You are logged in as: [frexxxxw@xxxx.com].
 
 # GCP 프로젝트를 선택한다. 
 Pick cloud project to use:
- [1] omega-byte-286705
+ [1] omega-xxxx-xxxxx
  [2] Create a new project
 Please enter numeric choice or text value (must exactly match list
 item):  1
@@ -193,7 +193,7 @@ asia-northeast3-c
 
 # 설치 완료 및 테스트
 > gcloud config get-value project
-omega-byte-286705
+omega-xxxx-xxxxx
 ```
 
 - (참고)  gcloud로 다른 계정으로 로그인 하는 경우
